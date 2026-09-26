@@ -29,7 +29,10 @@ from tests.conftest import demo_ticket
 
 pytestmark = pytest.mark.db
 
-TABLES = "tickets, events, verdicts, deploys, flag_changes, investigations, tenants, retrieval_docs"
+TABLES = (
+    "tickets, events, verdicts, deploys, flag_changes, investigations, tenants, retrieval_docs, "
+    "code_symbols, error_strings, rpc_map, flag_reads, service_cards"
+)
 
 
 @pytest.fixture(scope="module", autouse=True)
@@ -185,6 +188,34 @@ async def test_history_reader_can_only_select_history():
             await conn.execute("UPDATE deploys SET version = 'pwned'")
     async with db.Session() as session:
         assert (await session.scalar(text("SELECT version FROM deploys LIMIT 1"))) == "v1.4.0"
+
+
+async def test_code_index_is_stored_per_service_and_commit():
+    from tests.test_indexer import payment_index
+
+    index = payment_index()
+    other = payment_index()
+    other.git_sha = "e" * 40
+    assert not await db.code_index_exists("payment", index.git_sha)
+    await db.replace_code_index(index)
+    await db.replace_code_index(other)
+    await db.replace_code_index(index)  # replacing keeps one copy
+    assert await db.code_index_exists("payment", index.git_sha)
+    [loaded] = await db.load_code_index(index.git_sha)
+    assert (loaded.service, loaded.git_sha) == ("payment", index.git_sha)
+    assert sorted(loaded.symbols, key=lambda s: (s.file, s.line)) == sorted(
+        index.symbols, key=lambda s: (s.file, s.line)
+    )
+    assert sorted(loaded.errors, key=lambda e: (e.file, e.line)) == sorted(
+        index.errors, key=lambda e: (e.file, e.line)
+    )
+    assert loaded.rpcs == index.rpcs and loaded.flags == index.flags
+    assert len(await db.load_code_index(other.git_sha)) == 1
+
+    await db.save_service_card("payment", index.git_sha, "# first")
+    await db.save_service_card("payment", index.git_sha, "# second")
+    assert await db.service_cards(index.git_sha) == {"payment": "# second"}
+    assert await db.service_cards(other.git_sha) == {}
 
 
 async def test_ticket_row_lifecycle():

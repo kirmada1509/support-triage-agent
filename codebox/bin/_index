@@ -1,5 +1,13 @@
-#!/usr/bin/env bash
-# Shared helper: run a query on the code index if it's reachable, else return non-zero so the
-# caller falls back to plain search. Summaries point, code proves: these only say where to look.
-[ -n "${INDEX_URL:-}" ] && [ -n "${GIT_SHA:-}" ] || exit 1
-psql "$INDEX_URL" -X -A -t -F ':' -v sha="$GIT_SHA" "$@" 2>/dev/null
+# Sourced by the helper commands. The code index of the deployed commit is a directory of TSV
+# files (app/indexer/export.py) mounted read-only at INDEX_DIR (default /index); the container has
+# no network, so there is no database here. Without the index the helpers fall back to plain
+# search. Summaries point, code proves: these only say where to look.
+INDEX_DIR=${INDEX_DIR:-/index}
+
+has_index() { [ -f "$INDEX_DIR/symbols.tsv" ]; }
+
+# Columns: symbols.tsv file line service kind name signature; errors.tsv file line service
+# message pattern; rpc.tsv method file line service; flags.tsv flag file line service.
+query() {  # query <table> <awk program>; the argument is in ENVIRON["ARG"], never parsed as code
+  ARG="$arg" awk -F'\t' "$2" "$INDEX_DIR/$1"
+}

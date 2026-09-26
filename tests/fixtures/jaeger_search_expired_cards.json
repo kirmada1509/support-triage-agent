@@ -1,0 +1,4814 @@
+{
+ "data": [
+  {
+   "traceID": "35af0c3ec9cc0f2f7aee9d85bb71b987",
+   "spans": [
+    {
+     "traceID": "35af0c3ec9cc0f2f7aee9d85bb71b987",
+     "spanID": "7580af3da5c72c73",
+     "operationName": "router frontend egress",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "35af0c3ec9cc0f2f7aee9d85bb71b987",
+       "spanID": "5d827634ebee7f27"
+      }
+     ],
+     "startTime": 1790402495705685,
+     "duration": 1650,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p1"
+    },
+    {
+     "traceID": "35af0c3ec9cc0f2f7aee9d85bb71b987",
+     "spanID": "5d827634ebee7f27",
+     "operationName": "POST",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "35af0c3ec9cc0f2f7aee9d85bb71b987",
+       "spanID": "eb6d3b28c112b11d"
+      }
+     ],
+     "startTime": 1790402495705644,
+     "duration": 1700,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p1"
+    },
+    {
+     "traceID": "35af0c3ec9cc0f2f7aee9d85bb71b987",
+     "spanID": "add0f86a13ae8fd9",
+     "operationName": "router frontend egress",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "35af0c3ec9cc0f2f7aee9d85bb71b987",
+       "spanID": "3dd065ba06c63b5a"
+      }
+     ],
+     "startTime": 1790402495708041,
+     "duration": 8506,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      },
+      {
+       "key": "otel.status_code",
+       "type": "string",
+       "value": "ERROR"
+      },
+      {
+       "key": "error",
+       "type": "bool",
+       "value": true
+      }
+     ],
+     "logs": [],
+     "processID": "p1"
+    },
+    {
+     "traceID": "35af0c3ec9cc0f2f7aee9d85bb71b987",
+     "spanID": "3dd065ba06c63b5a",
+     "operationName": "POST",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "35af0c3ec9cc0f2f7aee9d85bb71b987",
+       "spanID": "eb6d3b28c112b11d"
+      }
+     ],
+     "startTime": 1790402495708002,
+     "duration": 8560,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p1"
+    },
+    {
+     "traceID": "35af0c3ec9cc0f2f7aee9d85bb71b987",
+     "spanID": "3b4b19aa965f5ee3",
+     "operationName": "astronomy-db",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "35af0c3ec9cc0f2f7aee9d85bb71b987",
+       "spanID": "df7024237b5aae84"
+      }
+     ],
+     "startTime": 1790402495710358,
+     "duration": 1029,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p2"
+    },
+    {
+     "traceID": "35af0c3ec9cc0f2f7aee9d85bb71b987",
+     "spanID": "df7024237b5aae84",
+     "operationName": "oteldemo.ProductCatalogService/GetProduct",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "35af0c3ec9cc0f2f7aee9d85bb71b987",
+       "spanID": "1feaed986ad642b6"
+      }
+     ],
+     "startTime": 1790402495709368,
+     "duration": 2147,
+     "tags": [
+      {
+       "key": "demo.product.id",
+       "type": "string",
+       "value": "L9ECAV7KIM"
+      },
+      {
+       "key": "demo.product.name",
+       "type": "string",
+       "value": "Lens Cleaning Kit"
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p2"
+    },
+    {
+     "traceID": "35af0c3ec9cc0f2f7aee9d85bb71b987",
+     "spanID": "1ccb828c8d8a09e2",
+     "operationName": "POST /oteldemo.CartService/AddItem",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "35af0c3ec9cc0f2f7aee9d85bb71b987",
+       "spanID": "65f9fd6516e0ce4c"
+      }
+     ],
+     "startTime": 1790402495706341,
+     "duration": 291,
+     "tags": [
+      {
+       "key": "demo.product.id",
+       "type": "string",
+       "value": "L9ECAV7KIM"
+      },
+      {
+       "key": "demo.product.quantity",
+       "type": "int64",
+       "value": 1
+      },
+      {
+       "key": "user.id",
+       "type": "string",
+       "value": "figma-shopper-11"
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p3"
+    },
+    {
+     "traceID": "35af0c3ec9cc0f2f7aee9d85bb71b987",
+     "spanID": "692bc5d40d7fe7f6",
+     "operationName": "POST /oteldemo.CartService/GetCart",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "35af0c3ec9cc0f2f7aee9d85bb71b987",
+       "spanID": "e77a99287f036b1d"
+      }
+     ],
+     "startTime": 1790402495706923,
+     "duration": 168,
+     "tags": [
+      {
+       "key": "demo.cart.items.count",
+       "type": "int64",
+       "value": 1
+      },
+      {
+       "key": "user.id",
+       "type": "string",
+       "value": "figma-shopper-11"
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p3"
+    },
+    {
+     "traceID": "35af0c3ec9cc0f2f7aee9d85bb71b987",
+     "spanID": "4a73647ecae30227",
+     "operationName": "POST /oteldemo.CartService/GetCart",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "35af0c3ec9cc0f2f7aee9d85bb71b987",
+       "spanID": "b2dcab05b78c2897"
+      }
+     ],
+     "startTime": 1790402495708868,
+     "duration": 148,
+     "tags": [
+      {
+       "key": "demo.cart.items.count",
+       "type": "int64",
+       "value": 1
+      },
+      {
+       "key": "user.id",
+       "type": "string",
+       "value": "figma-shopper-11"
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p3"
+    },
+    {
+     "traceID": "35af0c3ec9cc0f2f7aee9d85bb71b987",
+     "spanID": "96acf2860ac71d7b",
+     "operationName": "POST",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "35af0c3ec9cc0f2f7aee9d85bb71b987",
+       "spanID": "70254facdacb2006"
+      }
+     ],
+     "startTime": 1790402495712123,
+     "duration": 861,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p4"
+    },
+    {
+     "traceID": "35af0c3ec9cc0f2f7aee9d85bb71b987",
+     "spanID": "70254facdacb2006",
+     "operationName": "POST /get-quote",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "35af0c3ec9cc0f2f7aee9d85bb71b987",
+       "spanID": "a51e6f9ae3b01521"
+      }
+     ],
+     "startTime": 1790402495712088,
+     "duration": 973,
+     "tags": [
+      {
+       "key": "demo.shipping.cost.total",
+       "type": "string",
+       "value": "8.99"
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p4"
+    },
+    {
+     "traceID": "35af0c3ec9cc0f2f7aee9d85bb71b987",
+     "spanID": "2220b694321cbf80",
+     "operationName": "oteldemo.CurrencyService/Convert",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "35af0c3ec9cc0f2f7aee9d85bb71b987",
+       "spanID": "88e5f6cbbae02f14"
+      }
+     ],
+     "startTime": 1790402495711855,
+     "duration": 17,
+     "tags": [
+      {
+       "key": "demo.exchange.from",
+       "type": "string",
+       "value": "USD"
+      },
+      {
+       "key": "demo.exchange.to",
+       "type": "string",
+       "value": "USD"
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      },
+      {
+       "key": "otel.status_code",
+       "type": "string",
+       "value": "OK"
+      }
+     ],
+     "logs": [],
+     "processID": "p5"
+    },
+    {
+     "traceID": "35af0c3ec9cc0f2f7aee9d85bb71b987",
+     "spanID": "e0ddeafa8b997bc1",
+     "operationName": "oteldemo.CurrencyService/Convert",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "35af0c3ec9cc0f2f7aee9d85bb71b987",
+       "spanID": "3fc37735c99570cc"
+      }
+     ],
+     "startTime": 1790402495713708,
+     "duration": 30,
+     "tags": [
+      {
+       "key": "demo.exchange.from",
+       "type": "string",
+       "value": "USD"
+      },
+      {
+       "key": "demo.exchange.to",
+       "type": "string",
+       "value": "USD"
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      },
+      {
+       "key": "otel.status_code",
+       "type": "string",
+       "value": "OK"
+      }
+     ],
+     "logs": [],
+     "processID": "p5"
+    },
+    {
+     "traceID": "35af0c3ec9cc0f2f7aee9d85bb71b987",
+     "spanID": "b2dcab05b78c2897",
+     "operationName": "oteldemo.CartService/GetCart",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "35af0c3ec9cc0f2f7aee9d85bb71b987",
+       "spanID": "a65250e7fd5f38c3"
+      }
+     ],
+     "startTime": 1790402495708754,
+     "duration": 332,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p6"
+    },
+    {
+     "traceID": "35af0c3ec9cc0f2f7aee9d85bb71b987",
+     "spanID": "1feaed986ad642b6",
+     "operationName": "oteldemo.ProductCatalogService/GetProduct",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "35af0c3ec9cc0f2f7aee9d85bb71b987",
+       "spanID": "a65250e7fd5f38c3"
+      }
+     ],
+     "startTime": 1790402495709102,
+     "duration": 2492,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p6"
+    },
+    {
+     "traceID": "35af0c3ec9cc0f2f7aee9d85bb71b987",
+     "spanID": "88e5f6cbbae02f14",
+     "operationName": "oteldemo.CurrencyService/Convert",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "35af0c3ec9cc0f2f7aee9d85bb71b987",
+       "spanID": "a65250e7fd5f38c3"
+      }
+     ],
+     "startTime": 1790402495711604,
+     "duration": 345,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p6"
+    },
+    {
+     "traceID": "35af0c3ec9cc0f2f7aee9d85bb71b987",
+     "spanID": "3fc37735c99570cc",
+     "operationName": "oteldemo.CurrencyService/Convert",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "35af0c3ec9cc0f2f7aee9d85bb71b987",
+       "spanID": "a65250e7fd5f38c3"
+      }
+     ],
+     "startTime": 1790402495713423,
+     "duration": 395,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p6"
+    },
+    {
+     "traceID": "35af0c3ec9cc0f2f7aee9d85bb71b987",
+     "spanID": "8218e5afeb22e6c1",
+     "operationName": "oteldemo.PaymentService/Charge",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "35af0c3ec9cc0f2f7aee9d85bb71b987",
+       "spanID": "9f84749e113ab72a"
+      }
+     ],
+     "startTime": 1790402495713847,
+     "duration": 2160,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      },
+      {
+       "key": "otel.status_code",
+       "type": "string",
+       "value": "ERROR"
+      },
+      {
+       "key": "error",
+       "type": "bool",
+       "value": true
+      },
+      {
+       "key": "otel.status_description",
+       "type": "string",
+       "value": "The credit card (ending 4444) expired on 9/2026."
+      }
+     ],
+     "logs": [],
+     "processID": "p6"
+    },
+    {
+     "traceID": "35af0c3ec9cc0f2f7aee9d85bb71b987",
+     "spanID": "9f84749e113ab72a",
+     "operationName": "oteldemo.CheckoutService/PlaceOrder",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "35af0c3ec9cc0f2f7aee9d85bb71b987",
+       "spanID": "8c910b1d20de442e"
+      }
+     ],
+     "startTime": 1790402495708668,
+     "duration": 7355,
+     "tags": [
+      {
+       "key": "demo.user_context.selected_currency",
+       "type": "string",
+       "value": "USD"
+      },
+      {
+       "key": "user.id",
+       "type": "string",
+       "value": "figma-shopper-11"
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      },
+      {
+       "key": "otel.status_code",
+       "type": "string",
+       "value": "ERROR"
+      },
+      {
+       "key": "error",
+       "type": "bool",
+       "value": true
+      },
+      {
+       "key": "otel.status_description",
+       "type": "string",
+       "value": "failed to charge card: could not charge the card: rpc error: code = Unknown desc = The credit card (ending 4444) expired on 9/2026."
+      }
+     ],
+     "logs": [
+      {
+       "timestamp": 1790402495716020,
+       "fields": [
+        {
+         "key": "event",
+         "type": "string",
+         "value": "exception"
+        },
+        {
+         "key": "exception.message",
+         "type": "string",
+         "value": "could not charge the card: rpc error: code = Unknown desc = The credit card (ending 4444) expired on 9/2026."
+        },
+        {
+         "key": "exception.type",
+         "type": "string",
+         "value": "*errors.errorString"
+        }
+       ]
+      }
+     ],
+     "processID": "p6"
+    },
+    {
+     "traceID": "35af0c3ec9cc0f2f7aee9d85bb71b987",
+     "spanID": "a51e6f9ae3b01521",
+     "operationName": "POST",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "35af0c3ec9cc0f2f7aee9d85bb71b987",
+       "spanID": "a65250e7fd5f38c3"
+      }
+     ],
+     "startTime": 1790402495711979,
+     "duration": 1419,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p6"
+    },
+    {
+     "traceID": "35af0c3ec9cc0f2f7aee9d85bb71b987",
+     "spanID": "a65250e7fd5f38c3",
+     "operationName": "prepareOrderItemsAndShippingQuoteFromCart",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "35af0c3ec9cc0f2f7aee9d85bb71b987",
+       "spanID": "9f84749e113ab72a"
+      }
+     ],
+     "startTime": 1790402495708747,
+     "duration": 5084,
+     "tags": [
+      {
+       "key": "demo.cart.items.count",
+       "type": "int64",
+       "value": 1
+      },
+      {
+       "key": "demo.order.items.count",
+       "type": "int64",
+       "value": 1
+      },
+      {
+       "key": "demo.shipping.amount",
+       "type": "float64",
+       "value": 8.99
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "internal"
+      }
+     ],
+     "logs": [],
+     "processID": "p6"
+    },
+    {
+     "traceID": "35af0c3ec9cc0f2f7aee9d85bb71b987",
+     "spanID": "e26db05ccb4358f6",
+     "operationName": "calculate-quote",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "35af0c3ec9cc0f2f7aee9d85bb71b987",
+       "spanID": "ffc28c098963b1a3"
+      }
+     ],
+     "startTime": 1790402495657088,
+     "duration": 7,
+     "tags": [
+      {
+       "key": "demo.shipping.quote.cost.total",
+       "type": "float64",
+       "value": 8.99
+      },
+      {
+       "key": "demo.shipping.quote.items_count",
+       "type": "int64",
+       "value": 1
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "internal"
+      }
+     ],
+     "logs": [],
+     "processID": "p7"
+    },
+    {
+     "traceID": "35af0c3ec9cc0f2f7aee9d85bb71b987",
+     "spanID": "ffc28c098963b1a3",
+     "operationName": "{closure}",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "35af0c3ec9cc0f2f7aee9d85bb71b987",
+       "spanID": "3fb3596a89cc8cc8"
+      }
+     ],
+     "startTime": 1790402495657049,
+     "duration": 126,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "internal"
+      }
+     ],
+     "logs": [],
+     "processID": "p7"
+    },
+    {
+     "traceID": "35af0c3ec9cc0f2f7aee9d85bb71b987",
+     "spanID": "3fb3596a89cc8cc8",
+     "operationName": "POST /getquote",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "35af0c3ec9cc0f2f7aee9d85bb71b987",
+       "spanID": "96acf2860ac71d7b"
+      }
+     ],
+     "startTime": 1790402495657002,
+     "duration": 210,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p7"
+    },
+    {
+     "traceID": "35af0c3ec9cc0f2f7aee9d85bb71b987",
+     "spanID": "65f9fd6516e0ce4c",
+     "operationName": "oteldemo.CartService/AddItem",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "35af0c3ec9cc0f2f7aee9d85bb71b987",
+       "spanID": "82045fc255068b63"
+      }
+     ],
+     "startTime": 1790402495706000,
+     "duration": 617,
+     "tags": [
+      {
+       "key": "rpc.grpc.status_code",
+       "type": "int64",
+       "value": 0
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p8"
+    },
+    {
+     "traceID": "35af0c3ec9cc0f2f7aee9d85bb71b987",
+     "spanID": "e77a99287f036b1d",
+     "operationName": "oteldemo.CartService/GetCart",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "35af0c3ec9cc0f2f7aee9d85bb71b987",
+       "spanID": "82045fc255068b63"
+      }
+     ],
+     "startTime": 1790402495706000,
+     "duration": 450,
+     "tags": [
+      {
+       "key": "rpc.grpc.status_code",
+       "type": "int64",
+       "value": 0
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p8"
+    },
+    {
+     "traceID": "35af0c3ec9cc0f2f7aee9d85bb71b987",
+     "spanID": "8c910b1d20de442e",
+     "operationName": "oteldemo.CheckoutService/PlaceOrder",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "35af0c3ec9cc0f2f7aee9d85bb71b987",
+       "spanID": "b91f6d3fbb45989b"
+      }
+     ],
+     "startTime": 1790402495708000,
+     "duration": 7842,
+     "tags": [
+      {
+       "key": "rpc.grpc.status_code",
+       "type": "int64",
+       "value": 13
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      },
+      {
+       "key": "otel.status_code",
+       "type": "string",
+       "value": "ERROR"
+      },
+      {
+       "key": "error",
+       "type": "bool",
+       "value": true
+      }
+     ],
+     "logs": [],
+     "processID": "p8"
+    },
+    {
+     "traceID": "35af0c3ec9cc0f2f7aee9d85bb71b987",
+     "spanID": "82045fc255068b63",
+     "operationName": "executing api route (pages) /api/cart",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "35af0c3ec9cc0f2f7aee9d85bb71b987",
+       "spanID": "058916e066b7a31d"
+      }
+     ],
+     "startTime": 1790402495706000,
+     "duration": 1261,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "internal"
+      }
+     ],
+     "logs": [],
+     "processID": "p8"
+    },
+    {
+     "traceID": "35af0c3ec9cc0f2f7aee9d85bb71b987",
+     "spanID": "058916e066b7a31d",
+     "operationName": "POST /api/cart",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "35af0c3ec9cc0f2f7aee9d85bb71b987",
+       "spanID": "982edcd9edbbbdef"
+      }
+     ],
+     "startTime": 1790402495705000,
+     "duration": 1445,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p8"
+    },
+    {
+     "traceID": "35af0c3ec9cc0f2f7aee9d85bb71b987",
+     "spanID": "b91f6d3fbb45989b",
+     "operationName": "executing api route (pages) /api/checkout",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "35af0c3ec9cc0f2f7aee9d85bb71b987",
+       "spanID": "692915c84fc90fad"
+      }
+     ],
+     "startTime": 1790402495708000,
+     "duration": 8105,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "internal"
+      },
+      {
+       "key": "otel.status_code",
+       "type": "string",
+       "value": "ERROR"
+      },
+      {
+       "key": "error",
+       "type": "bool",
+       "value": true
+      }
+     ],
+     "logs": [
+      {
+       "timestamp": 1790402495715915,
+       "fields": [
+        {
+         "key": "event",
+         "type": "string",
+         "value": "exception"
+        },
+        {
+         "key": "exception.message",
+         "type": "string",
+         "value": "13 INTERNAL: failed to charge card: could not charge the card: rpc error: code = Unknown desc = The credit card (ending 4444) expired on 9/2026."
+        },
+        {
+         "key": "exception.type",
+         "type": "string",
+         "value": "13"
+        }
+       ]
+      }
+     ],
+     "processID": "p8"
+    },
+    {
+     "traceID": "35af0c3ec9cc0f2f7aee9d85bb71b987",
+     "spanID": "692915c84fc90fad",
+     "operationName": "POST /api/checkout",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "35af0c3ec9cc0f2f7aee9d85bb71b987",
+       "spanID": "7d0841caf0736be4"
+      }
+     ],
+     "startTime": 1790402495708000,
+     "duration": 8277,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p8"
+    },
+    {
+     "traceID": "35af0c3ec9cc0f2f7aee9d85bb71b987",
+     "spanID": "982edcd9edbbbdef",
+     "operationName": "POST /api/cart",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "35af0c3ec9cc0f2f7aee9d85bb71b987",
+       "spanID": "7580af3da5c72c73"
+      }
+     ],
+     "startTime": 1790402495705000,
+     "duration": 1564,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p8"
+    },
+    {
+     "traceID": "35af0c3ec9cc0f2f7aee9d85bb71b987",
+     "spanID": "7d0841caf0736be4",
+     "operationName": "POST /api/checkout",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "35af0c3ec9cc0f2f7aee9d85bb71b987",
+       "spanID": "add0f86a13ae8fd9"
+      }
+     ],
+     "startTime": 1790402495708000,
+     "duration": 8377,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p8"
+    },
+    {
+     "traceID": "35af0c3ec9cc0f2f7aee9d85bb71b987",
+     "spanID": "fce35f370e004462",
+     "operationName": "oteldemo.PaymentService/Charge",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "35af0c3ec9cc0f2f7aee9d85bb71b987",
+       "spanID": "8218e5afeb22e6c1"
+      }
+     ],
+     "startTime": 1790402495714000,
+     "duration": 1049,
+     "tags": [
+      {
+       "key": "demo.payment.amount",
+       "type": "string",
+       "value": "30.94"
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      },
+      {
+       "key": "otel.status_code",
+       "type": "string",
+       "value": "ERROR"
+      },
+      {
+       "key": "error",
+       "type": "bool",
+       "value": true
+      },
+      {
+       "key": "otel.status_description",
+       "type": "string",
+       "value": "The credit card (ending 4444) expired on 9/2026."
+      }
+     ],
+     "logs": [],
+     "processID": "p9"
+    },
+    {
+     "traceID": "35af0c3ec9cc0f2f7aee9d85bb71b987",
+     "spanID": "c8a9d4744f137113",
+     "operationName": "charge",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "35af0c3ec9cc0f2f7aee9d85bb71b987",
+       "spanID": "fce35f370e004462"
+      }
+     ],
+     "startTime": 1790402495715000,
+     "duration": 546,
+     "tags": [
+      {
+       "key": "demo.payment.card_type",
+       "type": "string",
+       "value": "mastercard"
+      },
+      {
+       "key": "demo.payment.card_valid",
+       "type": "bool",
+       "value": true
+      },
+      {
+       "key": "demo.user_context.loyalty_level",
+       "type": "string",
+       "value": "bronze"
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "internal"
+      },
+      {
+       "key": "otel.status_code",
+       "type": "string",
+       "value": "ERROR"
+      },
+      {
+       "key": "error",
+       "type": "bool",
+       "value": true
+      },
+      {
+       "key": "otel.status_description",
+       "type": "string",
+       "value": "The credit card (ending 4444) expired on 9/2026."
+      }
+     ],
+     "logs": [
+      {
+       "timestamp": 1790402495715529,
+       "fields": [
+        {
+         "key": "event",
+         "type": "string",
+         "value": "exception"
+        },
+        {
+         "key": "exception.message",
+         "type": "string",
+         "value": "The credit card (ending 4444) expired on 9/2026."
+        },
+        {
+         "key": "exception.type",
+         "type": "string",
+         "value": "Error"
+        }
+       ]
+      }
+     ],
+     "processID": "p9"
+    },
+    {
+     "traceID": "35af0c3ec9cc0f2f7aee9d85bb71b987",
+     "spanID": "363291df4fe3f56f",
+     "operationName": "valkey-cart:6379",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "35af0c3ec9cc0f2f7aee9d85bb71b987",
+       "spanID": "1ccb828c8d8a09e2"
+      }
+     ],
+     "startTime": 1790402495706381,
+     "duration": 111,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p3"
+    },
+    {
+     "traceID": "35af0c3ec9cc0f2f7aee9d85bb71b987",
+     "spanID": "6466d0df71ffb2f5",
+     "operationName": "valkey-cart:6379",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "35af0c3ec9cc0f2f7aee9d85bb71b987",
+       "spanID": "1ccb828c8d8a09e2"
+      }
+     ],
+     "startTime": 1790402495706500,
+     "duration": 71,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p3"
+    },
+    {
+     "traceID": "35af0c3ec9cc0f2f7aee9d85bb71b987",
+     "spanID": "688781feef594b5d",
+     "operationName": "valkey-cart:6379",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "35af0c3ec9cc0f2f7aee9d85bb71b987",
+       "spanID": "1ccb828c8d8a09e2"
+      }
+     ],
+     "startTime": 1790402495706573,
+     "duration": 38,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p3"
+    },
+    {
+     "traceID": "35af0c3ec9cc0f2f7aee9d85bb71b987",
+     "spanID": "af9506eaa0e6ecc5",
+     "operationName": "valkey-cart:6379",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "35af0c3ec9cc0f2f7aee9d85bb71b987",
+       "spanID": "692bc5d40d7fe7f6"
+      }
+     ],
+     "startTime": 1790402495706951,
+     "duration": 124,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p3"
+    },
+    {
+     "traceID": "35af0c3ec9cc0f2f7aee9d85bb71b987",
+     "spanID": "a2b1e3eb7af7fa06",
+     "operationName": "valkey-cart:6379",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "35af0c3ec9cc0f2f7aee9d85bb71b987",
+       "spanID": "4a73647ecae30227"
+      }
+     ],
+     "startTime": 1790402495708905,
+     "duration": 93,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p3"
+    }
+   ],
+   "processes": {
+    "p1": {
+     "serviceName": "frontend-proxy",
+     "tags": [
+      {
+       "key": "service.version",
+       "type": "string",
+       "value": "3.1.0"
+      }
+     ]
+    },
+    "p2": {
+     "serviceName": "product-catalog",
+     "tags": [
+      {
+       "key": "service.version",
+       "type": "string",
+       "value": "v1.4.0"
+      }
+     ]
+    },
+    "p3": {
+     "serviceName": "cart",
+     "tags": [
+      {
+       "key": "service.version",
+       "type": "string",
+       "value": "3.1.0"
+      }
+     ]
+    },
+    "p4": {
+     "serviceName": "shipping",
+     "tags": [
+      {
+       "key": "service.version",
+       "type": "string",
+       "value": "3.1.0"
+      }
+     ]
+    },
+    "p5": {
+     "serviceName": "currency",
+     "tags": [
+      {
+       "key": "service.version",
+       "type": "string",
+       "value": "3.1.0"
+      }
+     ]
+    },
+    "p6": {
+     "serviceName": "checkout",
+     "tags": [
+      {
+       "key": "service.version",
+       "type": "string",
+       "value": "v1.4.0"
+      }
+     ]
+    },
+    "p7": {
+     "serviceName": "quote",
+     "tags": [
+      {
+       "key": "service.version",
+       "type": "string",
+       "value": "v1.4.0"
+      }
+     ]
+    },
+    "p8": {
+     "serviceName": "frontend",
+     "tags": [
+      {
+       "key": "service.version",
+       "type": "string",
+       "value": "3.1.0"
+      }
+     ]
+    },
+    "p9": {
+     "serviceName": "payment",
+     "tags": [
+      {
+       "key": "service.version",
+       "type": "string",
+       "value": "v1.4.0"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+   "spans": [
+    {
+     "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+     "spanID": "bd829d1bfbee0765",
+     "operationName": "router frontend egress",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+       "spanID": "0fafcd37e86740c1"
+      }
+     ],
+     "startTime": 1790402495647956,
+     "duration": 4144,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p1"
+    },
+    {
+     "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+     "spanID": "0fafcd37e86740c1",
+     "operationName": "POST",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+       "spanID": "33339d1f2de65dd6"
+      }
+     ],
+     "startTime": 1790402495647874,
+     "duration": 4247,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p1"
+    },
+    {
+     "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+     "spanID": "8963f7fcd7dbb2e8",
+     "operationName": "router frontend egress",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+       "spanID": "26e38433c4f89afc"
+      }
+     ],
+     "startTime": 1790402495652948,
+     "duration": 48619,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      },
+      {
+       "key": "otel.status_code",
+       "type": "string",
+       "value": "ERROR"
+      },
+      {
+       "key": "error",
+       "type": "bool",
+       "value": true
+      }
+     ],
+     "logs": [],
+     "processID": "p1"
+    },
+    {
+     "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+     "spanID": "26e38433c4f89afc",
+     "operationName": "POST",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+       "spanID": "33339d1f2de65dd6"
+      }
+     ],
+     "startTime": 1790402495652902,
+     "duration": 48867,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p1"
+    },
+    {
+     "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+     "spanID": "de59dbdfbdc06b7c",
+     "operationName": "resolveFloat",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+       "spanID": "87c7750319fc32ff"
+      }
+     ],
+     "startTime": 1790402495694388,
+     "duration": 10,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "internal"
+      }
+     ],
+     "logs": [],
+     "processID": "p2"
+    },
+    {
+     "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+     "spanID": "6b4ea49eb2ab3ffb",
+     "operationName": "resolveBoolean",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+       "spanID": "05b8cde789ece588"
+      }
+     ],
+     "startTime": 1790402495697690,
+     "duration": 25,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "internal"
+      }
+     ],
+     "logs": [],
+     "processID": "p2"
+    },
+    {
+     "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+     "spanID": "87c7750319fc32ff",
+     "operationName": "resolveFloat",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+       "spanID": "93a810bbbe4d543f"
+      }
+     ],
+     "startTime": 1790402495694369,
+     "duration": 48,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p2"
+    },
+    {
+     "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+     "spanID": "05b8cde789ece588",
+     "operationName": "resolveBoolean",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+       "spanID": "629422bea7c6a855"
+      }
+     ],
+     "startTime": 1790402495697665,
+     "duration": 110,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p2"
+    },
+    {
+     "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+     "spanID": "93a810bbbe4d543f",
+     "operationName": "flagd.evaluation.v2.Service/ResolveFloat",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+       "spanID": "669b861b46be24ad"
+      }
+     ],
+     "startTime": 1790402495694366,
+     "duration": 63,
+     "tags": [
+      {
+       "key": "rpc.grpc.status_code",
+       "type": "int64",
+       "value": 0
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p2"
+    },
+    {
+     "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+     "spanID": "629422bea7c6a855",
+     "operationName": "flagd.evaluation.v2.Service/ResolveBoolean",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+       "spanID": "458d9ecba4b51f4f"
+      }
+     ],
+     "startTime": 1790402495697663,
+     "duration": 125,
+     "tags": [
+      {
+       "key": "rpc.grpc.status_code",
+       "type": "int64",
+       "value": 0
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p2"
+    },
+    {
+     "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+     "spanID": "b42aca3420bf490c",
+     "operationName": "astronomy-db",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+       "spanID": "698ce3377f5983d0"
+      }
+     ],
+     "startTime": 1790402495661239,
+     "duration": 1502,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p3"
+    },
+    {
+     "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+     "spanID": "698ce3377f5983d0",
+     "operationName": "oteldemo.ProductCatalogService/GetProduct",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+       "spanID": "99a2a0746e9b662f"
+      }
+     ],
+     "startTime": 1790402495658421,
+     "duration": 4456,
+     "tags": [
+      {
+       "key": "demo.product.id",
+       "type": "string",
+       "value": "L9ECAV7KIM"
+      },
+      {
+       "key": "demo.product.name",
+       "type": "string",
+       "value": "Lens Cleaning Kit"
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p3"
+    },
+    {
+     "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+     "spanID": "b8cab6fd3dc4a766",
+     "operationName": "POST /oteldemo.CartService/AddItem",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+       "spanID": "1c17256f070882bd"
+      }
+     ],
+     "startTime": 1790402495649435,
+     "duration": 872,
+     "tags": [
+      {
+       "key": "demo.product.id",
+       "type": "string",
+       "value": "L9ECAV7KIM"
+      },
+      {
+       "key": "demo.product.quantity",
+       "type": "int64",
+       "value": 1
+      },
+      {
+       "key": "user.id",
+       "type": "string",
+       "value": "figma-shopper-03"
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p4"
+    },
+    {
+     "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+     "spanID": "2eb3dade8f797033",
+     "operationName": "POST /oteldemo.CartService/GetCart",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+       "spanID": "da1b6d824eb88727"
+      }
+     ],
+     "startTime": 1790402495651030,
+     "duration": 357,
+     "tags": [
+      {
+       "key": "demo.cart.items.count",
+       "type": "int64",
+       "value": 1
+      },
+      {
+       "key": "user.id",
+       "type": "string",
+       "value": "figma-shopper-03"
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p4"
+    },
+    {
+     "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+     "spanID": "92664eb51d683327",
+     "operationName": "POST /oteldemo.CartService/GetCart",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+       "spanID": "30547177dfa33364"
+      }
+     ],
+     "startTime": 1790402495655851,
+     "duration": 311,
+     "tags": [
+      {
+       "key": "demo.cart.items.count",
+       "type": "int64",
+       "value": 1
+      },
+      {
+       "key": "user.id",
+       "type": "string",
+       "value": "figma-shopper-03"
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p4"
+    },
+    {
+     "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+     "spanID": "e9ca15c2cd2e6671",
+     "operationName": "POST",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+       "spanID": "5256eef9b3c3fb06"
+      }
+     ],
+     "startTime": 1790402495671073,
+     "duration": 3199,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p5"
+    },
+    {
+     "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+     "spanID": "5256eef9b3c3fb06",
+     "operationName": "POST /get-quote",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+       "spanID": "903aab67a8ff5441"
+      }
+     ],
+     "startTime": 1790402495670721,
+     "duration": 3677,
+     "tags": [
+      {
+       "key": "demo.shipping.cost.total",
+       "type": "string",
+       "value": "8.99"
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p5"
+    },
+    {
+     "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+     "spanID": "5b995aa35512d935",
+     "operationName": "oteldemo.CurrencyService/Convert",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+       "spanID": "925b970535af5df5"
+      }
+     ],
+     "startTime": 1790402495665898,
+     "duration": 161,
+     "tags": [
+      {
+       "key": "demo.exchange.from",
+       "type": "string",
+       "value": "USD"
+      },
+      {
+       "key": "demo.exchange.to",
+       "type": "string",
+       "value": "USD"
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      },
+      {
+       "key": "otel.status_code",
+       "type": "string",
+       "value": "OK"
+      }
+     ],
+     "logs": [],
+     "processID": "p6"
+    },
+    {
+     "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+     "spanID": "214a283e644da609",
+     "operationName": "oteldemo.CurrencyService/Convert",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+       "spanID": "a77ff3c3ad9b6bfb"
+      }
+     ],
+     "startTime": 1790402495675011,
+     "duration": 36,
+     "tags": [
+      {
+       "key": "demo.exchange.from",
+       "type": "string",
+       "value": "USD"
+      },
+      {
+       "key": "demo.exchange.to",
+       "type": "string",
+       "value": "USD"
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      },
+      {
+       "key": "otel.status_code",
+       "type": "string",
+       "value": "OK"
+      }
+     ],
+     "logs": [],
+     "processID": "p6"
+    },
+    {
+     "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+     "spanID": "30547177dfa33364",
+     "operationName": "oteldemo.CartService/GetCart",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+       "spanID": "4173b42877c9783d"
+      }
+     ],
+     "startTime": 1790402495655421,
+     "duration": 982,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p7"
+    },
+    {
+     "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+     "spanID": "99a2a0746e9b662f",
+     "operationName": "oteldemo.ProductCatalogService/GetProduct",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+       "spanID": "4173b42877c9783d"
+      }
+     ],
+     "startTime": 1790402495656574,
+     "duration": 6540,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p7"
+    },
+    {
+     "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+     "spanID": "925b970535af5df5",
+     "operationName": "oteldemo.CurrencyService/Convert",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+       "spanID": "4173b42877c9783d"
+      }
+     ],
+     "startTime": 1790402495663162,
+     "duration": 3438,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p7"
+    },
+    {
+     "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+     "spanID": "a77ff3c3ad9b6bfb",
+     "operationName": "oteldemo.CurrencyService/Convert",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+       "spanID": "4173b42877c9783d"
+      }
+     ],
+     "startTime": 1790402495674687,
+     "duration": 490,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p7"
+    },
+    {
+     "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+     "spanID": "3b8d150ff3bd8538",
+     "operationName": "oteldemo.PaymentService/Charge",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+       "spanID": "646bb539c00b43d8"
+      }
+     ],
+     "startTime": 1790402495675215,
+     "duration": 25155,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      },
+      {
+       "key": "otel.status_code",
+       "type": "string",
+       "value": "ERROR"
+      },
+      {
+       "key": "error",
+       "type": "bool",
+       "value": true
+      },
+      {
+       "key": "otel.status_description",
+       "type": "string",
+       "value": "The credit card (ending 4242) expired on 9/2026."
+      }
+     ],
+     "logs": [],
+     "processID": "p7"
+    },
+    {
+     "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+     "spanID": "646bb539c00b43d8",
+     "operationName": "oteldemo.CheckoutService/PlaceOrder",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+       "spanID": "7ddeb0bb92d1a8c9"
+      }
+     ],
+     "startTime": 1790402495654520,
+     "duration": 45906,
+     "tags": [
+      {
+       "key": "demo.user_context.selected_currency",
+       "type": "string",
+       "value": "USD"
+      },
+      {
+       "key": "user.id",
+       "type": "string",
+       "value": "figma-shopper-03"
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      },
+      {
+       "key": "otel.status_code",
+       "type": "string",
+       "value": "ERROR"
+      },
+      {
+       "key": "error",
+       "type": "bool",
+       "value": true
+      },
+      {
+       "key": "otel.status_description",
+       "type": "string",
+       "value": "failed to charge card: could not charge the card: rpc error: code = Unknown desc = The credit card (ending 4242) expired on 9/2026."
+      }
+     ],
+     "logs": [
+      {
+       "timestamp": 1790402495700422,
+       "fields": [
+        {
+         "key": "event",
+         "type": "string",
+         "value": "exception"
+        },
+        {
+         "key": "exception.message",
+         "type": "string",
+         "value": "could not charge the card: rpc error: code = Unknown desc = The credit card (ending 4242) expired on 9/2026."
+        },
+        {
+         "key": "exception.type",
+         "type": "string",
+         "value": "*errors.errorString"
+        }
+       ]
+      }
+     ],
+     "processID": "p7"
+    },
+    {
+     "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+     "spanID": "903aab67a8ff5441",
+     "operationName": "POST",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+       "spanID": "4173b42877c9783d"
+      }
+     ],
+     "startTime": 1790402495666932,
+     "duration": 7660,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p7"
+    },
+    {
+     "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+     "spanID": "4173b42877c9783d",
+     "operationName": "prepareOrderItemsAndShippingQuoteFromCart",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+       "spanID": "646bb539c00b43d8"
+      }
+     ],
+     "startTime": 1790402495655297,
+     "duration": 19891,
+     "tags": [
+      {
+       "key": "demo.cart.items.count",
+       "type": "int64",
+       "value": 1
+      },
+      {
+       "key": "demo.order.items.count",
+       "type": "int64",
+       "value": 1
+      },
+      {
+       "key": "demo.shipping.amount",
+       "type": "float64",
+       "value": 8.99
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "internal"
+      }
+     ],
+     "logs": [],
+     "processID": "p7"
+    },
+    {
+     "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+     "spanID": "94bc3b492659dfbd",
+     "operationName": "calculate-quote",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+       "spanID": "2c7c731fdfcfa441"
+      }
+     ],
+     "startTime": 1790402495618029,
+     "duration": 41,
+     "tags": [
+      {
+       "key": "demo.shipping.quote.cost.total",
+       "type": "float64",
+       "value": 8.99
+      },
+      {
+       "key": "demo.shipping.quote.items_count",
+       "type": "int64",
+       "value": 1
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "internal"
+      }
+     ],
+     "logs": [],
+     "processID": "p8"
+    },
+    {
+     "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+     "spanID": "2c7c731fdfcfa441",
+     "operationName": "{closure}",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+       "spanID": "a75afab51554d56b"
+      }
+     ],
+     "startTime": 1790402495617882,
+     "duration": 484,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "internal"
+      }
+     ],
+     "logs": [],
+     "processID": "p8"
+    },
+    {
+     "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+     "spanID": "a75afab51554d56b",
+     "operationName": "POST /getquote",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+       "spanID": "e9ca15c2cd2e6671"
+      }
+     ],
+     "startTime": 1790402495617542,
+     "duration": 869,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p8"
+    },
+    {
+     "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+     "spanID": "1c17256f070882bd",
+     "operationName": "oteldemo.CartService/AddItem",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+       "spanID": "ee297b2845a387cb"
+      }
+     ],
+     "startTime": 1790402495648000,
+     "duration": 1671,
+     "tags": [
+      {
+       "key": "rpc.grpc.status_code",
+       "type": "int64",
+       "value": 0
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p9"
+    },
+    {
+     "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+     "spanID": "da1b6d824eb88727",
+     "operationName": "oteldemo.CartService/GetCart",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+       "spanID": "ee297b2845a387cb"
+      }
+     ],
+     "startTime": 1790402495650000,
+     "duration": 1055,
+     "tags": [
+      {
+       "key": "rpc.grpc.status_code",
+       "type": "int64",
+       "value": 0
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p9"
+    },
+    {
+     "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+     "spanID": "7ddeb0bb92d1a8c9",
+     "operationName": "oteldemo.CheckoutService/PlaceOrder",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+       "spanID": "ab9720b08bbaea6c"
+      }
+     ],
+     "startTime": 1790402495653000,
+     "duration": 47518,
+     "tags": [
+      {
+       "key": "rpc.grpc.status_code",
+       "type": "int64",
+       "value": 13
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      },
+      {
+       "key": "otel.status_code",
+       "type": "string",
+       "value": "ERROR"
+      },
+      {
+       "key": "error",
+       "type": "bool",
+       "value": true
+      }
+     ],
+     "logs": [],
+     "processID": "p9"
+    },
+    {
+     "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+     "spanID": "ee297b2845a387cb",
+     "operationName": "executing api route (pages) /api/cart",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+       "spanID": "3417db884e4556a6"
+      }
+     ],
+     "startTime": 1790402495648000,
+     "duration": 3448,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "internal"
+      }
+     ],
+     "logs": [],
+     "processID": "p9"
+    },
+    {
+     "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+     "spanID": "3417db884e4556a6",
+     "operationName": "POST /api/cart",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+       "spanID": "d91f04d22974fd40"
+      }
+     ],
+     "startTime": 1790402495648000,
+     "duration": 3872,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p9"
+    },
+    {
+     "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+     "spanID": "ab9720b08bbaea6c",
+     "operationName": "executing api route (pages) /api/checkout",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+       "spanID": "e5c1c04b1656dffc"
+      }
+     ],
+     "startTime": 1790402495653000,
+     "duration": 47995,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "internal"
+      },
+      {
+       "key": "otel.status_code",
+       "type": "string",
+       "value": "ERROR"
+      },
+      {
+       "key": "error",
+       "type": "bool",
+       "value": true
+      }
+     ],
+     "logs": [
+      {
+       "timestamp": 1790402495700715,
+       "fields": [
+        {
+         "key": "event",
+         "type": "string",
+         "value": "exception"
+        },
+        {
+         "key": "exception.message",
+         "type": "string",
+         "value": "13 INTERNAL: failed to charge card: could not charge the card: rpc error: code = Unknown desc = The credit card (ending 4242) expired on 9/2026."
+        },
+        {
+         "key": "exception.type",
+         "type": "string",
+         "value": "13"
+        }
+       ]
+      }
+     ],
+     "processID": "p9"
+    },
+    {
+     "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+     "spanID": "e5c1c04b1656dffc",
+     "operationName": "POST /api/checkout",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+       "spanID": "cde208b20dad631d"
+      }
+     ],
+     "startTime": 1790402495653000,
+     "duration": 48298,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p9"
+    },
+    {
+     "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+     "spanID": "d91f04d22974fd40",
+     "operationName": "POST /api/cart",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+       "spanID": "bd829d1bfbee0765"
+      }
+     ],
+     "startTime": 1790402495648000,
+     "duration": 4066,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p9"
+    },
+    {
+     "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+     "spanID": "cde208b20dad631d",
+     "operationName": "POST /api/checkout",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+       "spanID": "8963f7fcd7dbb2e8"
+      }
+     ],
+     "startTime": 1790402495653000,
+     "duration": 48469,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p9"
+    },
+    {
+     "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+     "spanID": "0697560d20ae17a4",
+     "operationName": "dns.lookup",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+       "spanID": "1f5bb1ca46a8a77a"
+      }
+     ],
+     "startTime": 1790402495684000,
+     "duration": 428,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p10"
+    },
+    {
+     "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+     "spanID": "369471a36dadf1f5",
+     "operationName": "tcp.connect",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+       "spanID": "1f5bb1ca46a8a77a"
+      }
+     ],
+     "startTime": 1790402495686000,
+     "duration": 377,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "internal"
+      }
+     ],
+     "logs": [],
+     "processID": "p10"
+    },
+    {
+     "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+     "spanID": "669b861b46be24ad",
+     "operationName": "flagd.evaluation.v2.Service/ResolveFloat",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+       "spanID": "1f5bb1ca46a8a77a"
+      }
+     ],
+     "startTime": 1790402495693000,
+     "duration": 3240,
+     "tags": [
+      {
+       "key": "rpc.grpc.status_code",
+       "type": "int64",
+       "value": 0
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p10"
+    },
+    {
+     "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+     "spanID": "458d9ecba4b51f4f",
+     "operationName": "flagd.evaluation.v2.Service/ResolveBoolean",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+       "spanID": "1f5bb1ca46a8a77a"
+      }
+     ],
+     "startTime": 1790402495697000,
+     "duration": 1941,
+     "tags": [
+      {
+       "key": "rpc.grpc.status_code",
+       "type": "int64",
+       "value": 0
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p10"
+    },
+    {
+     "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+     "spanID": "1f5bb1ca46a8a77a",
+     "operationName": "oteldemo.PaymentService/Charge",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+       "spanID": "3b8d150ff3bd8538"
+      }
+     ],
+     "startTime": 1790402495682000,
+     "duration": 17803,
+     "tags": [
+      {
+       "key": "demo.payment.amount",
+       "type": "string",
+       "value": "30.94"
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      },
+      {
+       "key": "otel.status_code",
+       "type": "string",
+       "value": "ERROR"
+      },
+      {
+       "key": "error",
+       "type": "bool",
+       "value": true
+      },
+      {
+       "key": "otel.status_description",
+       "type": "string",
+       "value": "The credit card (ending 4242) expired on 9/2026."
+      }
+     ],
+     "logs": [],
+     "processID": "p10"
+    },
+    {
+     "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+     "spanID": "249fb8faf47c232c",
+     "operationName": "charge",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+       "spanID": "1f5bb1ca46a8a77a"
+      }
+     ],
+     "startTime": 1790402495683000,
+     "duration": 16235,
+     "tags": [
+      {
+       "key": "demo.payment.card_type",
+       "type": "string",
+       "value": "visa"
+      },
+      {
+       "key": "demo.payment.card_valid",
+       "type": "bool",
+       "value": true
+      },
+      {
+       "key": "demo.user_context.loyalty_level",
+       "type": "string",
+       "value": "bronze"
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "internal"
+      },
+      {
+       "key": "otel.status_code",
+       "type": "string",
+       "value": "ERROR"
+      },
+      {
+       "key": "error",
+       "type": "bool",
+       "value": true
+      },
+      {
+       "key": "otel.status_description",
+       "type": "string",
+       "value": "The credit card (ending 4242) expired on 9/2026."
+      }
+     ],
+     "logs": [
+      {
+       "timestamp": 1790402495699149,
+       "fields": [
+        {
+         "key": "event",
+         "type": "string",
+         "value": "exception"
+        },
+        {
+         "key": "exception.message",
+         "type": "string",
+         "value": "The credit card (ending 4242) expired on 9/2026."
+        },
+        {
+         "key": "exception.type",
+         "type": "string",
+         "value": "Error"
+        }
+       ]
+      }
+     ],
+     "processID": "p10"
+    },
+    {
+     "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+     "spanID": "fced4795b2361cf3",
+     "operationName": "valkey-cart:6379",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+       "spanID": "92664eb51d683327"
+      }
+     ],
+     "startTime": 1790402495655957,
+     "duration": 172,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p4"
+    },
+    {
+     "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+     "spanID": "77ff330e07e49055",
+     "operationName": "valkey-cart:6379",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+       "spanID": "2eb3dade8f797033"
+      }
+     ],
+     "startTime": 1790402495651128,
+     "duration": 199,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p4"
+    },
+    {
+     "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+     "spanID": "f9587a178f824490",
+     "operationName": "valkey-cart:6379",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+       "spanID": "b8cab6fd3dc4a766"
+      }
+     ],
+     "startTime": 1790402495649606,
+     "duration": 285,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p4"
+    },
+    {
+     "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+     "spanID": "c9ed60a3596ebc75",
+     "operationName": "valkey-cart:6379",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+       "spanID": "b8cab6fd3dc4a766"
+      }
+     ],
+     "startTime": 1790402495649950,
+     "duration": 167,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p4"
+    },
+    {
+     "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+     "spanID": "9f060d078880c8e7",
+     "operationName": "valkey-cart:6379",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+       "spanID": "b8cab6fd3dc4a766"
+      }
+     ],
+     "startTime": 1790402495650122,
+     "duration": 104,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p4"
+    },
+    {
+     "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+     "spanID": "5dbc68bc9b8e34bf",
+     "operationName": "flagd.evaluation.v2.Service/EventStream",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+       "spanID": "1ddc9c8d76d46a0d"
+      }
+     ],
+     "startTime": 1790402495690566,
+     "duration": 600005573,
+     "tags": [
+      {
+       "key": "rpc.grpc.status_code",
+       "type": "int64",
+       "value": 4
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      },
+      {
+       "key": "otel.status_code",
+       "type": "string",
+       "value": "ERROR"
+      },
+      {
+       "key": "error",
+       "type": "bool",
+       "value": true
+      },
+      {
+       "key": "otel.status_description",
+       "type": "string",
+       "value": "stream closed due to server-side timeout"
+      }
+     ],
+     "logs": [],
+     "processID": "p2"
+    },
+    {
+     "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+     "spanID": "1ddc9c8d76d46a0d",
+     "operationName": "flagd.evaluation.v2.Service/EventStream",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+       "spanID": "1f5bb1ca46a8a77a"
+      }
+     ],
+     "startTime": 1790402495687000,
+     "duration": 600012870,
+     "tags": [
+      {
+       "key": "rpc.grpc.status_code",
+       "type": "int64",
+       "value": 4
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      },
+      {
+       "key": "otel.status_code",
+       "type": "string",
+       "value": "ERROR"
+      },
+      {
+       "key": "error",
+       "type": "bool",
+       "value": true
+      },
+      {
+       "key": "otel.status_description",
+       "type": "string",
+       "value": "4 DEADLINE_EXCEEDED: Deadline exceeded after 600.005s,time to current attempt start: 0.001s,remote_addr=172.20.0.10:8013"
+      }
+     ],
+     "logs": [],
+     "processID": "p10"
+    },
+    {
+     "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+     "spanID": "3db7d6c17cb53cd3",
+     "operationName": "flagd.evaluation.v2.Service/EventStream",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+       "spanID": "e978711db1232484"
+      }
+     ],
+     "startTime": 1790403100730753,
+     "duration": 600005859,
+     "tags": [
+      {
+       "key": "rpc.grpc.status_code",
+       "type": "int64",
+       "value": 4
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      },
+      {
+       "key": "otel.status_code",
+       "type": "string",
+       "value": "ERROR"
+      },
+      {
+       "key": "error",
+       "type": "bool",
+       "value": true
+      },
+      {
+       "key": "otel.status_description",
+       "type": "string",
+       "value": "stream closed due to server-side timeout"
+      }
+     ],
+     "logs": [],
+     "processID": "p2"
+    },
+    {
+     "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+     "spanID": "e978711db1232484",
+     "operationName": "flagd.evaluation.v2.Service/EventStream",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+       "spanID": "1ddc9c8d76d46a0d"
+      }
+     ],
+     "startTime": 1790403100725000,
+     "duration": 600020454,
+     "tags": [
+      {
+       "key": "rpc.grpc.status_code",
+       "type": "int64",
+       "value": 4
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      },
+      {
+       "key": "otel.status_code",
+       "type": "string",
+       "value": "ERROR"
+      },
+      {
+       "key": "error",
+       "type": "bool",
+       "value": true
+      },
+      {
+       "key": "otel.status_description",
+       "type": "string",
+       "value": "4 DEADLINE_EXCEEDED: Deadline exceeded after 600.028s,name resolution: 0.001s,metadata filters: 0.001s,LB pick: 0.001s,remote_addr=172.20.0.10:8013"
+      }
+     ],
+     "logs": [],
+     "processID": "p10"
+    },
+    {
+     "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+     "spanID": "ea5a29d5492ae9f0",
+     "operationName": "flagd.evaluation.v2.Service/EventStream",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+       "spanID": "413001952f96b8a1"
+      }
+     ],
+     "startTime": 1790403705789799,
+     "duration": 599994455,
+     "tags": [
+      {
+       "key": "rpc.grpc.status_code",
+       "type": "int64",
+       "value": 0
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p2"
+    },
+    {
+     "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+     "spanID": "413001952f96b8a1",
+     "operationName": "flagd.evaluation.v2.Service/EventStream",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+       "spanID": "e978711db1232484"
+      }
+     ],
+     "startTime": 1790403705783000,
+     "duration": 600000076,
+     "tags": [
+      {
+       "key": "rpc.grpc.status_code",
+       "type": "int64",
+       "value": 4
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      },
+      {
+       "key": "otel.status_code",
+       "type": "string",
+       "value": "ERROR"
+      },
+      {
+       "key": "error",
+       "type": "bool",
+       "value": true
+      },
+      {
+       "key": "otel.status_description",
+       "type": "string",
+       "value": "4 DEADLINE_EXCEEDED: Deadline exceeded after 600.014s,metadata filters: 0.001s,LB pick: 0.002s,remote_addr=172.20.0.10:8013"
+      }
+     ],
+     "logs": [],
+     "processID": "p10"
+    },
+    {
+     "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+     "spanID": "1073942d2628b619",
+     "operationName": "flagd.evaluation.v2.Service/EventStream",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+       "spanID": "eb75ff2623d86b1f"
+      }
+     ],
+     "startTime": 1790404310803056,
+     "duration": 600001667,
+     "tags": [
+      {
+       "key": "rpc.grpc.status_code",
+       "type": "int64",
+       "value": 4
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      },
+      {
+       "key": "otel.status_code",
+       "type": "string",
+       "value": "ERROR"
+      },
+      {
+       "key": "error",
+       "type": "bool",
+       "value": true
+      },
+      {
+       "key": "otel.status_description",
+       "type": "string",
+       "value": "stream closed due to server-side timeout"
+      }
+     ],
+     "logs": [],
+     "processID": "p2"
+    },
+    {
+     "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+     "spanID": "eb75ff2623d86b1f",
+     "operationName": "flagd.evaluation.v2.Service/EventStream",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+       "spanID": "413001952f96b8a1"
+      }
+     ],
+     "startTime": 1790404310801000,
+     "duration": 600004275,
+     "tags": [
+      {
+       "key": "rpc.grpc.status_code",
+       "type": "int64",
+       "value": 4
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      },
+      {
+       "key": "otel.status_code",
+       "type": "string",
+       "value": "ERROR"
+      },
+      {
+       "key": "error",
+       "type": "bool",
+       "value": true
+      },
+      {
+       "key": "otel.status_description",
+       "type": "string",
+       "value": "4 DEADLINE_EXCEEDED: Deadline exceeded after 600.010s,metadata filters: 0.001s,remote_addr=172.20.0.10:8013"
+      }
+     ],
+     "logs": [],
+     "processID": "p10"
+    },
+    {
+     "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+     "spanID": "24931e8e7149ca0f",
+     "operationName": "flagd.evaluation.v2.Service/EventStream",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+       "spanID": "a231d0f0d1490ae4"
+      }
+     ],
+     "startTime": 1790404915818088,
+     "duration": 600000591,
+     "tags": [
+      {
+       "key": "rpc.grpc.status_code",
+       "type": "int64",
+       "value": 4
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      },
+      {
+       "key": "otel.status_code",
+       "type": "string",
+       "value": "ERROR"
+      },
+      {
+       "key": "error",
+       "type": "bool",
+       "value": true
+      },
+      {
+       "key": "otel.status_description",
+       "type": "string",
+       "value": "stream closed due to server-side timeout"
+      }
+     ],
+     "logs": [],
+     "processID": "p2"
+    },
+    {
+     "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+     "spanID": "a231d0f0d1490ae4",
+     "operationName": "flagd.evaluation.v2.Service/EventStream",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+       "spanID": "eb75ff2623d86b1f"
+      }
+     ],
+     "startTime": 1790404915815000,
+     "duration": 600010147,
+     "tags": [
+      {
+       "key": "rpc.grpc.status_code",
+       "type": "int64",
+       "value": 4
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      },
+      {
+       "key": "otel.status_code",
+       "type": "string",
+       "value": "ERROR"
+      },
+      {
+       "key": "error",
+       "type": "bool",
+       "value": true
+      },
+      {
+       "key": "otel.status_description",
+       "type": "string",
+       "value": "4 DEADLINE_EXCEEDED: Deadline exceeded after 599.983s,remote_addr=172.20.0.10:8013"
+      }
+     ],
+     "logs": [],
+     "processID": "p10"
+    },
+    {
+     "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+     "spanID": "b70cfaeb3e02e8e2",
+     "operationName": "flagd.evaluation.v2.Service/EventStream",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+       "spanID": "0bb986853726ce4a"
+      }
+     ],
+     "startTime": 1790405520824194,
+     "duration": 600002192,
+     "tags": [
+      {
+       "key": "rpc.grpc.status_code",
+       "type": "int64",
+       "value": 4
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      },
+      {
+       "key": "otel.status_code",
+       "type": "string",
+       "value": "ERROR"
+      },
+      {
+       "key": "error",
+       "type": "bool",
+       "value": true
+      },
+      {
+       "key": "otel.status_description",
+       "type": "string",
+       "value": "stream closed due to server-side timeout"
+      }
+     ],
+     "logs": [],
+     "processID": "p2"
+    },
+    {
+     "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+     "spanID": "0bb986853726ce4a",
+     "operationName": "flagd.evaluation.v2.Service/EventStream",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+       "spanID": "a231d0f0d1490ae4"
+      }
+     ],
+     "startTime": 1790405520820000,
+     "duration": 600016411,
+     "tags": [
+      {
+       "key": "rpc.grpc.status_code",
+       "type": "int64",
+       "value": 4
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      },
+      {
+       "key": "otel.status_code",
+       "type": "string",
+       "value": "ERROR"
+      },
+      {
+       "key": "error",
+       "type": "bool",
+       "value": true
+      },
+      {
+       "key": "otel.status_description",
+       "type": "string",
+       "value": "4 DEADLINE_EXCEEDED: Deadline exceeded after 600.009s,name resolution: 0.001s,remote_addr=172.20.0.10:8013"
+      }
+     ],
+     "logs": [],
+     "processID": "p10"
+    },
+    {
+     "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+     "spanID": "9ac8b1d08d3c091e",
+     "operationName": "flagd.evaluation.v2.Service/EventStream",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+       "spanID": "d5f790e130c9c9b1"
+      }
+     ],
+     "startTime": 1790406125881404,
+     "duration": 600000750,
+     "tags": [
+      {
+       "key": "rpc.grpc.status_code",
+       "type": "int64",
+       "value": 4
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      },
+      {
+       "key": "otel.status_code",
+       "type": "string",
+       "value": "ERROR"
+      },
+      {
+       "key": "error",
+       "type": "bool",
+       "value": true
+      },
+      {
+       "key": "otel.status_description",
+       "type": "string",
+       "value": "stream closed due to server-side timeout"
+      }
+     ],
+     "logs": [],
+     "processID": "p2"
+    },
+    {
+     "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+     "spanID": "d5f790e130c9c9b1",
+     "operationName": "flagd.evaluation.v2.Service/EventStream",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "cf9aa1232b9d598155aa24c6ebab62e3",
+       "spanID": "0bb986853726ce4a"
+      }
+     ],
+     "startTime": 1790406125873000,
+     "duration": 600010757,
+     "tags": [
+      {
+       "key": "rpc.grpc.status_code",
+       "type": "int64",
+       "value": 4
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      },
+      {
+       "key": "otel.status_code",
+       "type": "string",
+       "value": "ERROR"
+      },
+      {
+       "key": "error",
+       "type": "bool",
+       "value": true
+      },
+      {
+       "key": "otel.status_description",
+       "type": "string",
+       "value": "4 DEADLINE_EXCEEDED: Deadline exceeded after 599.980s,metadata filters: 0.001s,remote_addr=172.20.0.10:8013"
+      }
+     ],
+     "logs": [],
+     "processID": "p10"
+    }
+   ],
+   "processes": {
+    "p1": {
+     "serviceName": "frontend-proxy",
+     "tags": [
+      {
+       "key": "service.version",
+       "type": "string",
+       "value": "3.1.0"
+      }
+     ]
+    },
+    "p10": {
+     "serviceName": "payment",
+     "tags": [
+      {
+       "key": "service.version",
+       "type": "string",
+       "value": "v1.4.0"
+      }
+     ]
+    },
+    "p2": {
+     "serviceName": "flagd",
+     "tags": [
+      {
+       "key": "service.version",
+       "type": "string",
+       "value": "3.1.0"
+      }
+     ]
+    },
+    "p3": {
+     "serviceName": "product-catalog",
+     "tags": [
+      {
+       "key": "service.version",
+       "type": "string",
+       "value": "v1.4.0"
+      }
+     ]
+    },
+    "p4": {
+     "serviceName": "cart",
+     "tags": [
+      {
+       "key": "service.version",
+       "type": "string",
+       "value": "3.1.0"
+      }
+     ]
+    },
+    "p5": {
+     "serviceName": "shipping",
+     "tags": [
+      {
+       "key": "service.version",
+       "type": "string",
+       "value": "3.1.0"
+      }
+     ]
+    },
+    "p6": {
+     "serviceName": "currency",
+     "tags": [
+      {
+       "key": "service.version",
+       "type": "string",
+       "value": "3.1.0"
+      }
+     ]
+    },
+    "p7": {
+     "serviceName": "checkout",
+     "tags": [
+      {
+       "key": "service.version",
+       "type": "string",
+       "value": "v1.4.0"
+      }
+     ]
+    },
+    "p8": {
+     "serviceName": "quote",
+     "tags": [
+      {
+       "key": "service.version",
+       "type": "string",
+       "value": "v1.4.0"
+      }
+     ]
+    },
+    "p9": {
+     "serviceName": "frontend",
+     "tags": [
+      {
+       "key": "service.version",
+       "type": "string",
+       "value": "3.1.0"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "traceID": "4532d82d1b67aa3e9eee81893f2753cc",
+   "spans": [
+    {
+     "traceID": "4532d82d1b67aa3e9eee81893f2753cc",
+     "spanID": "43826feb3fb5404f",
+     "operationName": "router frontend egress",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "4532d82d1b67aa3e9eee81893f2753cc",
+       "spanID": "31d1eacb619cd97c"
+      }
+     ],
+     "startTime": 1790402495734951,
+     "duration": 1315,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p1"
+    },
+    {
+     "traceID": "4532d82d1b67aa3e9eee81893f2753cc",
+     "spanID": "31d1eacb619cd97c",
+     "operationName": "POST",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "4532d82d1b67aa3e9eee81893f2753cc",
+       "spanID": "97a379d4f5975c52"
+      }
+     ],
+     "startTime": 1790402495734918,
+     "duration": 1355,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p1"
+    },
+    {
+     "traceID": "4532d82d1b67aa3e9eee81893f2753cc",
+     "spanID": "91a8133619219fe8",
+     "operationName": "router frontend egress",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "4532d82d1b67aa3e9eee81893f2753cc",
+       "spanID": "dcf121da3f9c9151"
+      }
+     ],
+     "startTime": 1790402495736833,
+     "duration": 6066,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      },
+      {
+       "key": "otel.status_code",
+       "type": "string",
+       "value": "ERROR"
+      },
+      {
+       "key": "error",
+       "type": "bool",
+       "value": true
+      }
+     ],
+     "logs": [],
+     "processID": "p1"
+    },
+    {
+     "traceID": "4532d82d1b67aa3e9eee81893f2753cc",
+     "spanID": "dcf121da3f9c9151",
+     "operationName": "POST",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "4532d82d1b67aa3e9eee81893f2753cc",
+       "spanID": "97a379d4f5975c52"
+      }
+     ],
+     "startTime": 1790402495736798,
+     "duration": 6115,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p1"
+    },
+    {
+     "traceID": "4532d82d1b67aa3e9eee81893f2753cc",
+     "spanID": "3d3faf869806db20",
+     "operationName": "astronomy-db",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "4532d82d1b67aa3e9eee81893f2753cc",
+       "spanID": "957a13406c12ee77"
+      }
+     ],
+     "startTime": 1790402495738546,
+     "duration": 250,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p2"
+    },
+    {
+     "traceID": "4532d82d1b67aa3e9eee81893f2753cc",
+     "spanID": "957a13406c12ee77",
+     "operationName": "oteldemo.ProductCatalogService/GetProduct",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "4532d82d1b67aa3e9eee81893f2753cc",
+       "spanID": "9be99e6ec5d09afe"
+      }
+     ],
+     "startTime": 1790402495737903,
+     "duration": 997,
+     "tags": [
+      {
+       "key": "demo.product.id",
+       "type": "string",
+       "value": "L9ECAV7KIM"
+      },
+      {
+       "key": "demo.product.name",
+       "type": "string",
+       "value": "Lens Cleaning Kit"
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p2"
+    },
+    {
+     "traceID": "4532d82d1b67aa3e9eee81893f2753cc",
+     "spanID": "e3b149d6c097dbd7",
+     "operationName": "POST /oteldemo.CartService/AddItem",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "4532d82d1b67aa3e9eee81893f2753cc",
+       "spanID": "ad56508d5e076c3c"
+      }
+     ],
+     "startTime": 1790402495735431,
+     "duration": 261,
+     "tags": [
+      {
+       "key": "demo.product.id",
+       "type": "string",
+       "value": "L9ECAV7KIM"
+      },
+      {
+       "key": "demo.product.quantity",
+       "type": "int64",
+       "value": 1
+      },
+      {
+       "key": "user.id",
+       "type": "string",
+       "value": "figma-shopper-12"
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p3"
+    },
+    {
+     "traceID": "4532d82d1b67aa3e9eee81893f2753cc",
+     "spanID": "bc357fb00a47719c",
+     "operationName": "POST /oteldemo.CartService/GetCart",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "4532d82d1b67aa3e9eee81893f2753cc",
+       "spanID": "6671fd2a32b56015"
+      }
+     ],
+     "startTime": 1790402495735950,
+     "duration": 122,
+     "tags": [
+      {
+       "key": "demo.cart.items.count",
+       "type": "int64",
+       "value": 1
+      },
+      {
+       "key": "user.id",
+       "type": "string",
+       "value": "figma-shopper-12"
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p3"
+    },
+    {
+     "traceID": "4532d82d1b67aa3e9eee81893f2753cc",
+     "spanID": "70b0ee02638d20b5",
+     "operationName": "POST /oteldemo.CartService/GetCart",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "4532d82d1b67aa3e9eee81893f2753cc",
+       "spanID": "f001b8f6ff34cfc1"
+      }
+     ],
+     "startTime": 1790402495737466,
+     "duration": 133,
+     "tags": [
+      {
+       "key": "demo.cart.items.count",
+       "type": "int64",
+       "value": 1
+      },
+      {
+       "key": "user.id",
+       "type": "string",
+       "value": "figma-shopper-12"
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p3"
+    },
+    {
+     "traceID": "4532d82d1b67aa3e9eee81893f2753cc",
+     "spanID": "2e8f9bda9a83405e",
+     "operationName": "POST",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "4532d82d1b67aa3e9eee81893f2753cc",
+       "spanID": "7e78003f3c1fa28b"
+      }
+     ],
+     "startTime": 1790402495739738,
+     "duration": 745,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p4"
+    },
+    {
+     "traceID": "4532d82d1b67aa3e9eee81893f2753cc",
+     "spanID": "7e78003f3c1fa28b",
+     "operationName": "POST /get-quote",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "4532d82d1b67aa3e9eee81893f2753cc",
+       "spanID": "4470798b1f8decd6"
+      }
+     ],
+     "startTime": 1790402495739693,
+     "duration": 824,
+     "tags": [
+      {
+       "key": "demo.shipping.cost.total",
+       "type": "string",
+       "value": "8.99"
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p4"
+    },
+    {
+     "traceID": "4532d82d1b67aa3e9eee81893f2753cc",
+     "spanID": "52e379b645d6fe6d",
+     "operationName": "oteldemo.CurrencyService/Convert",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "4532d82d1b67aa3e9eee81893f2753cc",
+       "spanID": "8426c4415d268457"
+      }
+     ],
+     "startTime": 1790402495739143,
+     "duration": 18,
+     "tags": [
+      {
+       "key": "demo.exchange.from",
+       "type": "string",
+       "value": "USD"
+      },
+      {
+       "key": "demo.exchange.to",
+       "type": "string",
+       "value": "USD"
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      },
+      {
+       "key": "otel.status_code",
+       "type": "string",
+       "value": "OK"
+      }
+     ],
+     "logs": [],
+     "processID": "p5"
+    },
+    {
+     "traceID": "4532d82d1b67aa3e9eee81893f2753cc",
+     "spanID": "09a5c47d17a8879f",
+     "operationName": "oteldemo.CurrencyService/Convert",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "4532d82d1b67aa3e9eee81893f2753cc",
+       "spanID": "c41b9f5885e42386"
+      }
+     ],
+     "startTime": 1790402495740768,
+     "duration": 11,
+     "tags": [
+      {
+       "key": "demo.exchange.from",
+       "type": "string",
+       "value": "USD"
+      },
+      {
+       "key": "demo.exchange.to",
+       "type": "string",
+       "value": "USD"
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      },
+      {
+       "key": "otel.status_code",
+       "type": "string",
+       "value": "OK"
+      }
+     ],
+     "logs": [],
+     "processID": "p5"
+    },
+    {
+     "traceID": "4532d82d1b67aa3e9eee81893f2753cc",
+     "spanID": "f001b8f6ff34cfc1",
+     "operationName": "oteldemo.CartService/GetCart",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "4532d82d1b67aa3e9eee81893f2753cc",
+       "spanID": "740c6617f565058a"
+      }
+     ],
+     "startTime": 1790402495737382,
+     "duration": 255,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p6"
+    },
+    {
+     "traceID": "4532d82d1b67aa3e9eee81893f2753cc",
+     "spanID": "9be99e6ec5d09afe",
+     "operationName": "oteldemo.ProductCatalogService/GetProduct",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "4532d82d1b67aa3e9eee81893f2753cc",
+       "spanID": "740c6617f565058a"
+      }
+     ],
+     "startTime": 1790402495737647,
+     "duration": 1312,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p6"
+    },
+    {
+     "traceID": "4532d82d1b67aa3e9eee81893f2753cc",
+     "spanID": "8426c4415d268457",
+     "operationName": "oteldemo.CurrencyService/Convert",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "4532d82d1b67aa3e9eee81893f2753cc",
+       "spanID": "740c6617f565058a"
+      }
+     ],
+     "startTime": 1790402495738982,
+     "duration": 238,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p6"
+    },
+    {
+     "traceID": "4532d82d1b67aa3e9eee81893f2753cc",
+     "spanID": "c41b9f5885e42386",
+     "operationName": "oteldemo.CurrencyService/Convert",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "4532d82d1b67aa3e9eee81893f2753cc",
+       "spanID": "740c6617f565058a"
+      }
+     ],
+     "startTime": 1790402495740595,
+     "duration": 244,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p6"
+    },
+    {
+     "traceID": "4532d82d1b67aa3e9eee81893f2753cc",
+     "spanID": "7787cf6b8f15bf63",
+     "operationName": "oteldemo.PaymentService/Charge",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "4532d82d1b67aa3e9eee81893f2753cc",
+       "spanID": "74859087c7df5fd0"
+      }
+     ],
+     "startTime": 1790402495740858,
+     "duration": 1550,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      },
+      {
+       "key": "otel.status_code",
+       "type": "string",
+       "value": "ERROR"
+      },
+      {
+       "key": "error",
+       "type": "bool",
+       "value": true
+      },
+      {
+       "key": "otel.status_description",
+       "type": "string",
+       "value": "The credit card (ending 5100) expired on 9/2026."
+      }
+     ],
+     "logs": [],
+     "processID": "p6"
+    },
+    {
+     "traceID": "4532d82d1b67aa3e9eee81893f2753cc",
+     "spanID": "74859087c7df5fd0",
+     "operationName": "oteldemo.CheckoutService/PlaceOrder",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "4532d82d1b67aa3e9eee81893f2753cc",
+       "spanID": "6935546fffbce6d3"
+      }
+     ],
+     "startTime": 1790402495737328,
+     "duration": 5093,
+     "tags": [
+      {
+       "key": "demo.user_context.selected_currency",
+       "type": "string",
+       "value": "USD"
+      },
+      {
+       "key": "user.id",
+       "type": "string",
+       "value": "figma-shopper-12"
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      },
+      {
+       "key": "otel.status_code",
+       "type": "string",
+       "value": "ERROR"
+      },
+      {
+       "key": "error",
+       "type": "bool",
+       "value": true
+      },
+      {
+       "key": "otel.status_description",
+       "type": "string",
+       "value": "failed to charge card: could not charge the card: rpc error: code = Unknown desc = The credit card (ending 5100) expired on 9/2026."
+      }
+     ],
+     "logs": [
+      {
+       "timestamp": 1790402495742419,
+       "fields": [
+        {
+         "key": "event",
+         "type": "string",
+         "value": "exception"
+        },
+        {
+         "key": "exception.message",
+         "type": "string",
+         "value": "could not charge the card: rpc error: code = Unknown desc = The credit card (ending 5100) expired on 9/2026."
+        },
+        {
+         "key": "exception.type",
+         "type": "string",
+         "value": "*errors.errorString"
+        }
+       ]
+      }
+     ],
+     "processID": "p6"
+    },
+    {
+     "traceID": "4532d82d1b67aa3e9eee81893f2753cc",
+     "spanID": "4470798b1f8decd6",
+     "operationName": "POST",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "4532d82d1b67aa3e9eee81893f2753cc",
+       "spanID": "740c6617f565058a"
+      }
+     ],
+     "startTime": 1790402495739250,
+     "duration": 1332,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p6"
+    },
+    {
+     "traceID": "4532d82d1b67aa3e9eee81893f2753cc",
+     "spanID": "740c6617f565058a",
+     "operationName": "prepareOrderItemsAndShippingQuoteFromCart",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "4532d82d1b67aa3e9eee81893f2753cc",
+       "spanID": "74859087c7df5fd0"
+      }
+     ],
+     "startTime": 1790402495737376,
+     "duration": 3470,
+     "tags": [
+      {
+       "key": "demo.cart.items.count",
+       "type": "int64",
+       "value": 1
+      },
+      {
+       "key": "demo.order.items.count",
+       "type": "int64",
+       "value": 1
+      },
+      {
+       "key": "demo.shipping.amount",
+       "type": "float64",
+       "value": 8.99
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "internal"
+      }
+     ],
+     "logs": [],
+     "processID": "p6"
+    },
+    {
+     "traceID": "4532d82d1b67aa3e9eee81893f2753cc",
+     "spanID": "00f4f5858356afb6",
+     "operationName": "calculate-quote",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "4532d82d1b67aa3e9eee81893f2753cc",
+       "spanID": "d92fcf9c6a0710f5"
+      }
+     ],
+     "startTime": 1790402495684702,
+     "duration": 7,
+     "tags": [
+      {
+       "key": "demo.shipping.quote.cost.total",
+       "type": "float64",
+       "value": 8.99
+      },
+      {
+       "key": "demo.shipping.quote.items_count",
+       "type": "int64",
+       "value": 1
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "internal"
+      }
+     ],
+     "logs": [],
+     "processID": "p7"
+    },
+    {
+     "traceID": "4532d82d1b67aa3e9eee81893f2753cc",
+     "spanID": "d92fcf9c6a0710f5",
+     "operationName": "{closure}",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "4532d82d1b67aa3e9eee81893f2753cc",
+       "spanID": "efe65ed3429e298d"
+      }
+     ],
+     "startTime": 1790402495684674,
+     "duration": 106,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "internal"
+      }
+     ],
+     "logs": [],
+     "processID": "p7"
+    },
+    {
+     "traceID": "4532d82d1b67aa3e9eee81893f2753cc",
+     "spanID": "efe65ed3429e298d",
+     "operationName": "POST /getquote",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "4532d82d1b67aa3e9eee81893f2753cc",
+       "spanID": "2e8f9bda9a83405e"
+      }
+     ],
+     "startTime": 1790402495684609,
+     "duration": 183,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p7"
+    },
+    {
+     "traceID": "4532d82d1b67aa3e9eee81893f2753cc",
+     "spanID": "ad56508d5e076c3c",
+     "operationName": "oteldemo.CartService/AddItem",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "4532d82d1b67aa3e9eee81893f2753cc",
+       "spanID": "06a96fefed047b1f"
+      }
+     ],
+     "startTime": 1790402495735000,
+     "duration": 535,
+     "tags": [
+      {
+       "key": "rpc.grpc.status_code",
+       "type": "int64",
+       "value": 0
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p8"
+    },
+    {
+     "traceID": "4532d82d1b67aa3e9eee81893f2753cc",
+     "spanID": "6671fd2a32b56015",
+     "operationName": "oteldemo.CartService/GetCart",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "4532d82d1b67aa3e9eee81893f2753cc",
+       "spanID": "06a96fefed047b1f"
+      }
+     ],
+     "startTime": 1790402495735000,
+     "duration": 373,
+     "tags": [
+      {
+       "key": "rpc.grpc.status_code",
+       "type": "int64",
+       "value": 0
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p8"
+    },
+    {
+     "traceID": "4532d82d1b67aa3e9eee81893f2753cc",
+     "spanID": "6935546fffbce6d3",
+     "operationName": "oteldemo.CheckoutService/PlaceOrder",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "4532d82d1b67aa3e9eee81893f2753cc",
+       "spanID": "a18ecaeaff481732"
+      }
+     ],
+     "startTime": 1790402495737000,
+     "duration": 5467,
+     "tags": [
+      {
+       "key": "rpc.grpc.status_code",
+       "type": "int64",
+       "value": 13
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      },
+      {
+       "key": "otel.status_code",
+       "type": "string",
+       "value": "ERROR"
+      },
+      {
+       "key": "error",
+       "type": "bool",
+       "value": true
+      }
+     ],
+     "logs": [],
+     "processID": "p8"
+    },
+    {
+     "traceID": "4532d82d1b67aa3e9eee81893f2753cc",
+     "spanID": "06a96fefed047b1f",
+     "operationName": "executing api route (pages) /api/cart",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "4532d82d1b67aa3e9eee81893f2753cc",
+       "spanID": "95674b5e64601db7"
+      }
+     ],
+     "startTime": 1790402495735000,
+     "duration": 1065,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "internal"
+      }
+     ],
+     "logs": [],
+     "processID": "p8"
+    },
+    {
+     "traceID": "4532d82d1b67aa3e9eee81893f2753cc",
+     "spanID": "95674b5e64601db7",
+     "operationName": "POST /api/cart",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "4532d82d1b67aa3e9eee81893f2753cc",
+       "spanID": "108181922a9cd22a"
+      }
+     ],
+     "startTime": 1790402495735000,
+     "duration": 1187,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p8"
+    },
+    {
+     "traceID": "4532d82d1b67aa3e9eee81893f2753cc",
+     "spanID": "a18ecaeaff481732",
+     "operationName": "executing api route (pages) /api/checkout",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "4532d82d1b67aa3e9eee81893f2753cc",
+       "spanID": "137b0b6fc7965253"
+      }
+     ],
+     "startTime": 1790402495737000,
+     "duration": 5682,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "internal"
+      },
+      {
+       "key": "otel.status_code",
+       "type": "string",
+       "value": "ERROR"
+      },
+      {
+       "key": "error",
+       "type": "bool",
+       "value": true
+      }
+     ],
+     "logs": [
+      {
+       "timestamp": 1790402495742530,
+       "fields": [
+        {
+         "key": "event",
+         "type": "string",
+         "value": "exception"
+        },
+        {
+         "key": "exception.message",
+         "type": "string",
+         "value": "13 INTERNAL: failed to charge card: could not charge the card: rpc error: code = Unknown desc = The credit card (ending 5100) expired on 9/2026."
+        },
+        {
+         "key": "exception.type",
+         "type": "string",
+         "value": "13"
+        }
+       ]
+      }
+     ],
+     "processID": "p8"
+    },
+    {
+     "traceID": "4532d82d1b67aa3e9eee81893f2753cc",
+     "spanID": "137b0b6fc7965253",
+     "operationName": "POST /api/checkout",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "4532d82d1b67aa3e9eee81893f2753cc",
+       "spanID": "59cb9a1afd43952c"
+      }
+     ],
+     "startTime": 1790402495736000,
+     "duration": 5828,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p8"
+    },
+    {
+     "traceID": "4532d82d1b67aa3e9eee81893f2753cc",
+     "spanID": "108181922a9cd22a",
+     "operationName": "POST /api/cart",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "4532d82d1b67aa3e9eee81893f2753cc",
+       "spanID": "43826feb3fb5404f"
+      }
+     ],
+     "startTime": 1790402495735000,
+     "duration": 1267,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p8"
+    },
+    {
+     "traceID": "4532d82d1b67aa3e9eee81893f2753cc",
+     "spanID": "59cb9a1afd43952c",
+     "operationName": "POST /api/checkout",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "4532d82d1b67aa3e9eee81893f2753cc",
+       "spanID": "91a8133619219fe8"
+      }
+     ],
+     "startTime": 1790402495736000,
+     "duration": 5924,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p8"
+    },
+    {
+     "traceID": "4532d82d1b67aa3e9eee81893f2753cc",
+     "spanID": "dcceb139e6bb836e",
+     "operationName": "oteldemo.PaymentService/Charge",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "4532d82d1b67aa3e9eee81893f2753cc",
+       "spanID": "7787cf6b8f15bf63"
+      }
+     ],
+     "startTime": 1790402495741000,
+     "duration": 782,
+     "tags": [
+      {
+       "key": "demo.payment.amount",
+       "type": "string",
+       "value": "30.94"
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      },
+      {
+       "key": "otel.status_code",
+       "type": "string",
+       "value": "ERROR"
+      },
+      {
+       "key": "error",
+       "type": "bool",
+       "value": true
+      },
+      {
+       "key": "otel.status_description",
+       "type": "string",
+       "value": "The credit card (ending 5100) expired on 9/2026."
+      }
+     ],
+     "logs": [],
+     "processID": "p9"
+    },
+    {
+     "traceID": "4532d82d1b67aa3e9eee81893f2753cc",
+     "spanID": "1fcc5e4b51811f51",
+     "operationName": "charge",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "4532d82d1b67aa3e9eee81893f2753cc",
+       "spanID": "dcceb139e6bb836e"
+      }
+     ],
+     "startTime": 1790402495741000,
+     "duration": 272,
+     "tags": [
+      {
+       "key": "demo.payment.card_type",
+       "type": "string",
+       "value": "mastercard"
+      },
+      {
+       "key": "demo.payment.card_valid",
+       "type": "bool",
+       "value": true
+      },
+      {
+       "key": "demo.user_context.loyalty_level",
+       "type": "string",
+       "value": "gold"
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "internal"
+      },
+      {
+       "key": "otel.status_code",
+       "type": "string",
+       "value": "ERROR"
+      },
+      {
+       "key": "error",
+       "type": "bool",
+       "value": true
+      },
+      {
+       "key": "otel.status_description",
+       "type": "string",
+       "value": "The credit card (ending 5100) expired on 9/2026."
+      }
+     ],
+     "logs": [
+      {
+       "timestamp": 1790402495741267,
+       "fields": [
+        {
+         "key": "event",
+         "type": "string",
+         "value": "exception"
+        },
+        {
+         "key": "exception.message",
+         "type": "string",
+         "value": "The credit card (ending 5100) expired on 9/2026."
+        },
+        {
+         "key": "exception.type",
+         "type": "string",
+         "value": "Error"
+        }
+       ]
+      }
+     ],
+     "processID": "p9"
+    },
+    {
+     "traceID": "4532d82d1b67aa3e9eee81893f2753cc",
+     "spanID": "9b0ec33190daba0d",
+     "operationName": "valkey-cart:6379",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "4532d82d1b67aa3e9eee81893f2753cc",
+       "spanID": "bc357fb00a47719c"
+      }
+     ],
+     "startTime": 1790402495735967,
+     "duration": 89,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p3"
+    },
+    {
+     "traceID": "4532d82d1b67aa3e9eee81893f2753cc",
+     "spanID": "9680479dd0e46fe7",
+     "operationName": "valkey-cart:6379",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "4532d82d1b67aa3e9eee81893f2753cc",
+       "spanID": "70b0ee02638d20b5"
+      }
+     ],
+     "startTime": 1790402495737487,
+     "duration": 98,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p3"
+    },
+    {
+     "traceID": "4532d82d1b67aa3e9eee81893f2753cc",
+     "spanID": "c71c04293c5df324",
+     "operationName": "valkey-cart:6379",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "4532d82d1b67aa3e9eee81893f2753cc",
+       "spanID": "e3b149d6c097dbd7"
+      }
+     ],
+     "startTime": 1790402495735469,
+     "duration": 125,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p3"
+    },
+    {
+     "traceID": "4532d82d1b67aa3e9eee81893f2753cc",
+     "spanID": "bad31493307df19b",
+     "operationName": "valkey-cart:6379",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "4532d82d1b67aa3e9eee81893f2753cc",
+       "spanID": "e3b149d6c097dbd7"
+      }
+     ],
+     "startTime": 1790402495735601,
+     "duration": 44,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p3"
+    },
+    {
+     "traceID": "4532d82d1b67aa3e9eee81893f2753cc",
+     "spanID": "bab3e08a620f996c",
+     "operationName": "valkey-cart:6379",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "4532d82d1b67aa3e9eee81893f2753cc",
+       "spanID": "e3b149d6c097dbd7"
+      }
+     ],
+     "startTime": 1790402495735645,
+     "duration": 32,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p3"
+    }
+   ],
+   "processes": {
+    "p1": {
+     "serviceName": "frontend-proxy",
+     "tags": [
+      {
+       "key": "service.version",
+       "type": "string",
+       "value": "3.1.0"
+      }
+     ]
+    },
+    "p2": {
+     "serviceName": "product-catalog",
+     "tags": [
+      {
+       "key": "service.version",
+       "type": "string",
+       "value": "v1.4.0"
+      }
+     ]
+    },
+    "p3": {
+     "serviceName": "cart",
+     "tags": [
+      {
+       "key": "service.version",
+       "type": "string",
+       "value": "3.1.0"
+      }
+     ]
+    },
+    "p4": {
+     "serviceName": "shipping",
+     "tags": [
+      {
+       "key": "service.version",
+       "type": "string",
+       "value": "3.1.0"
+      }
+     ]
+    },
+    "p5": {
+     "serviceName": "currency",
+     "tags": [
+      {
+       "key": "service.version",
+       "type": "string",
+       "value": "3.1.0"
+      }
+     ]
+    },
+    "p6": {
+     "serviceName": "checkout",
+     "tags": [
+      {
+       "key": "service.version",
+       "type": "string",
+       "value": "v1.4.0"
+      }
+     ]
+    },
+    "p7": {
+     "serviceName": "quote",
+     "tags": [
+      {
+       "key": "service.version",
+       "type": "string",
+       "value": "v1.4.0"
+      }
+     ]
+    },
+    "p8": {
+     "serviceName": "frontend",
+     "tags": [
+      {
+       "key": "service.version",
+       "type": "string",
+       "value": "3.1.0"
+      }
+     ]
+    },
+    "p9": {
+     "serviceName": "payment",
+     "tags": [
+      {
+       "key": "service.version",
+       "type": "string",
+       "value": "v1.4.0"
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "total": 0,
+ "limit": 0,
+ "offset": 0
+}

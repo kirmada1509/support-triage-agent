@@ -4,13 +4,13 @@ What's built and what isn't, phase by phase, against `Agent_Architecture_And_Bui
 Tick an item when it works and is tested the way the plan's "How it's tested" says; tick a
 phase's "Done when" only when that whole criterion has been seen working.
 
-Last updated Sep 26, 2026, after phase 4 front pipeline. Suite inventory (provider calls depend on credit):
+Last updated Sep 26, 2026, during phase 5 (code index, helper commands). Suite inventory (provider calls depend on credit):
 
 | Suite | Command | Needs | Tests |
 | --- | --- | --- | --- |
-| Units, graph in memory, front pipeline, scenario logic, sandbox kit, tracing, model config, retrieval | `make test` | nothing | 99 |
-| Database | `make test-db` | `make db` | 9 |
-| The fork: tags, planted bugs, overlay, images | `make test-sandbox` | `make sandbox` | 18 |
+| Units, graph in memory, front pipeline, scenario logic, sandbox kit, tracing, model config, retrieval, indexer, codebox helpers, trace condensing | `make test` | nothing | 158 |
+| Database | `make test-db` | `make db` | 10 |
+| The fork: tags, planted bugs, overlay, images, the code index at both tags | `make test-sandbox` | `make sandbox` | 27 |
 | The running shop: every scenario, read-only role, metrics, logs | `make test-shop` | `make shop-up` | 15 |
 | Real model calls on each provider profile | `make test-llm` | keys in `.env.agent` | 4 |
 | Both analysts on demo tickets, codebox and history guardrails | `make test-spike` | shop, `make analyst-images`, keys | 6 |
@@ -109,13 +109,25 @@ Last updated Sep 26, 2026, after phase 4 front pipeline. Suite inventory (provid
   `make test-spike`)
 - [x] `search_logs.py`: only `_search` on `otel-logs-*`, at most 50 hits, one line each, tested on a
   saved OpenSearch response
-- [ ] Give `/prev` in the codebox its own git environment (`GIT_DIR` currently points at the deployed tag)
-- [ ] `condense_traces.py` keeps the shop's real attribute names (it looks for `app.user.id` and
-  `app.payment.card_type`; the shop sends `user.id` and `demo.payment.card_type`)
-- [ ] Characterization tests for `condense_traces.py` on saved Jaeger responses
+- [x] Give `/prev` in the codebox its own git environment: `codebox/bin/git` switches to
+  `PREV_GIT_DIR` in `/prev` or with `-C /prev` (tested on real worktrees; in-container check is in
+  `make test-spike`, not yet rerun)
+- [x] `condense_traces.py` keeps the shop's real attribute names (`user.id`, every `demo.*`)
+- [x] Characterization tests for `condense_traces.py` on saved Jaeger responses
 - [x] Codebox container with read-only worktrees and no network; writes and network refused (`make test-spike`)
-- [ ] Helper commands: `repo-map`, `lookup-error`, `find-symbol`, `rpc-handler` (drafted, not yet run)
-- [ ] Indexer: universal-ctags, ast-grep, `protoc`, service cards; run from `deploy.sh` step 4
+- [x] Helper commands `repo-map`, `lookup-error`, `find-symbol`, `rpc-handler`, `flag-reads` read
+  the exported index at `/index` with mawk (the codebox's awk), fall back to ctags and rg; tested
+  on a fixture export and on the real v1.4.0 index (`lookup-error` on the customer's quoted
+  expiry message gives `charge.js:89` only)
+- [x] Indexer (plan changed: ast-grep for everything, the `.proto` for method names, no ctags or
+  `protoc`): symbols, error messages, flag reads, gRPC handlers for JS, Go, PHP and C#; stored per
+  (service, commit), exported as TSV; `python -m app.indexer`, `make index-code v=...`,
+  `deploy.sh` step 4. All five services indexed at both tags, pinned in `make test-sandbox`
+  and round-tripped through Postgres (`make test-db`)
+- [ ] Service cards against a real model (`card.py` is tested with a fake; indexing so far ran
+  with `INDEX_CARDS=0`, no key in that environment)
+- [ ] Rerun `make test-spike` with the index mounted at `/index` and `PREV_GIT_DIR`
+- [ ] `evals/phase4.py` fails `ruff format --check` (`make lint` only runs `ruff check`)
 - [ ] **Done when:** each toolset and helper command returns condensed real data, a write attempt
   is refused, both versions are indexed, and those results are pinned by tests
 
@@ -126,7 +138,9 @@ Last updated Sep 26, 2026, after phase 4 front pipeline. Suite inventory (provid
 - [ ] Brief
 - [ ] Data analyst node: runs HolmesGPT's container, enforces the 90 s timeout and tool-call budget
   itself (its step limit counts model turns: the spike made 36 calls in 15 turns), streams its tool calls
-- [ ] Codebase analyst node (mini-swe-agent) with timeout, streaming its commands
+- [ ] Codebase analyst node (mini-swe-agent) with timeout, streaming its commands; it exports
+  the deployed commit's index (`app.indexer.__main__.export_index`) to mount at `/index`, sets
+  `PREV_GIT_DIR`, and puts the service card and change summary in the task prompt
 - [ ] Findings conversion with evidence checks (HolmesGPT guesses about code it never read; drop those)
 - [ ] Cost per analyst run from tokens and `models.yaml` prices (LiteLLM has no price for deepseek-flash)
 - [ ] Round 2

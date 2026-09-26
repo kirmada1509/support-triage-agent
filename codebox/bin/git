@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# git in the codebox. GIT_DIR and GIT_WORK_TREE name the deployed tag's worktree (/repo); run from
+# /prev, or with -C /prev, and git uses the previous tag's worktree instead (PREV_GIT_DIR). The
+# worktrees' own .git files hold host paths, which don't resolve in the container.
+real=${GIT_REAL:-/usr/bin/git}
+prev=${PREV_DIR:-/prev}
+dir=$PWD
+i=1
+while [ $i -le $# ]; do  # only git's own options, before the subcommand
+  arg=${!i}
+  case "$arg" in
+    -C) j=$((i + 1)); dir=$(cd "$dir" 2>/dev/null && cd "${!j}" 2>/dev/null && pwd) || break
+        i=$((i + 2)) ;;
+    -c) i=$((i + 2)) ;;
+    -*) i=$((i + 1)) ;;
+    *) break ;;
+  esac
+done
+case "$dir/" in
+  "$prev"/*)
+    [ -n "${PREV_GIT_DIR:-}" ] || { echo "git: PREV_GIT_DIR is not set" >&2; exit 1; }
+    export GIT_DIR=$PREV_GIT_DIR GIT_WORK_TREE=$prev ;;
+esac
+exec "$real" "$@"

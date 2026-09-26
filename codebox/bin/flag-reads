@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+# flag-reads <flag>: where the code reads a feature flag (OpenFeature), with file and line.
+set -euo pipefail
+arg=${1:?usage: flag-reads <flag>}
+. "$(dirname "$0")/_index"
+if has_index; then
+  out=$(query flags.tsv '$1 == ENVIRON["ARG"] { print $2 ":" $3 " " $4 }')
+  echo "${out:-no reads of $arg indexed}"
+  exit 0
+fi
+echo "(no code index; plain search)"
+rg -n --fixed-strings -- "$arg" src/ | head -20 || echo "not found: $arg"

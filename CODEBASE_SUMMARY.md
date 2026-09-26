@@ -75,8 +75,10 @@ including investigations, code index and eval results, exist ahead of their work
 
 ## Still incomplete
 
-- The Phase 5 code index and parts of the analyst helper/trace tooling are unfinished. The
-  restricted analyst environments work as standalone spikes, not graph investigations.
+- The Phase 5 code index is built (all five services at both tags, stored per commit, exported
+  to the codebox's helper commands), but service cards have not yet been written by a real model
+  and the spike has not been rerun with the index mounted. The restricted analyst environments
+  work as standalone spikes, not graph investigations.
 - `duplicates`, `brief`, both analyst nodes, `round2`, `verdict` and `remember` are Phase 6
   placeholders. A technical ticket cannot yet get a trustworthy root cause, duplicate link or
   memory write-back from the graph.

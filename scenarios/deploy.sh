@@ -45,4 +45,7 @@ fi
 git log --format=%s "${previous}..${version}" -- "src/${service}/" \
   | (cd "$AGENT_DIR" && uv run python scenarios/record.py deploy "$service" "$version" "$previous" "$sha")
 
-# 4. TODO(phase 5): index the new version: uv run python -m app.indexer "$service" "$sha"
+# 4. index the new version (once per service and commit); the analysts fall back to plain search
+#    without it, so a failure here doesn't undo the deploy
+(cd "$AGENT_DIR" && uv run python -m app.indexer index "$service" "$version") \
+  || echo "indexing $service@$version failed; run: make index-code v=$version" >&2

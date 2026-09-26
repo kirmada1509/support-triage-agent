@@ -1,69 +1,16 @@
 """The stub graph end to end: lanes, parallel analysts, interrupt and resume, events."""
 
-from datetime import timedelta
-
 import pytest
 from langgraph.checkpoint.memory import InMemorySaver
 from langgraph.types import Command
 
 from app.events import ApprovalRequiredEvent, StageEvent, ToolCallEvent
-from app.graph import build as graph_build
 from app.graph.build import build_graph, checkpoint_serde
 from app.graph.stream import run_graph
-from app.models import Classification, Enrichment, Layer1Answer, RequestTriage, Verdict
+from app.models import Verdict
 from tests.conftest import demo_ticket
 
-
-@pytest.fixture(autouse=True)
-def front_stage_fakes(monkeypatch):
-    """The skeleton graph tests exercise lanes without network or a retrieval database."""
-
-    async def enriched(state):
-        end = state["ticket"].received_at
-        return {
-            "enrichment": Enrichment(
-                window_start=end - timedelta(hours=3),
-                window_end=end,
-                window_basis="test",
-                symptom=state["ticket"].subject,
-            )
-        }
-
-    async def retrieved(state):
-        return {"retrieved": []}
-
-    async def classified(state):
-        ticket_id = state["ticket"].id
-        kind = {"T-1": "how_to", "T-2": "request"}.get(ticket_id, "tech_issue")
-        return {
-            "classification": Classification(
-                ticket_type=kind,
-                ticket_type_confidence=0.9,
-                service="checkout" if kind == "request" else "payment",
-                severity=2,
-                revenue_blocking=kind == "tech_issue",
-                revenue_blocking_confidence=0.9,
-            )
-        }
-
-    async def answered(state):
-        answer = Layer1Answer(answer="A human will follow up.", cited_ids=[], confident=False)
-        return {"layer1": answer, "reply": answer.answer}
-
-    async def requested(state):
-        triage = RequestTriage(
-            kind="feature", summary="Apple Pay", acknowledgement="Thanks for the suggestion."
-        )
-        return {"request": triage, "reply": triage.acknowledgement}
-
-    for name, fn in {
-        "enrich": enriched,
-        "retrieve": retrieved,
-        "jev": classified,
-        "layer1": answered,
-        "requests": requested,
-    }.items():
-        monkeypatch.setitem(graph_build.NODES, name, fn)
+pytestmark = pytest.mark.usefixtures("front_stage_fakes")
 
 
 class Recorder:

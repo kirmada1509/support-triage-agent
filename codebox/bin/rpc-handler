@@ -1,11 +1,17 @@
 #!/usr/bin/env bash
 # rpc-handler <Service/Method>: the function that handles a gRPC method, in whichever service.
+# A bare Method name works too.
 set -euo pipefail
-rpc=${1:?usage: rpc-handler <Service/Method>}
-method=${rpc##*/}
-out=$(_index -v m="$rpc" -c "SELECT handler_file, handler_line, service FROM rpc_map WHERE git_sha = :'sha' AND method = :'m'" || true)
-if [ -n "$out" ]; then echo "$out"; exit 0; fi
-# Fallback: handler definitions named after the method (Go, JS, Python, PHP, C#, Rust, ...).
+arg=${1:?usage: rpc-handler <Service/Method>}
+. "$(dirname "$0")/_index"
+if has_index; then
+  out=$(query rpc.tsv '{ a = ENVIRON["ARG"]; s = "/" a }
+    $1 == a || substr($1, length($1) - length(s) + 1) == s { print $2 ":" $3 " " $4 " " $1 }')
+  echo "${out:-no handler indexed for $arg}"
+  exit 0
+fi
+echo "(no code index; plain search)"
+method=${arg##*/}
 rg -n -i -e "func \(.*\) ${method}\(" -e "\b${method}\s*[:=]\s*(async\s*)?(function|\()" \
-   -e "def ${method}\(" -e "function ${method}\(" -e "\b${method}\s*\(" --max-count 3 src/ \
-  | grep -v -i "test" | head -20
+   -e "def ${method}\(" -e "function ${method}\(" --max-count 3 src/ \
+  | grep -v -i "test" | head -20 || true

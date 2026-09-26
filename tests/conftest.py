@@ -3,7 +3,16 @@ from datetime import UTC, datetime, timedelta
 import pytest
 import yaml
 
-from app.models import ContextBundle, Deploy, Ticket
+from app.graph import build
+from app.models import (
+    Classification,
+    ContextBundle,
+    Deploy,
+    Enrichment,
+    Layer1Answer,
+    RequestTriage,
+    Ticket,
+)
 from app.settings import ROOT
 
 NOW = datetime(2026, 9, 23, 10, 20, tzinfo=UTC)
@@ -41,3 +50,55 @@ def no_db(request, monkeypatch):
         )
 
     monkeypatch.setattr("app.nodes.context.fetch_context", fake_fetch_context)
+
+
+@pytest.fixture
+def front_stage_fakes(monkeypatch):
+    """Fake front stages, so graph tests exercise lanes without a model or retrieval database."""
+
+    async def enriched(state):
+        end = state["ticket"].received_at
+        return {
+            "enrichment": Enrichment(
+                window_start=end - timedelta(hours=3),
+                window_end=end,
+                window_basis="test",
+                symptom=state["ticket"].subject,
+            )
+        }
+
+    async def retrieved(state):
+        return {"retrieved": []}
+
+    async def classified(state):
+        ticket_id = state["ticket"].id
+        kind = {"T-1": "how_to", "T-2": "request"}.get(ticket_id, "tech_issue")
+        return {
+            "classification": Classification(
+                ticket_type=kind,
+                ticket_type_confidence=0.9,
+                service="checkout" if kind == "request" else "payment",
+                severity=2,
+                revenue_blocking=kind == "tech_issue",
+                revenue_blocking_confidence=0.9,
+            )
+        }
+
+    async def answered(state):
+        answer = Layer1Answer(answer="A human will follow up.", cited_ids=[], confident=False)
+        return {"layer1": answer, "reply": answer.answer}
+
+    async def requested(state):
+        triage = RequestTriage(
+            kind="feature", summary="Apple Pay", acknowledgement="Thanks for the suggestion."
+        )
+        return {"request": triage, "reply": triage.acknowledgement}
+
+    for name, fn in {
+        "enrich": enriched,
+        "retrieve": retrieved,
+        "jev": classified,
+        "layer1": answered,
+        "requests": requested,
+    }.items():
+        monkeypatch.setitem(build.NODES, name, fn)

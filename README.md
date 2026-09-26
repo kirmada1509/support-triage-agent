@@ -80,7 +80,7 @@ app/
   tables.py       SQLAlchemy 2.0 models for our tables (the source of the migrations)
   db.py           async engine, sessions and every query the app runs
   retrieval/      phase 3 indexing, embedding, hybrid search and hit rates
-  indexer/        phase 5
+  indexer/        phase 5 code index (ast-grep), service cards, export for the codebox
 config/           models.yaml, roles.yaml, ownership.yaml (the one list of service names)
 db/migrations/    Alembic: env.py and versions/ (0001 also creates the NOTIFY trigger)
 holmes/           HolmesGPT's image and toolsets (jaeger, history, logs) + their helper scripts

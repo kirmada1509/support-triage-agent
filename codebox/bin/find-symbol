@@ -1,8 +1,13 @@
 #!/usr/bin/env bash
-# find-symbol <name>: where a function or type is defined, and where it's called.
+# find-symbol <name>: where a function or type is defined, and where it's used.
 set -euo pipefail
-name=${1:?usage: find-symbol <name>}
-out=$(_index -v n="$name" -c "SELECT file, line, service, kind, coalesce(signature, name) FROM code_symbols WHERE git_sha = :'sha' AND name = :'n'" || true)
-if [ -n "$out" ]; then echo "definitions:"; echo "$out"; else echo "definitions (ctags):"; ctags -R -x src/ 2>/dev/null | awk -v n="$name" '$1 == n {print $4":"$3" "$2}'; fi
+arg=${1:?usage: find-symbol <name>}
+. "$(dirname "$0")/_index"
+echo "definitions:"
+if has_index; then
+  query symbols.tsv '$5 == ENVIRON["ARG"] { print $1 ":" $2 " " $3 " " $4 " " $6 }'
+else
+  ctags -R -x src/ 2>/dev/null | awk -v n="$arg" '$1 == n {print $4":"$3" "$2}'
+fi
 echo "references:"
-rg -n -w --max-count 20 -- "$name" src/ | head -40
+rg -n -w --fixed-strings --max-count 20 -- "$arg" src/ | head -40 || true

@@ -1,0 +1,4567 @@
+{
+ "data": [
+  {
+   "traceID": "e640818de4eb3da43a4075fa807f2936",
+   "spans": [
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "0d3c2d65bc73a6fd",
+     "operationName": "router frontend egress",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "207d91bfdc99bacd"
+      }
+     ],
+     "startTime": 1790406866606921,
+     "duration": 7070,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p1"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "207d91bfdc99bacd",
+     "operationName": "GET",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "9668dfb73f8de06a"
+      }
+     ],
+     "startTime": 1790406866606565,
+     "duration": 7466,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p1"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "b15f39e5add0ffd4",
+     "operationName": "router frontend egress",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "5ee175f66e3b684f"
+      }
+     ],
+     "startTime": 1790406866616125,
+     "duration": 3550,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p1"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "5ee175f66e3b684f",
+     "operationName": "POST",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "0ea99a67359fd50e"
+      }
+     ],
+     "startTime": 1790406866615991,
+     "duration": 3703,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p1"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "c2fea2d1a9ad39bf",
+     "operationName": "router frontend egress",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "49fbdfdf894d13f3"
+      }
+     ],
+     "startTime": 1790406866621418,
+     "duration": 4242,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p1"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "49fbdfdf894d13f3",
+     "operationName": "GET",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "67d06779906e8a8a"
+      }
+     ],
+     "startTime": 1790406866621310,
+     "duration": 4543,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p1"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "627f90250ef46a86",
+     "operationName": "router frontend egress",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "0d99193a230c0c45"
+      }
+     ],
+     "startTime": 1790406866627287,
+     "duration": 4268,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p1"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "0d99193a230c0c45",
+     "operationName": "POST",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "21a31125e84fdc89"
+      }
+     ],
+     "startTime": 1790406866627208,
+     "duration": 4374,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p1"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "2f1ccca717d9b24e",
+     "operationName": "router frontend egress",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "7e6b534b3e1abf80"
+      }
+     ],
+     "startTime": 1790406866633436,
+     "duration": 4708,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p1"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "7e6b534b3e1abf80",
+     "operationName": "GET",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "37679abd0e2d3e6c"
+      }
+     ],
+     "startTime": 1790406866633337,
+     "duration": 4825,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p1"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "941cb2feb5f14ee4",
+     "operationName": "router frontend egress",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "87596a7ad2d034aa"
+      }
+     ],
+     "startTime": 1790406866639715,
+     "duration": 3094,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p1"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "87596a7ad2d034aa",
+     "operationName": "POST",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "5c4227d712c429c8"
+      }
+     ],
+     "startTime": 1790406866639641,
+     "duration": 3183,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p1"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "85cb41b8c7e03975",
+     "operationName": "router frontend egress",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "e10d72a2eacffcda"
+      }
+     ],
+     "startTime": 1790406866644035,
+     "duration": 3324,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p1"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "e10d72a2eacffcda",
+     "operationName": "GET",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "ad211438871373e0"
+      }
+     ],
+     "startTime": 1790406866643979,
+     "duration": 3391,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p1"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "2a0bf2cb2c2216ef",
+     "operationName": "router frontend egress",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "7e4031419f60d35a"
+      }
+     ],
+     "startTime": 1790406866648402,
+     "duration": 2657,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p1"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "9668dfb73f8de06a",
+     "operationName": "GET",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "8657f3eb864bdd00"
+      }
+     ],
+     "startTime": 1790406866605240,
+     "duration": 9663,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p2"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "0ea99a67359fd50e",
+     "operationName": "POST",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "8657f3eb864bdd00"
+      }
+     ],
+     "startTime": 1790406866615516,
+     "duration": 4747,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p2"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "67d06779906e8a8a",
+     "operationName": "GET",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "026dc557c4c48257"
+      }
+     ],
+     "startTime": 1790406866620905,
+     "duration": 5482,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p2"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "21a31125e84fdc89",
+     "operationName": "POST",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "026dc557c4c48257"
+      }
+     ],
+     "startTime": 1790406866626835,
+     "duration": 5434,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p2"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "37679abd0e2d3e6c",
+     "operationName": "GET",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "3e6582dd60ba3702"
+      }
+     ],
+     "startTime": 1790406866632927,
+     "duration": 5893,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p2"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "5c4227d712c429c8",
+     "operationName": "POST",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "3e6582dd60ba3702"
+      }
+     ],
+     "startTime": 1790406866639284,
+     "duration": 3981,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p2"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "ad211438871373e0",
+     "operationName": "GET",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "8a85593583139c16"
+      }
+     ],
+     "startTime": 1790406866643703,
+     "duration": 4030,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p2"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "76e9a8ca6de9787e",
+     "operationName": "POST",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "8a85593583139c16"
+      }
+     ],
+     "startTime": 1790406866648059,
+     "duration": 3484,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p2"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "01fbc6c6359ba655",
+     "operationName": "POST",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "e7146d245e40fa26"
+      }
+     ],
+     "startTime": 1790406866651816,
+     "duration": 36409,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p2"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "8657f3eb864bdd00",
+     "operationName": "user_add_to_cart",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "e7146d245e40fa26"
+      }
+     ],
+     "startTime": 1790406866603491,
+     "duration": 16860,
+     "tags": [
+      {
+       "key": "demo.product.id",
+       "type": "string",
+       "value": "HQTGWGPNH4"
+      },
+      {
+       "key": "demo.product.quantity",
+       "type": "int64",
+       "value": 4
+      },
+      {
+       "key": "user.id",
+       "type": "string",
+       "value": "e860abbc-b979-11f1-b987-e22d3198d384"
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "internal"
+      }
+     ],
+     "logs": [],
+     "processID": "p2"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "026dc557c4c48257",
+     "operationName": "user_add_to_cart",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "e7146d245e40fa26"
+      }
+     ],
+     "startTime": 1790406866620437,
+     "duration": 11909,
+     "tags": [
+      {
+       "key": "demo.product.id",
+       "type": "string",
+       "value": "LS4PSXUNUM"
+      },
+      {
+       "key": "demo.product.quantity",
+       "type": "int64",
+       "value": 1
+      },
+      {
+       "key": "user.id",
+       "type": "string",
+       "value": "e860abbc-b979-11f1-b987-e22d3198d384"
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "internal"
+      }
+     ],
+     "logs": [],
+     "processID": "p2"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "3e6582dd60ba3702",
+     "operationName": "user_add_to_cart",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "e7146d245e40fa26"
+      }
+     ],
+     "startTime": 1790406866632444,
+     "duration": 10875,
+     "tags": [
+      {
+       "key": "demo.product.id",
+       "type": "string",
+       "value": "L9ECAV7KIM"
+      },
+      {
+       "key": "demo.product.quantity",
+       "type": "int64",
+       "value": 2
+      },
+      {
+       "key": "user.id",
+       "type": "string",
+       "value": "e860abbc-b979-11f1-b987-e22d3198d384"
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "internal"
+      }
+     ],
+     "logs": [],
+     "processID": "p2"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "8a85593583139c16",
+     "operationName": "user_add_to_cart",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "e7146d245e40fa26"
+      }
+     ],
+     "startTime": 1790406866643388,
+     "duration": 8194,
+     "tags": [
+      {
+       "key": "demo.product.id",
+       "type": "string",
+       "value": "9SIQT8TOJO"
+      },
+      {
+       "key": "demo.product.quantity",
+       "type": "int64",
+       "value": 4
+      },
+      {
+       "key": "user.id",
+       "type": "string",
+       "value": "e860abbc-b979-11f1-b987-e22d3198d384"
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "internal"
+      }
+     ],
+     "logs": [],
+     "processID": "p2"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "e7146d245e40fa26",
+     "operationName": "user_checkout_multi",
+     "references": [],
+     "startTime": 1790406866603266,
+     "duration": 85131,
+     "tags": [
+      {
+       "key": "demo.cart.items.count",
+       "type": "int64",
+       "value": 4
+      },
+      {
+       "key": "user.id",
+       "type": "string",
+       "value": "e860abbc-b979-11f1-b987-e22d3198d384"
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "internal"
+      }
+     ],
+     "logs": [],
+     "processID": "p2"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "b646c40b5ba2cd8d",
+     "operationName": "calculate-quote",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "2ea8bdc7f01489be"
+      }
+     ],
+     "startTime": 1790406866595752,
+     "duration": 12,
+     "tags": [
+      {
+       "key": "demo.shipping.quote.cost.total",
+       "type": "float64",
+       "value": 197.78000000000003
+      },
+      {
+       "key": "demo.shipping.quote.items_count",
+       "type": "int64",
+       "value": 11
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "internal"
+      }
+     ],
+     "logs": [],
+     "processID": "p3"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "2ea8bdc7f01489be",
+     "operationName": "{closure}",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "4ac17443807db627"
+      }
+     ],
+     "startTime": 1790406866595720,
+     "duration": 107,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "internal"
+      }
+     ],
+     "logs": [],
+     "processID": "p3"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "4ac17443807db627",
+     "operationName": "POST /getquote",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "2a63d44f2a463d74"
+      }
+     ],
+     "startTime": 1790406866595662,
+     "duration": 181,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p3"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "e0c5751e121c6bb1",
+     "operationName": "sinatra.render_template",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "8a3b487325fcf848"
+      }
+     ],
+     "startTime": 1790406866678769,
+     "duration": 49,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "internal"
+      }
+     ],
+     "logs": [],
+     "processID": "p4"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "8a3b487325fcf848",
+     "operationName": "sinatra.render_template",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "9b25f7eb719ce931"
+      }
+     ],
+     "startTime": 1790406866678659,
+     "duration": 167,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "internal"
+      }
+     ],
+     "logs": [],
+     "processID": "p4"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "9b25f7eb719ce931",
+     "operationName": "send_email",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "ebff98f43a09556e"
+      }
+     ],
+     "startTime": 1790406866678155,
+     "duration": 1383,
+     "tags": [
+      {
+       "key": "demo.order.id",
+       "type": "string",
+       "value": "e8685a82-b979-11f1-ba47-2e17146bfc7a"
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "internal"
+      }
+     ],
+     "logs": [],
+     "processID": "p4"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "ebff98f43a09556e",
+     "operationName": "POST /send_order_confirmation",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "a4437ac06c487409"
+      }
+     ],
+     "startTime": 1790406866677702,
+     "duration": 1984,
+     "tags": [
+      {
+       "key": "demo.order.id",
+       "type": "string",
+       "value": "e8685a82-b979-11f1-ba47-2e17146bfc7a"
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p4"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "bdf46a948585e463",
+     "operationName": "resolveFloat",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "a1779bb7468573f8"
+      }
+     ],
+     "startTime": 1790406866670444,
+     "duration": 7,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "internal"
+      }
+     ],
+     "logs": [],
+     "processID": "p5"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "a1779bb7468573f8",
+     "operationName": "resolveFloat",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "89e036101ede6dae"
+      }
+     ],
+     "startTime": 1790406866670422,
+     "duration": 40,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p5"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "89e036101ede6dae",
+     "operationName": "flagd.evaluation.v2.Service/ResolveFloat",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "7ef5563eae8b347a"
+      }
+     ],
+     "startTime": 1790406866670411,
+     "duration": 60,
+     "tags": [
+      {
+       "key": "rpc.grpc.status_code",
+       "type": "int64",
+       "value": 0
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p5"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "98468ea2100d274f",
+     "operationName": "astronomy-db",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "e0e7a8a6844ad8e5"
+      }
+     ],
+     "startTime": 1790406866611609,
+     "duration": 1336,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p6"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "cf4f1e81fa0b7943",
+     "operationName": "astronomy-db",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "01b18195b199d4b8"
+      }
+     ],
+     "startTime": 1790406866623922,
+     "duration": 1001,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p6"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "726d7fdca8446ae8",
+     "operationName": "astronomy-db",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "8f29fa7c23d58f34"
+      }
+     ],
+     "startTime": 1790406866636391,
+     "duration": 913,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p6"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "532c2736bb536300",
+     "operationName": "astronomy-db",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "2b07b733f288c8b4"
+      }
+     ],
+     "startTime": 1790406866645832,
+     "duration": 1140,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p6"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "af70a1c19885096f",
+     "operationName": "astronomy-db",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "e8643b67fa416d5f"
+      }
+     ],
+     "startTime": 1790406866655094,
+     "duration": 485,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p6"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "7442093a49d3653f",
+     "operationName": "astronomy-db",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "0d0cadc725e865ed"
+      }
+     ],
+     "startTime": 1790406866658685,
+     "duration": 398,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p6"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "1e0656df2a90de92",
+     "operationName": "astronomy-db",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "4b2d05b20f3d00e0"
+      }
+     ],
+     "startTime": 1790406866661618,
+     "duration": 909,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p6"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "ce920387effb93a6",
+     "operationName": "astronomy-db",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "08df721994917d9d"
+      }
+     ],
+     "startTime": 1790406866664778,
+     "duration": 410,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p6"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "d76d2d32f2f5f2cb",
+     "operationName": "astronomy-db",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "b6f4e92f00667a5b"
+      }
+     ],
+     "startTime": 1790406866682294,
+     "duration": 347,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p6"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "4c7ac9118da81094",
+     "operationName": "astronomy-db",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "920b56f008298fac"
+      }
+     ],
+     "startTime": 1790406866682327,
+     "duration": 320,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p6"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "c86c6f04fe3a29cb",
+     "operationName": "astronomy-db",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "faaa3172cff440e2"
+      }
+     ],
+     "startTime": 1790406866686153,
+     "duration": 695,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p6"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "8224cbc458df3fc5",
+     "operationName": "astronomy-db",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "67b306c018b2e2d3"
+      }
+     ],
+     "startTime": 1790406866686159,
+     "duration": 737,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p6"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "e0e7a8a6844ad8e5",
+     "operationName": "oteldemo.ProductCatalogService/GetProduct",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "64b9c9f0b1a9b481"
+      }
+     ],
+     "startTime": 1790406866610508,
+     "duration": 2638,
+     "tags": [
+      {
+       "key": "demo.product.id",
+       "type": "string",
+       "value": "HQTGWGPNH4"
+      },
+      {
+       "key": "demo.product.name",
+       "type": "string",
+       "value": "The Comet Book"
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p6"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "01b18195b199d4b8",
+     "operationName": "oteldemo.ProductCatalogService/GetProduct",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "197e800a58e32638"
+      }
+     ],
+     "startTime": 1790406866622941,
+     "duration": 2252,
+     "tags": [
+      {
+       "key": "demo.product.id",
+       "type": "string",
+       "value": "LS4PSXUNUM"
+      },
+      {
+       "key": "demo.product.name",
+       "type": "string",
+       "value": "Red Flashlight"
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p6"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "8f29fa7c23d58f34",
+     "operationName": "oteldemo.ProductCatalogService/GetProduct",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "a989152969c643af"
+      }
+     ],
+     "startTime": 1790406866634901,
+     "duration": 2644,
+     "tags": [
+      {
+       "key": "demo.product.id",
+       "type": "string",
+       "value": "L9ECAV7KIM"
+      },
+      {
+       "key": "demo.product.name",
+       "type": "string",
+       "value": "Lens Cleaning Kit"
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p6"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "2b07b733f288c8b4",
+     "operationName": "oteldemo.ProductCatalogService/GetProduct",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "46ca38ea6f6c7077"
+      }
+     ],
+     "startTime": 1790406866644982,
+     "duration": 2051,
+     "tags": [
+      {
+       "key": "demo.product.id",
+       "type": "string",
+       "value": "9SIQT8TOJO"
+      },
+      {
+       "key": "demo.product.name",
+       "type": "string",
+       "value": "Optical Tube Assembly"
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p6"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "e8643b67fa416d5f",
+     "operationName": "oteldemo.ProductCatalogService/GetProduct",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "74947bf8ef19dc02"
+      }
+     ],
+     "startTime": 1790406866654151,
+     "duration": 1466,
+     "tags": [
+      {
+       "key": "demo.product.id",
+       "type": "string",
+       "value": "HQTGWGPNH4"
+      },
+      {
+       "key": "demo.product.name",
+       "type": "string",
+       "value": "The Comet Book"
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p6"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "0d0cadc725e865ed",
+     "operationName": "oteldemo.ProductCatalogService/GetProduct",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "4bc8c983c65710e6"
+      }
+     ],
+     "startTime": 1790406866656713,
+     "duration": 2455,
+     "tags": [
+      {
+       "key": "demo.product.id",
+       "type": "string",
+       "value": "LS4PSXUNUM"
+      },
+      {
+       "key": "demo.product.name",
+       "type": "string",
+       "value": "Red Flashlight"
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p6"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "4b2d05b20f3d00e0",
+     "operationName": "oteldemo.ProductCatalogService/GetProduct",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "d2735494d1cf99c9"
+      }
+     ],
+     "startTime": 1790406866659631,
+     "duration": 3333,
+     "tags": [
+      {
+       "key": "demo.product.id",
+       "type": "string",
+       "value": "L9ECAV7KIM"
+      },
+      {
+       "key": "demo.product.name",
+       "type": "string",
+       "value": "Lens Cleaning Kit"
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p6"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "08df721994917d9d",
+     "operationName": "oteldemo.ProductCatalogService/GetProduct",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "726aa141d30668e0"
+      }
+     ],
+     "startTime": 1790406866664365,
+     "duration": 873,
+     "tags": [
+      {
+       "key": "demo.product.id",
+       "type": "string",
+       "value": "9SIQT8TOJO"
+      },
+      {
+       "key": "demo.product.name",
+       "type": "string",
+       "value": "Optical Tube Assembly"
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p6"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "b6f4e92f00667a5b",
+     "operationName": "oteldemo.ProductCatalogService/GetProduct",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "e838619a0931e7d6"
+      }
+     ],
+     "startTime": 1790406866681485,
+     "duration": 1205,
+     "tags": [
+      {
+       "key": "demo.product.id",
+       "type": "string",
+       "value": "9SIQT8TOJO"
+      },
+      {
+       "key": "demo.product.name",
+       "type": "string",
+       "value": "Optical Tube Assembly"
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p6"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "920b56f008298fac",
+     "operationName": "oteldemo.ProductCatalogService/GetProduct",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "2c4e6eafaf36214b"
+      }
+     ],
+     "startTime": 1790406866681567,
+     "duration": 1126,
+     "tags": [
+      {
+       "key": "demo.product.id",
+       "type": "string",
+       "value": "LS4PSXUNUM"
+      },
+      {
+       "key": "demo.product.name",
+       "type": "string",
+       "value": "Red Flashlight"
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p6"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "faaa3172cff440e2",
+     "operationName": "oteldemo.ProductCatalogService/GetProduct",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "8bc62411ae905914"
+      }
+     ],
+     "startTime": 1790406866681612,
+     "duration": 5358,
+     "tags": [
+      {
+       "key": "demo.product.id",
+       "type": "string",
+       "value": "L9ECAV7KIM"
+      },
+      {
+       "key": "demo.product.name",
+       "type": "string",
+       "value": "Lens Cleaning Kit"
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p6"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "67b306c018b2e2d3",
+     "operationName": "oteldemo.ProductCatalogService/GetProduct",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "5d032b4c26e36a61"
+      }
+     ],
+     "startTime": 1790406866681392,
+     "duration": 5593,
+     "tags": [
+      {
+       "key": "demo.product.id",
+       "type": "string",
+       "value": "HQTGWGPNH4"
+      },
+      {
+       "key": "demo.product.name",
+       "type": "string",
+       "value": "The Comet Book"
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p6"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "2a63d44f2a463d74",
+     "operationName": "POST",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "8a648f698f0696c0"
+      }
+     ],
+     "startTime": 1790406866666968,
+     "duration": 956,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p7"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "8a648f698f0696c0",
+     "operationName": "POST /get-quote",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "81bb514de6c8271f"
+      }
+     ],
+     "startTime": 1790406866666911,
+     "duration": 1061,
+     "tags": [
+      {
+       "key": "demo.shipping.cost.total",
+       "type": "string",
+       "value": "197.78"
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p7"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "36dacfebda0f59ca",
+     "operationName": "POST /ship-order",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "bc4b44eb340f137f"
+      }
+     ],
+     "startTime": 1790406866669838,
+     "duration": 21,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p7"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "64b9c9f0b1a9b481",
+     "operationName": "oteldemo.ProductCatalogService/GetProduct",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "095ba6b995868a6d"
+      }
+     ],
+     "startTime": 1790406866609000,
+     "duration": 4194,
+     "tags": [
+      {
+       "key": "rpc.grpc.status_code",
+       "type": "int64",
+       "value": 0
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p8"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "9094c5badaa5a8a2",
+     "operationName": "oteldemo.CartService/AddItem",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "56d3bce11b343700"
+      }
+     ],
+     "startTime": 1790406866617000,
+     "duration": 1626,
+     "tags": [
+      {
+       "key": "rpc.grpc.status_code",
+       "type": "int64",
+       "value": 0
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p8"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "a61d47d870216a19",
+     "operationName": "oteldemo.CartService/GetCart",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "56d3bce11b343700"
+      }
+     ],
+     "startTime": 1790406866618000,
+     "duration": 762,
+     "tags": [
+      {
+       "key": "rpc.grpc.status_code",
+       "type": "int64",
+       "value": 0
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p8"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "197e800a58e32638",
+     "operationName": "oteldemo.ProductCatalogService/GetProduct",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "00ae06ab5da0a225"
+      }
+     ],
+     "startTime": 1790406866622000,
+     "duration": 3050,
+     "tags": [
+      {
+       "key": "rpc.grpc.status_code",
+       "type": "int64",
+       "value": 0
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p8"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "8a16005dc71ef0eb",
+     "operationName": "oteldemo.CartService/AddItem",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "9c48dfa138ec8787"
+      }
+     ],
+     "startTime": 1790406866628000,
+     "duration": 1862,
+     "tags": [
+      {
+       "key": "rpc.grpc.status_code",
+       "type": "int64",
+       "value": 0
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p8"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "06e46c972f5f05dd",
+     "operationName": "oteldemo.CartService/GetCart",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "9c48dfa138ec8787"
+      }
+     ],
+     "startTime": 1790406866630000,
+     "duration": 911,
+     "tags": [
+      {
+       "key": "rpc.grpc.status_code",
+       "type": "int64",
+       "value": 0
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p8"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "a989152969c643af",
+     "operationName": "oteldemo.ProductCatalogService/GetProduct",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "2aba467817df6161"
+      }
+     ],
+     "startTime": 1790406866634000,
+     "duration": 3531,
+     "tags": [
+      {
+       "key": "rpc.grpc.status_code",
+       "type": "int64",
+       "value": 0
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p8"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "ee03e06486eb0171",
+     "operationName": "oteldemo.CartService/AddItem",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "0c545ddad05dcd9b"
+      }
+     ],
+     "startTime": 1790406866640000,
+     "duration": 1227,
+     "tags": [
+      {
+       "key": "rpc.grpc.status_code",
+       "type": "int64",
+       "value": 0
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p8"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "0dc6c8cac8b1b087",
+     "operationName": "oteldemo.CartService/GetCart",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "0c545ddad05dcd9b"
+      }
+     ],
+     "startTime": 1790406866641000,
+     "duration": 756,
+     "tags": [
+      {
+       "key": "rpc.grpc.status_code",
+       "type": "int64",
+       "value": 0
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p8"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "46ca38ea6f6c7077",
+     "operationName": "oteldemo.ProductCatalogService/GetProduct",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "21b93f9c120f91c6"
+      }
+     ],
+     "startTime": 1790406866644000,
+     "duration": 2583,
+     "tags": [
+      {
+       "key": "rpc.grpc.status_code",
+       "type": "int64",
+       "value": 0
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p8"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "9118843de000292f",
+     "operationName": "oteldemo.CartService/AddItem",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "69083777e6a96cc0"
+      }
+     ],
+     "startTime": 1790406866648000,
+     "duration": 1368,
+     "tags": [
+      {
+       "key": "rpc.grpc.status_code",
+       "type": "int64",
+       "value": 0
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p8"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "dd241b58c1616ff8",
+     "operationName": "oteldemo.CartService/GetCart",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "69083777e6a96cc0"
+      }
+     ],
+     "startTime": 1790406866650000,
+     "duration": 613,
+     "tags": [
+      {
+       "key": "rpc.grpc.status_code",
+       "type": "int64",
+       "value": 0
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p8"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "b00b96c24b5e918e",
+     "operationName": "oteldemo.CheckoutService/PlaceOrder",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "ed3141943c1b90c9"
+      }
+     ],
+     "startTime": 1790406866652000,
+     "duration": 27375,
+     "tags": [
+      {
+       "key": "rpc.grpc.status_code",
+       "type": "int64",
+       "value": 0
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p8"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "e838619a0931e7d6",
+     "operationName": "oteldemo.ProductCatalogService/GetProduct",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "ed3141943c1b90c9"
+      }
+     ],
+     "startTime": 1790406866680000,
+     "duration": 2714,
+     "tags": [
+      {
+       "key": "rpc.grpc.status_code",
+       "type": "int64",
+       "value": 0
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p8"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "2c4e6eafaf36214b",
+     "operationName": "oteldemo.ProductCatalogService/GetProduct",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "ed3141943c1b90c9"
+      }
+     ],
+     "startTime": 1790406866680000,
+     "duration": 2809,
+     "tags": [
+      {
+       "key": "rpc.grpc.status_code",
+       "type": "int64",
+       "value": 0
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p8"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "8bc62411ae905914",
+     "operationName": "oteldemo.ProductCatalogService/GetProduct",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "ed3141943c1b90c9"
+      }
+     ],
+     "startTime": 1790406866680000,
+     "duration": 7012,
+     "tags": [
+      {
+       "key": "rpc.grpc.status_code",
+       "type": "int64",
+       "value": 0
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p8"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "5d032b4c26e36a61",
+     "operationName": "oteldemo.ProductCatalogService/GetProduct",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "ed3141943c1b90c9"
+      }
+     ],
+     "startTime": 1790406866680000,
+     "duration": 7207,
+     "tags": [
+      {
+       "key": "rpc.grpc.status_code",
+       "type": "int64",
+       "value": 0
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p8"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "095ba6b995868a6d",
+     "operationName": "executing api route (pages) /api/products/[productId]/index",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "ffddacfdaa0ba640"
+      }
+     ],
+     "startTime": 1790406866609000,
+     "duration": 4707,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "internal"
+      }
+     ],
+     "logs": [],
+     "processID": "p8"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "ffddacfdaa0ba640",
+     "operationName": "GET /api/products/[productId]/index",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "f4cd0ee075f7f272"
+      }
+     ],
+     "startTime": 1790406866608000,
+     "duration": 5423,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p8"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "56d3bce11b343700",
+     "operationName": "executing api route (pages) /api/cart",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "eba582ddcd8e3a3d"
+      }
+     ],
+     "startTime": 1790406866616000,
+     "duration": 2739,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "internal"
+      }
+     ],
+     "logs": [],
+     "processID": "p8"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "eba582ddcd8e3a3d",
+     "operationName": "POST /api/cart",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "bdd370d138849469"
+      }
+     ],
+     "startTime": 1790406866616000,
+     "duration": 3135,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p8"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "00ae06ab5da0a225",
+     "operationName": "executing api route (pages) /api/products/[productId]/index",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "dcf629fc898b3eeb"
+      }
+     ],
+     "startTime": 1790406866622000,
+     "duration": 3348,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "internal"
+      }
+     ],
+     "logs": [],
+     "processID": "p8"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "dcf629fc898b3eeb",
+     "operationName": "GET /api/products/[productId]/index",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "021eafa8209290a5"
+      }
+     ],
+     "startTime": 1790406866621000,
+     "duration": 3832,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p8"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "9c48dfa138ec8787",
+     "operationName": "executing api route (pages) /api/cart",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "2b9ed8336716a096"
+      }
+     ],
+     "startTime": 1790406866628000,
+     "duration": 3281,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "internal"
+      }
+     ],
+     "logs": [],
+     "processID": "p8"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "2b9ed8336716a096",
+     "operationName": "POST /api/cart",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "35ab84e80790ded5"
+      }
+     ],
+     "startTime": 1790406866627000,
+     "duration": 3914,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p8"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "2aba467817df6161",
+     "operationName": "executing api route (pages) /api/products/[productId]/index",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "9b62128b8d8dc013"
+      }
+     ],
+     "startTime": 1790406866634000,
+     "duration": 3855,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "internal"
+      }
+     ],
+     "logs": [],
+     "processID": "p8"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "9b62128b8d8dc013",
+     "operationName": "GET /api/products/[productId]/index",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "c1c139d01f7c8de3"
+      }
+     ],
+     "startTime": 1790406866633000,
+     "duration": 4303,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p8"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "0c545ddad05dcd9b",
+     "operationName": "executing api route (pages) /api/cart",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "f0b4480411c575cc"
+      }
+     ],
+     "startTime": 1790406866640000,
+     "duration": 2239,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "internal"
+      }
+     ],
+     "logs": [],
+     "processID": "p8"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "f0b4480411c575cc",
+     "operationName": "POST /api/cart",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "f5b7146b073ec136"
+      }
+     ],
+     "startTime": 1790406866640000,
+     "duration": 2648,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p8"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "21b93f9c120f91c6",
+     "operationName": "executing api route (pages) /api/products/[productId]/index",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "3f6d4280d0b1ba6d"
+      }
+     ],
+     "startTime": 1790406866644000,
+     "duration": 2785,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "internal"
+      }
+     ],
+     "logs": [],
+     "processID": "p8"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "3f6d4280d0b1ba6d",
+     "operationName": "GET /api/products/[productId]/index",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "a66a7cc6d91caf6f"
+      }
+     ],
+     "startTime": 1790406866644000,
+     "duration": 3058,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p8"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "69083777e6a96cc0",
+     "operationName": "executing api route (pages) /api/cart",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "3d67a483efbfea44"
+      }
+     ],
+     "startTime": 1790406866648000,
+     "duration": 2205,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "internal"
+      }
+     ],
+     "logs": [],
+     "processID": "p8"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "3d67a483efbfea44",
+     "operationName": "POST /api/cart",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "8c1cbb4bf08dd027"
+      }
+     ],
+     "startTime": 1790406866648000,
+     "duration": 2431,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p8"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "ed3141943c1b90c9",
+     "operationName": "executing api route (pages) /api/checkout",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "92dc43c0b5defa8f"
+      }
+     ],
+     "startTime": 1790406866652000,
+     "duration": 34965,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "internal"
+      }
+     ],
+     "logs": [],
+     "processID": "p8"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "92dc43c0b5defa8f",
+     "operationName": "POST /api/checkout",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "1263b61c60f7d167"
+      }
+     ],
+     "startTime": 1790406866652000,
+     "duration": 35168,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p8"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "f4cd0ee075f7f272",
+     "operationName": "GET /api/products/[productId]/index",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "0d3c2d65bc73a6fd"
+      }
+     ],
+     "startTime": 1790406866608000,
+     "duration": 5896,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p8"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "bdd370d138849469",
+     "operationName": "POST /api/cart",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "b15f39e5add0ffd4"
+      }
+     ],
+     "startTime": 1790406866616000,
+     "duration": 3356,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p8"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "021eafa8209290a5",
+     "operationName": "GET /api/products/[productId]/index",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "c2fea2d1a9ad39bf"
+      }
+     ],
+     "startTime": 1790406866621000,
+     "duration": 4103,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p8"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "35ab84e80790ded5",
+     "operationName": "POST /api/cart",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "627f90250ef46a86"
+      }
+     ],
+     "startTime": 1790406866627000,
+     "duration": 4113,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p8"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "c1c139d01f7c8de3",
+     "operationName": "GET /api/products/[productId]/index",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "2f1ccca717d9b24e"
+      }
+     ],
+     "startTime": 1790406866633000,
+     "duration": 4523,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p8"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "f5b7146b073ec136",
+     "operationName": "POST /api/cart",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "941cb2feb5f14ee4"
+      }
+     ],
+     "startTime": 1790406866639000,
+     "duration": 2883,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p8"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "a66a7cc6d91caf6f",
+     "operationName": "GET /api/products/[productId]/index",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "85cb41b8c7e03975"
+      }
+     ],
+     "startTime": 1790406866644000,
+     "duration": 3212,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p8"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "8c1cbb4bf08dd027",
+     "operationName": "POST /api/cart",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "2a0bf2cb2c2216ef"
+      }
+     ],
+     "startTime": 1790406866648000,
+     "duration": 2560,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p8"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "1263b61c60f7d167",
+     "operationName": "POST /api/checkout",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "05bcace00b322a96"
+      }
+     ],
+     "startTime": 1790406866652000,
+     "duration": 35522,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p8"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "7924c80b8bdd1a04",
+     "operationName": "oteldemo.CurrencyService/Convert",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "22ede31a28b7c0d1"
+      }
+     ],
+     "startTime": 1790406866656182,
+     "duration": 23,
+     "tags": [
+      {
+       "key": "demo.exchange.from",
+       "type": "string",
+       "value": "USD"
+      },
+      {
+       "key": "demo.exchange.to",
+       "type": "string",
+       "value": "USD"
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      },
+      {
+       "key": "otel.status_code",
+       "type": "string",
+       "value": "OK"
+      }
+     ],
+     "logs": [],
+     "processID": "p9"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "e110fb864965aab7",
+     "operationName": "oteldemo.CurrencyService/Convert",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "7503bc3fa1eb7346"
+      }
+     ],
+     "startTime": 1790406866659413,
+     "duration": 13,
+     "tags": [
+      {
+       "key": "demo.exchange.from",
+       "type": "string",
+       "value": "USD"
+      },
+      {
+       "key": "demo.exchange.to",
+       "type": "string",
+       "value": "USD"
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      },
+      {
+       "key": "otel.status_code",
+       "type": "string",
+       "value": "OK"
+      }
+     ],
+     "logs": [],
+     "processID": "p9"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "d9ae4546fd360a89",
+     "operationName": "oteldemo.CurrencyService/Convert",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "5b8680685f5ffa74"
+      }
+     ],
+     "startTime": 1790406866663206,
+     "duration": 8,
+     "tags": [
+      {
+       "key": "demo.exchange.from",
+       "type": "string",
+       "value": "USD"
+      },
+      {
+       "key": "demo.exchange.to",
+       "type": "string",
+       "value": "USD"
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      },
+      {
+       "key": "otel.status_code",
+       "type": "string",
+       "value": "OK"
+      }
+     ],
+     "logs": [],
+     "processID": "p9"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "a2e5cdf6fba0a01e",
+     "operationName": "oteldemo.CurrencyService/Convert",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "d588d4e189749415"
+      }
+     ],
+     "startTime": 1790406866665705,
+     "duration": 8,
+     "tags": [
+      {
+       "key": "demo.exchange.from",
+       "type": "string",
+       "value": "USD"
+      },
+      {
+       "key": "demo.exchange.to",
+       "type": "string",
+       "value": "USD"
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      },
+      {
+       "key": "otel.status_code",
+       "type": "string",
+       "value": "OK"
+      }
+     ],
+     "logs": [],
+     "processID": "p9"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "6bd042d8ff313a1d",
+     "operationName": "oteldemo.CurrencyService/Convert",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "b093803c9533ae26"
+      }
+     ],
+     "startTime": 1790406866668235,
+     "duration": 10,
+     "tags": [
+      {
+       "key": "demo.exchange.from",
+       "type": "string",
+       "value": "USD"
+      },
+      {
+       "key": "demo.exchange.to",
+       "type": "string",
+       "value": "USD"
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      },
+      {
+       "key": "otel.status_code",
+       "type": "string",
+       "value": "OK"
+      }
+     ],
+     "logs": [],
+     "processID": "p9"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "8cd02925721eaf61",
+     "operationName": "oteldemo.CartService/GetCart",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "25bb77b50504202d"
+      }
+     ],
+     "startTime": 1790406866653057,
+     "duration": 483,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p10"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "74947bf8ef19dc02",
+     "operationName": "oteldemo.ProductCatalogService/GetProduct",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "25bb77b50504202d"
+      }
+     ],
+     "startTime": 1790406866653569,
+     "duration": 2135,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p10"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "22ede31a28b7c0d1",
+     "operationName": "oteldemo.CurrencyService/Convert",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "25bb77b50504202d"
+      }
+     ],
+     "startTime": 1790406866655719,
+     "duration": 630,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p10"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "4bc8c983c65710e6",
+     "operationName": "oteldemo.ProductCatalogService/GetProduct",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "25bb77b50504202d"
+      }
+     ],
+     "startTime": 1790406866656363,
+     "duration": 2882,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p10"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "7503bc3fa1eb7346",
+     "operationName": "oteldemo.CurrencyService/Convert",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "25bb77b50504202d"
+      }
+     ],
+     "startTime": 1790406866659254,
+     "duration": 252,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p10"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "d2735494d1cf99c9",
+     "operationName": "oteldemo.ProductCatalogService/GetProduct",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "25bb77b50504202d"
+      }
+     ],
+     "startTime": 1790406866659519,
+     "duration": 3497,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p10"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "5b8680685f5ffa74",
+     "operationName": "oteldemo.CurrencyService/Convert",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "25bb77b50504202d"
+      }
+     ],
+     "startTime": 1790406866663024,
+     "duration": 250,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p10"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "726aa141d30668e0",
+     "operationName": "oteldemo.ProductCatalogService/GetProduct",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "25bb77b50504202d"
+      }
+     ],
+     "startTime": 1790406866663282,
+     "duration": 2136,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p10"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "d588d4e189749415",
+     "operationName": "oteldemo.CurrencyService/Convert",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "25bb77b50504202d"
+      }
+     ],
+     "startTime": 1790406866665453,
+     "duration": 352,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p10"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "b093803c9533ae26",
+     "operationName": "oteldemo.CurrencyService/Convert",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "25bb77b50504202d"
+      }
+     ],
+     "startTime": 1790406866668105,
+     "duration": 197,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p10"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "b41ed793ff5e9424",
+     "operationName": "oteldemo.PaymentService/Charge",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "440117eee0946672"
+      }
+     ],
+     "startTime": 1790406866668320,
+     "duration": 1424,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p10"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "ae2ed69c52f8a447",
+     "operationName": "oteldemo.CartService/EmptyCart",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "440117eee0946672"
+      }
+     ],
+     "startTime": 1790406866669924,
+     "duration": 1252,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p10"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "440117eee0946672",
+     "operationName": "oteldemo.CheckoutService/PlaceOrder",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "b00b96c24b5e918e"
+      }
+     ],
+     "startTime": 1790406866652936,
+     "duration": 26797,
+     "tags": [
+      {
+       "key": "demo.order.amount",
+       "type": "float64",
+       "value": 14699.43
+      },
+      {
+       "key": "demo.order.id",
+       "type": "string",
+       "value": "e8685a82-b979-11f1-ba47-2e17146bfc7a"
+      },
+      {
+       "key": "demo.order.items.count",
+       "type": "int64",
+       "value": 4
+      },
+      {
+       "key": "demo.shipping.amount",
+       "type": "float64",
+       "value": 197.78
+      },
+      {
+       "key": "demo.shipping.tracking.id",
+       "type": "string",
+       "value": "32807f2f-ce17-4bb9-8da8-a034ef32f0ad"
+      },
+      {
+       "key": "demo.user_context.selected_currency",
+       "type": "string",
+       "value": "USD"
+      },
+      {
+       "key": "user.id",
+       "type": "string",
+       "value": "e860abbc-b979-11f1-b987-e22d3198d384"
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p10"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "81bb514de6c8271f",
+     "operationName": "POST",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "25bb77b50504202d"
+      }
+     ],
+     "startTime": 1790406866665849,
+     "duration": 2242,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p10"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "bc4b44eb340f137f",
+     "operationName": "POST",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "440117eee0946672"
+      }
+     ],
+     "startTime": 1790406866669773,
+     "duration": 139,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p10"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "a4437ac06c487409",
+     "operationName": "POST",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "440117eee0946672"
+      }
+     ],
+     "startTime": 1790406866671584,
+     "duration": 8130,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p10"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "25bb77b50504202d",
+     "operationName": "prepareOrderItemsAndShippingQuoteFromCart",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "440117eee0946672"
+      }
+     ],
+     "startTime": 1790406866653044,
+     "duration": 15265,
+     "tags": [
+      {
+       "key": "demo.cart.items.count",
+       "type": "int64",
+       "value": 11
+      },
+      {
+       "key": "demo.order.items.count",
+       "type": "int64",
+       "value": 4
+      },
+      {
+       "key": "demo.shipping.amount",
+       "type": "float64",
+       "value": 197.78
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "internal"
+      }
+     ],
+     "logs": [],
+     "processID": "p10"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "56fa6c26cc10b1b1",
+     "operationName": "POST /oteldemo.CartService/AddItem",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "9094c5badaa5a8a2"
+      }
+     ],
+     "startTime": 1790406866617648,
+     "duration": 827,
+     "tags": [
+      {
+       "key": "demo.product.id",
+       "type": "string",
+       "value": "HQTGWGPNH4"
+      },
+      {
+       "key": "demo.product.quantity",
+       "type": "int64",
+       "value": 4
+      },
+      {
+       "key": "user.id",
+       "type": "string",
+       "value": "e860abbc-b979-11f1-b987-e22d3198d384"
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p11"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "3a897ae2a778a75f",
+     "operationName": "POST /oteldemo.CartService/GetCart",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "a61d47d870216a19"
+      }
+     ],
+     "startTime": 1790406866619045,
+     "duration": 293,
+     "tags": [
+      {
+       "key": "demo.cart.items.count",
+       "type": "int64",
+       "value": 4
+      },
+      {
+       "key": "user.id",
+       "type": "string",
+       "value": "e860abbc-b979-11f1-b987-e22d3198d384"
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p11"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "e2533fa358cb9be8",
+     "operationName": "POST /oteldemo.CartService/AddItem",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "8a16005dc71ef0eb"
+      }
+     ],
+     "startTime": 1790406866629241,
+     "duration": 769,
+     "tags": [
+      {
+       "key": "demo.product.id",
+       "type": "string",
+       "value": "LS4PSXUNUM"
+      },
+      {
+       "key": "demo.product.quantity",
+       "type": "int64",
+       "value": 1
+      },
+      {
+       "key": "user.id",
+       "type": "string",
+       "value": "e860abbc-b979-11f1-b987-e22d3198d384"
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p11"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "1c1429624c057a2c",
+     "operationName": "POST /oteldemo.CartService/GetCart",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "06e46c972f5f05dd"
+      }
+     ],
+     "startTime": 1790406866630763,
+     "duration": 253,
+     "tags": [
+      {
+       "key": "demo.cart.items.count",
+       "type": "int64",
+       "value": 5
+      },
+      {
+       "key": "user.id",
+       "type": "string",
+       "value": "e860abbc-b979-11f1-b987-e22d3198d384"
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p11"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "0d3830015bb77087",
+     "operationName": "POST /oteldemo.CartService/AddItem",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "ee03e06486eb0171"
+      }
+     ],
+     "startTime": 1790406866641058,
+     "duration": 585,
+     "tags": [
+      {
+       "key": "demo.product.id",
+       "type": "string",
+       "value": "L9ECAV7KIM"
+      },
+      {
+       "key": "demo.product.quantity",
+       "type": "int64",
+       "value": 2
+      },
+      {
+       "key": "user.id",
+       "type": "string",
+       "value": "e860abbc-b979-11f1-b987-e22d3198d384"
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p11"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "10e2c9c81c02c261",
+     "operationName": "POST /oteldemo.CartService/GetCart",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "0dc6c8cac8b1b087"
+      }
+     ],
+     "startTime": 1790406866642215,
+     "duration": 258,
+     "tags": [
+      {
+       "key": "demo.cart.items.count",
+       "type": "int64",
+       "value": 7
+      },
+      {
+       "key": "user.id",
+       "type": "string",
+       "value": "e860abbc-b979-11f1-b987-e22d3198d384"
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p11"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "5d70818c4d2d99f1",
+     "operationName": "POST /oteldemo.CartService/AddItem",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "9118843de000292f"
+      }
+     ],
+     "startTime": 1790406866649236,
+     "duration": 653,
+     "tags": [
+      {
+       "key": "demo.product.id",
+       "type": "string",
+       "value": "9SIQT8TOJO"
+      },
+      {
+       "key": "demo.product.quantity",
+       "type": "int64",
+       "value": 4
+      },
+      {
+       "key": "user.id",
+       "type": "string",
+       "value": "e860abbc-b979-11f1-b987-e22d3198d384"
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p11"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "59ba4441728d0d0b",
+     "operationName": "POST /oteldemo.CartService/GetCart",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "dd241b58c1616ff8"
+      }
+     ],
+     "startTime": 1790406866650542,
+     "duration": 251,
+     "tags": [
+      {
+       "key": "demo.cart.items.count",
+       "type": "int64",
+       "value": 11
+      },
+      {
+       "key": "user.id",
+       "type": "string",
+       "value": "e860abbc-b979-11f1-b987-e22d3198d384"
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p11"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "633fbded073cfeb0",
+     "operationName": "POST /oteldemo.CartService/GetCart",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "8cd02925721eaf61"
+      }
+     ],
+     "startTime": 1790406866653253,
+     "duration": 190,
+     "tags": [
+      {
+       "key": "demo.cart.items.count",
+       "type": "int64",
+       "value": 11
+      },
+      {
+       "key": "user.id",
+       "type": "string",
+       "value": "e860abbc-b979-11f1-b987-e22d3198d384"
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p11"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "dd076acc7a19d8d3",
+     "operationName": "POST /oteldemo.CartService/EmptyCart",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "ae2ed69c52f8a447"
+      }
+     ],
+     "startTime": 1790406866670045,
+     "duration": 1043,
+     "tags": [
+      {
+       "key": "user.id",
+       "type": "string",
+       "value": "e860abbc-b979-11f1-b987-e22d3198d384"
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p11"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "7ef5563eae8b347a",
+     "operationName": "POST",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "4c316e49c1aba73c"
+      }
+     ],
+     "startTime": 1790406866670164,
+     "duration": 576,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p11"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "4c316e49c1aba73c",
+     "operationName": "flagd.evaluation.v2.Service/ResolveFloat",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "dd076acc7a19d8d3"
+      }
+     ],
+     "startTime": 1790406866670124,
+     "duration": 680,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p11"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "7e4031419f60d35a",
+     "operationName": "POST",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "76e9a8ca6de9787e"
+      }
+     ],
+     "startTime": 1790406866648359,
+     "duration": 2865,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p1"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "05bcace00b322a96",
+     "operationName": "router frontend egress",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "0184b47d0230cf83"
+      }
+     ],
+     "startTime": 1790406866652117,
+     "duration": 35616,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p1"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "0184b47d0230cf83",
+     "operationName": "POST",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "01fbc6c6359ba655"
+      }
+     ],
+     "startTime": 1790406866652082,
+     "duration": 35669,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p1"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "933bc9d3320bb81f",
+     "operationName": "charge",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "d44d43abaefb4f72"
+      }
+     ],
+     "startTime": 1790406866669000,
+     "duration": 326,
+     "tags": [
+      {
+       "key": "demo.payment.card_type",
+       "type": "string",
+       "value": "visa"
+      },
+      {
+       "key": "demo.payment.card_valid",
+       "type": "bool",
+       "value": true
+      },
+      {
+       "key": "demo.payment.charged",
+       "type": "bool",
+       "value": false
+      },
+      {
+       "key": "demo.user_context.loyalty_level",
+       "type": "string",
+       "value": "silver"
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "internal"
+      }
+     ],
+     "logs": [],
+     "processID": "p12"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "d44d43abaefb4f72",
+     "operationName": "oteldemo.PaymentService/Charge",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "b41ed793ff5e9424"
+      }
+     ],
+     "startTime": 1790406866668000,
+     "duration": 609,
+     "tags": [
+      {
+       "key": "demo.payment.amount",
+       "type": "string",
+       "value": "14699.44"
+      },
+      {
+       "key": "rpc.grpc.status_code",
+       "type": "int64",
+       "value": 0
+      },
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      }
+     ],
+     "logs": [],
+     "processID": "p12"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "6fd2d70dba115711",
+     "operationName": "valkey-cart:6379",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "e2533fa358cb9be8"
+      }
+     ],
+     "startTime": 1790406866629366,
+     "duration": 270,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p11"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "37b93788dbfa627d",
+     "operationName": "valkey-cart:6379",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "e2533fa358cb9be8"
+      }
+     ],
+     "startTime": 1790406866629658,
+     "duration": 168,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p11"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "cf0f9d255cf93e56",
+     "operationName": "valkey-cart:6379",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "e2533fa358cb9be8"
+      }
+     ],
+     "startTime": 1790406866629830,
+     "duration": 127,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p11"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "136050eb55daa05e",
+     "operationName": "valkey-cart:6379",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "633fbded073cfeb0"
+      }
+     ],
+     "startTime": 1790406866653294,
+     "duration": 130,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p11"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "d93245ab848e6ec3",
+     "operationName": "valkey-cart:6379",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "56fa6c26cc10b1b1"
+      }
+     ],
+     "startTime": 1790406866617826,
+     "duration": 229,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p11"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "81a716f9acf0e057",
+     "operationName": "valkey-cart:6379",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "56fa6c26cc10b1b1"
+      }
+     ],
+     "startTime": 1790406866618088,
+     "duration": 152,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p11"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "6165330403a2b7cf",
+     "operationName": "valkey-cart:6379",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "56fa6c26cc10b1b1"
+      }
+     ],
+     "startTime": 1790406866618244,
+     "duration": 154,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p11"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "34c5c54319afa3b4",
+     "operationName": "valkey-cart:6379",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "dd076acc7a19d8d3"
+      }
+     ],
+     "startTime": 1790406866670843,
+     "duration": 144,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p11"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "ab75d09d33e7474d",
+     "operationName": "valkey-cart:6379",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "dd076acc7a19d8d3"
+      }
+     ],
+     "startTime": 1790406866670990,
+     "duration": 81,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p11"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "a2ec9c2d4aa6b6c8",
+     "operationName": "valkey-cart:6379",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "0d3830015bb77087"
+      }
+     ],
+     "startTime": 1790406866641173,
+     "duration": 180,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p11"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "bcb4932ccbb8c0f6",
+     "operationName": "valkey-cart:6379",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "0d3830015bb77087"
+      }
+     ],
+     "startTime": 1790406866641367,
+     "duration": 144,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p11"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "2432d374b53e3c79",
+     "operationName": "valkey-cart:6379",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "0d3830015bb77087"
+      }
+     ],
+     "startTime": 1790406866641515,
+     "duration": 97,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p11"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "a37da4222b399876",
+     "operationName": "valkey-cart:6379",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "1c1429624c057a2c"
+      }
+     ],
+     "startTime": 1790406866630820,
+     "duration": 156,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p11"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "5a5709df7acfcd30",
+     "operationName": "valkey-cart:6379",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "10e2c9c81c02c261"
+      }
+     ],
+     "startTime": 1790406866642269,
+     "duration": 180,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p11"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "8edf71ad73aa27eb",
+     "operationName": "valkey-cart:6379",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "3a897ae2a778a75f"
+      }
+     ],
+     "startTime": 1790406866619135,
+     "duration": 134,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p11"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "56b7f7e34e72f25c",
+     "operationName": "valkey-cart:6379",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "5d70818c4d2d99f1"
+      }
+     ],
+     "startTime": 1790406866649328,
+     "duration": 196,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p11"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "b3d1726737d14978",
+     "operationName": "valkey-cart:6379",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "5d70818c4d2d99f1"
+      }
+     ],
+     "startTime": 1790406866649540,
+     "duration": 159,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p11"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "91226c1345cad63a",
+     "operationName": "valkey-cart:6379",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "5d70818c4d2d99f1"
+      }
+     ],
+     "startTime": 1790406866649704,
+     "duration": 146,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p11"
+    },
+    {
+     "traceID": "e640818de4eb3da43a4075fa807f2936",
+     "spanID": "be88bff65c35b2fe",
+     "operationName": "valkey-cart:6379",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "traceID": "e640818de4eb3da43a4075fa807f2936",
+       "spanID": "59ba4441728d0d0b"
+      }
+     ],
+     "startTime": 1790406866650604,
+     "duration": 167,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      }
+     ],
+     "logs": [],
+     "processID": "p11"
+    }
+   ],
+   "processes": {
+    "p1": {
+     "serviceName": "frontend-proxy",
+     "tags": [
+      {
+       "key": "service.version",
+       "type": "string",
+       "value": "3.1.0"
+      }
+     ]
+    },
+    "p10": {
+     "serviceName": "checkout",
+     "tags": [
+      {
+       "key": "service.version",
+       "type": "string",
+       "value": "v1.4.0"
+      }
+     ]
+    },
+    "p11": {
+     "serviceName": "cart",
+     "tags": [
+      {
+       "key": "service.version",
+       "type": "string",
+       "value": "3.1.0"
+      }
+     ]
+    },
+    "p12": {
+     "serviceName": "payment",
+     "tags": [
+      {
+       "key": "service.version",
+       "type": "string",
+       "value": "v1.4.0"
+      }
+     ]
+    },
+    "p2": {
+     "serviceName": "load-generator",
+     "tags": [
+      {
+       "key": "service.version",
+       "type": "string",
+       "value": "3.1.0"
+      }
+     ]
+    },
+    "p3": {
+     "serviceName": "quote",
+     "tags": [
+      {
+       "key": "service.version",
+       "type": "string",
+       "value": "v1.4.0"
+      }
+     ]
+    },
+    "p4": {
+     "serviceName": "email",
+     "tags": [
+      {
+       "key": "service.version",
+       "type": "string",
+       "value": "3.1.0"
+      }
+     ]
+    },
+    "p5": {
+     "serviceName": "flagd",
+     "tags": [
+      {
+       "key": "service.version",
+       "type": "string",
+       "value": "3.1.0"
+      }
+     ]
+    },
+    "p6": {
+     "serviceName": "product-catalog",
+     "tags": [
+      {
+       "key": "service.version",
+       "type": "string",
+       "value": "v1.4.0"
+      }
+     ]
+    },
+    "p7": {
+     "serviceName": "shipping",
+     "tags": [
+      {
+       "key": "service.version",
+       "type": "string",
+       "value": "3.1.0"
+      }
+     ]
+    },
+    "p8": {
+     "serviceName": "frontend",
+     "tags": [
+      {
+       "key": "service.version",
+       "type": "string",
+       "value": "3.1.0"
+      }
+     ]
+    },
+    "p9": {
+     "serviceName": "currency",
+     "tags": [
+      {
+       "key": "service.version",
+       "type": "string",
+       "value": "3.1.0"
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "total": 0,
+ "limit": 0,
+ "offset": 0
+}

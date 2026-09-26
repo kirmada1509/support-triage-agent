@@ -3,7 +3,7 @@
 Context and rules for coding agents working in this repo. Read it before changing anything, and
 keep it true (see "Keeping this file current" at the end).
 
-Last updated: Sep 26, 2026, after phase 4 front pipeline and codebase summary.
+Last updated: Sep 26, 2026, during phase 5 (code index and codebox helpers).
 
 ## What this is
 
@@ -74,13 +74,14 @@ app/
   tracing.py        the agent's own OpenTelemetry export (off unless OTEL_EXPORTER_OTLP_ENDPOINT)
   retrieval/        phase 3: Markdown chunking, local embeddings, incremental indexing,
                     hybrid search and hit-rate CLI
-  indexer/          empty until phase 5
+  indexer/          phase 5 code index: extract.py (ast-grep), build.py (from git), card.py
+                    (service cards), export.py (TSV for the codebox), __main__.py (CLI)
 config/             models.yaml (names, prices), roles.yaml (model per role), ownership.yaml
 db/migrations/      Alembic; 0001 also creates the events NOTIFY trigger by hand
 holmes/             HolmesGPT's image (Dockerfile), config.yaml, toolsets.yaml, condense_traces.py,
                     search_logs.py (the `logs` toolset's OpenSearch search), history_*.sql
-codebox/            the codebase analyst's read-only container and helper commands (the helpers
-                    fall back to ctags and rg until phase 5's code index exists)
+codebox/            the codebase analyst's read-only container; bin/ has the helper commands
+                    (read the exported index at /index, else ctags and rg) and a git wrapper
 sandbox/            builds the shop fork: pin, overlay, patches, setup, images, compose wrapper
 scenarios/          tickets.yaml (7 demo tickets), scenario.py, send_ticket.py, deploy.sh, flag.sh,
                     record.py (writes deploy and flag history)
@@ -137,6 +138,10 @@ web/                phase 8 placeholder
   `OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:8080/otlp-http` each ticket run is one trace in the
   shop's Jaeger (service `support-triage-agent`): a `ticket <id>` span, a `node <name>` span per
   node, and Pydantic AI's spans per model call.
+- **Code index.** `deploy.sh` step 4 runs `python -m app.indexer index <service> <tag>`: ast-grep
+  extracts symbols, error messages, flag reads and gRPC handlers from git at that commit, stored
+  once per (service, commit), plus a service card (`indexer` role; `INDEX_CARDS=0` skips it).
+  `export` writes the TSV files the offline codebox reads at `/index`. Usage in `__main__.py`.
 - **Analysts.** HolmesGPT runs in its own image on the shop's network (it can't share this
   environment); mini-swe-agent is a dependency and runs each command in the codebox container.
   Both worked on the demo tickets in the phase 2 spike (`planning/Phase_2_Spike.md`); their graph
@@ -148,7 +153,8 @@ web/                phase 8 placeholder
   a relevant help section; `requests` drafts an acknowledgement. `make front-eval` runs these
   nodes on 20 fixed tickets and records `evals/phase4_baseline.json`.
 - **Status.** Context, enrichment, retrieval, categorization, routing, Layer 1, request triage
-  and approval are real. Layer 2, Layer 3, reply delivery and memory write-back remain stubs.
+  and approval are real, as are Layer 2's tools and the code index. The Layer 2 nodes, Layer 3,
+  reply delivery and memory write-back remain stubs.
 
 ## The sandbox shop
 
@@ -174,6 +180,7 @@ make migration m="..." ; make migrate ; make check-migrations
 make analyst-images                # sandbox/holmes:0.42.0 and sandbox/codebox
 make models                        # model per role, missing keys (ROLE_PROFILE=openai make models)
 make index-help index-tickets      # fill retrieval_docs, re-embed only changed text
+make index-code v=v1.4.0           # code index + service cards for every service at a tag
 make retrieval-hits               # isolated retrieval benchmark on triage_retrieval_test
 make front-eval                    # 20 live front pipeline cases (indexed DB + model key)
 make lint fmt                      # ruff, line length 100
@@ -183,9 +190,9 @@ make lint fmt                      # ruff, line length 100
 
 | Suite | Command | Needs | What it covers |
 | --- | --- | --- | --- |
-| default | `make test` | nothing | units, retrieval rules and labels, the whole graph in memory, simulated scenarios, sandbox kit |
+| default | `make test` | nothing | units, retrieval rules and labels, the whole graph in memory, simulated scenarios, sandbox kit, indexer, codebox helpers |
 | `db` | `make test-db` | `make db` | migrations up/down, queries, retrieval index/search, history role, NOTIFY, worker pause/resume |
-| `sandbox` | `make test-sandbox` | `make sandbox` | the fork's tags, each planted diff, `git blame` to the planted commits, images |
+| `sandbox` | `make test-sandbox` | `make sandbox` | the fork's tags, each planted diff, `git blame` to the planted commits, images, the code index at both tags |
 | `shop` | `make test-shop` | `make shop-up` | every scenario live (~3 min), recorded deploys, metrics, logs, `agent_ro` |
 | `llm` | `make test-llm` | keys in `.env.agent` | one real typed call per provider profile, skipped without its key (a fraction of a cent) |
 | `spike` | `make test-spike` | shop, `make analyst-images`, keys | both analysts on demo tickets (~3 min, a few cents), codebox and history guardrails |
@@ -238,8 +245,6 @@ make lint fmt                      # ruff, line length 100
 - A trace arrives in pieces (each service exports in batches): wait for the span you need
   (`Shop.spans(until=...)`) rather than the first response.
 - The shop's clock is UTC; ticket times are the customer's local time.
-- `condense_traces.py` still looks for `app.user.id` and `app.payment.card_type`; the shop sends
-  `user.id` and `demo.payment.card_type` (fix in phase 5).
 - The frontend has no search box and nothing calls `SearchProducts`; don't build on search.
 - Every model in `config/models.yaml` needs `settings.max_tokens`: without it OpenRouter reserves
   65536 output tokens per request and returns 402 once the key's credit can't cover that. Direct
@@ -261,7 +266,11 @@ make lint fmt                      # ruff, line length 100
 - Agents' step limits count model turns, not tool calls (HolmesGPT made up to 62 calls in 15 turns);
   enforce time and call budgets in the node.
 - In the codebox, mount the fork's `.git` at `/git` and set `GIT_DIR=/git/worktrees/shop@<tag>`,
-  `GIT_WORK_TREE=/repo`: mounting it at its host path silently fails under Docker Desktop.
+  `GIT_WORK_TREE=/repo`: mounting it at its host path silently fails under Docker Desktop. Set
+  `PREV_GIT_DIR` too, or git in `/prev` silently shows the deployed tag (`codebox/bin/git`).
+- The codebox's awk is mawk: the index's error patterns are POSIX ERE, not `re.escape` output
+  (it escapes spaces), and helpers pass arguments via `ENVIRON`, never `awk -v`.
+- Whole-graph tests need `front_stage_fakes` (`tests/conftest.py`), or `enrich` calls a model.
 
 ## Skills and plugins
 

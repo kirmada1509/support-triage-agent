@@ -12,6 +12,7 @@ import os
 import shlex
 import subprocess
 import sys
+import tempfile
 import time
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
@@ -268,7 +269,8 @@ checkout of the service code at the deployed version (/repo) and the previous ve
 Every action is one bash command, run with the `bash` tool. Nothing can be written and there is
 no network. Useful: git log, git diff, git blame, git show, rg, sed -n, and the helpers
 lookup-error "<text>", repo-map <service>, find-symbol <name>, rpc-handler <Service/Method>.
-For the previous version's files use git show v1.3.0:<path>. Read only what you need.
+For the previous version, cd /prev (git works there too) or git show v1.3.0:<path>. Read only
+what you need.
 Every claim in your answer must cite a file:line or commit you saw in this session."""
 
 TASK = """{{task}}
@@ -288,15 +290,29 @@ BRIEFS = {
 }
 
 
+INDEX = Path(tempfile.mkdtemp(prefix="codebox-index-"))
+
+
 def codebox():
+    """The codebox at v1.4.0, with the payment service's code index built in-process (no database,
+    no model: the export is what the helpers read) and v1.3.0 at /prev."""
     from minisweagent.environments.docker import DockerEnvironment
 
+    from app.indexer import build, export
+
+    if not (INDEX / "symbols.tsv").exists():
+        export.write(INDEX, [build.index_at(SANDBOX, "payment", "src/payment", "v1.4.0")], {})
     git = SANDBOX / ".git"
     return DockerEnvironment(
         image="sandbox/codebox",
         cwd="/repo",
         timeout=20,
-        env={"GIT_DIR": "/git/worktrees/shop@v1.4.0", "GIT_WORK_TREE": "/repo", "PAGER": "cat"},
+        env={
+            "GIT_DIR": "/git/worktrees/shop@v1.4.0",
+            "GIT_WORK_TREE": "/repo",
+            "PREV_GIT_DIR": "/git/worktrees/shop@v1.3.0",
+            "PAGER": "cat",
+        },
         run_args=[
             "--rm",
             "--network",
@@ -310,6 +326,8 @@ def codebox():
             f"{WORKTREES / 'shop@v1.3.0'}:/prev:ro",
             "-v",
             f"{git}:/git:ro",
+            "-v",
+            f"{INDEX}:/index:ro",
         ],
     )
 
@@ -318,13 +336,17 @@ def test_codebox_is_read_only_and_offline():
     env = codebox()
     try:
         run = lambda cmd: env.execute({"command": cmd})  # noqa: E731
-        assert run("git log --oneline -1")["output"].startswith(
-            subprocess.run(
-                ["git", "-C", str(SANDBOX), "rev-parse", "--short=8", "v1.4.0"],
-                capture_output=True,
-                text=True,
-            ).stdout.strip()
-        )
+        for cmd, tag in (
+            ("git log --oneline -1", "v1.4.0"),
+            ("cd /prev && git log --oneline -1", "v1.3.0"),
+        ):
+            assert run(cmd)["output"].startswith(
+                subprocess.run(
+                    ["git", "-C", str(SANDBOX), "rev-parse", "--short=8", tag],
+                    capture_output=True,
+                    text=True,
+                ).stdout.strip()
+            ), cmd
         for cmd in (
             "touch /repo/x",
             "touch /prev/x",
@@ -333,7 +355,8 @@ def test_codebox_is_read_only_and_offline():
             "getent hosts github.com",
         ):
             assert run(cmd)["returncode"] != 0, cmd
-        assert "charge.js:89" in run('lookup-error "expired on"')["output"]
+        assert "charge.js:89 payment:" in run('lookup-error "expired on"')["output"]  # the index
+        assert "no code index" not in run("repo-map payment")["output"]
     finally:
         env.cleanup()
 

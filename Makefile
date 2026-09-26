@@ -1,7 +1,7 @@
 TEST_DATABASE_URL = postgresql://triage:triage@localhost:5433/triage_test
 
 .PHONY: install db migrate migration check-migrations api worker send deploy flag test test-db lint fmt \
-    index-help index-tickets retrieval-hits front-eval \
+    index-help index-tickets index-code retrieval-hits front-eval \
 	sandbox sandbox-images shop-up shop-down test-sandbox test-shop test-llm test-spike analyst-images models
 
 install:            ## install Python deps (uv) and pin them in uv.lock
@@ -75,6 +75,9 @@ index-help:         ## index changed Markdown help sections into retrieval_docs
 
 index-tickets:      ## index 200 labelled synthetic past tickets into retrieval_docs
 	uv run python -m app.retrieval.cli index-tickets
+
+index-code:         ## code index + service cards for every service at a tag: make index-code v=v1.4.0
+	uv run python -m app.indexer index-all $(v)
 
 retrieval-hits:     ## build a throwaway retrieval index and score both corpora on 20 eval tickets
 	docker compose exec -T db sh -c 'dropdb -U triage --if-exists --force triage_retrieval_test && createdb -U triage triage_retrieval_test'

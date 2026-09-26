@@ -210,7 +210,7 @@ Python everywhere on the agent side, one Postgres, and open-source parts whereve
 | Model calls, typed output, limits | [Pydantic AI](https://pydantic.dev/docs/ai/overview/), inside the graph's nodes | Models swapped by name (DeepSeek, OpenRouter, Gemini, Ollama, any OpenAI-compatible endpoint), Pydantic output types with retries, per-run limits on requests, tool calls, tokens and cost, fallback models, OpenTelemetry spans | Same |
 | Data analyst | [HolmesGPT](https://holmesgpt.dev/latest/) (Apache 2.0, CNCF sandbox), in its own container on the shop's network, run by one graph node (it can't share the app's Python environment; see `planning/Phase_2_Spike.md`) | Built-in Prometheus, OpenSearch and PostgreSQL toolsets; custom YAML toolsets for Jaeger and deploy/flag history; any model through LiteLLM | Point its built-in toolsets at Zuddl's stack (it also covers Datadog, Loki, Tempo and more) |
 | Codebase analyst | [mini-swe-agent](https://github.com/SWE-agent/mini-swe-agent) (MIT), run in a Docker container from one graph node | About 100 lines of agent, strong on code, any model through LiteLLM; the container gives read-only access and no network | Same, with a code search service for large monorepos |
-| Code index | universal-ctags for symbols, ast-grep for error messages across languages, `protoc` for the gRPC map | Mature tools; no parser to write | Same |
+| Code index | ast-grep (`ast-grep-py`, tree-sitter) for symbols, error messages, flag reads and gRPC handlers across languages; the shared `.proto` read for method names | One parser, in-process, for every language the shop uses; no parser to write | Same |
 | Models | Configured per role in `config/roles.yaml`. Start: DeepSeek V4.1 Flash for single calls and both analysts, DeepSeek V4 Pro for the verdict | Cheapest current models with tool calling and JSON output; one config change per role | Whatever the eval scorecard and Zuddl's data rules pick |
 | Retrieval (RAG) | Help-center sections and past or open tickets in pgvector (HNSW, cosine) + Postgres full-text, merged by reciprocal rank fusion; embeddings from `BAAI/bge-small-en-v1.5` via sentence-transformers | Free, no extra service; hybrid search keeps exact terms matching while vectors catch paraphrases | A hosted embedding model and a reranker, fed by Zuddl's real tickets |
 | Categorization | Pydantic AI structured LLM output | Typed choices and confidence estimates in one call, checked against `ownership.yaml` | A calibrated classifier if available |
@@ -520,7 +520,7 @@ toolsets:
 
 It does not read the codebase for every ticket. It reads parts of 2–5 files in the suspected service, at the exact version that's deployed, and uses the code index to know where to look.
 
-**Its workspace:** a Docker container with two read-only git worktrees (the deployed tag and the previous one, from the `deploys` table), `git`, `rg`, and four helper commands that query the code index. It has no network apart from a read-only connection to the index. mini-swe-agent runs every action as a shell command in this container.
+**Its workspace:** a Docker container with two read-only git worktrees (the deployed tag and the previous one, from the `deploys` table), `git`, `rg`, and helper commands that query the code index, which is mounted read-only as files. It has no network. mini-swe-agent runs every action as a shell command in this container.
 
 **Its task prompt** holds the brief, the service's entry in `ownership.yaml`, and three pieces from the index: the service card, the repo map, and the change summary since the previous deploy. So before its first command it already knows that `charge.js` changed in `v1.4.0`.
 
@@ -545,6 +545,7 @@ For the Amex ticket, the same steps end differently. `lookup-error "cannot proce
 | `lookup-error "<text>"` | Where an error or log message is produced, with file and line |
 | `find-symbol <name>` | Where a function or type is defined and called |
 | `rpc-handler <Service/Method>` | The function that handles a gRPC method, in whichever service |
+| `flag-reads <flag>` | Where the code reads a feature flag, with file and line |
 
 **The rule it follows: summaries point, code proves.** The service card and index tell it where to look, but every claim in its `Findings` must cite a file and line it actually read in this run, at the deployed version. A summary written days ago can be wrong; the code at the deployed version can't be.
 
@@ -558,14 +559,16 @@ The codebase can be analysed ahead of time. The indexer does it once per deploye
 
 | What's stored | How it's built | Model call? | Used for |
 | --- | --- | --- | --- |
-| Repo map | universal-ctags with JSON output: files, functions, types, signatures | No | Finding the right file quickly |
+| Repo map | ast-grep over tree-sitter: files, functions, methods, types, signatures (JS/TS, Go, PHP, Python, C#) | No | Finding the right file quickly |
 | Error-message index | ast-grep patterns per language for throws, error constructors and logger calls, with file and line | No | Going straight from an error in a trace to the code that raised it |
-| RPC map | `protoc` reads the shared gRPC definitions; ctags matches each method to its handler | No | Following a call from one service into another |
+| RPC map | The shared `pb/demo.proto` gives Service/Method names; ast-grep finds each handler (Go methods taking a `*pb.` request, JS `addService` objects, C# overrides of `<Service>Base`) | No | Following a call from one service into another |
 | Flag reads | ast-grep patterns for the OpenFeature flag calls, with file and line | No | Linking a flag change to the code it affects |
 | Change summary | `git log` and `git diff --stat` since the previous deploy | No | Knowing what changed before reading anything |
 | Service card | One Pydantic AI call reads the service and writes 1–2k tokens: purpose, entry points, business rules, dependencies, error messages and what they mean | Yes, once per changed service per deploy | Orientation, and early hints that a behaviour is intended |
 
-**Where it lives:** Postgres tables (`code_symbols`, `error_strings`, `rpc_map`, `flag_reads`, `service_cards`) keyed by `(service, git_sha)`. A new deploy adds rows and never edits old ones, so every version stays available for comparison. If the index for the deployed commit is missing, the analyst falls back to plain search.
+**Where it lives:** Postgres tables (`code_symbols`, `error_strings`, `rpc_map`, `flag_reads`, `service_cards`) keyed by `(service, git_sha)`. A new deploy adds rows and never edits old ones, so every version stays available for comparison. The codebox has no network, so the analyst node exports the deployed commit's index as TSV files and mounts them read-only at `/index`, where the helper commands read them with `awk`. If the index for the deployed commit is missing, the helpers fall back to plain search.
+
+**Why not universal-ctags and `protoc`** (the first draft): ast-grep already had to parse every file for error messages and flag reads, and its tree-sitter nodes give symbols and signatures too, in-process and for C#; the gRPC map needs only service and method names, which a `.proto` states plainly, so running `protoc` adds a toolchain for nothing. The codebox still has ctags for its no-index fallback.
 
 **Cost:** for the five services in scope, about a minute and five model calls per deploy.
 
@@ -907,7 +910,7 @@ Two rules keep this honest: a bug found in a later phase gets a failing test bef
 | 2. Graph skeleton, model layer, open-source spike | 4 | LangGraph `StateGraph` with every node as a stub, all edges, the Postgres checkpointer, streaming into the `events` table; Pydantic AI with `roles.yaml`, fallback models, `UsageLimits` and OpenTelemetry export; install and pin HolmesGPT and mini-swe-agent and run each once against the sandbox | A ticket runs end to end through the stub graph, a stub approval pauses and resumes, a Pydantic AI call works on two providers by changing only config, and both open-source agents run once. Any poor fit shows up now, not on day 10 |
 | 3. Retrieval (RAG) | 5–6 | Draft and check about 30 help-center articles; generate and label the \~200-ticket seed history from reviewed templates with near-misses; `EmbeddingClient` with the local model; `retrieval_docs` table; section chunking; hybrid search with reciprocal rank fusion; a hit-rate script over labelled queries; the 20-ticket eval dataset (labels only, see Demo tickets). Tests first for chunking, hashing, fusion and filters | Hit rates are measured for both indexes over the eval dataset's labels, and ticket 1's answering section comes back in the top 5 |
 | 4. Front-of-pipeline nodes | 7 | Fill in context, enrichment (with validation), retrieval, LLM categorization in the existing `jev` stage (with confidence gate), routing, Layer 1 (with citation checks) and request triage nodes. Tests first for validation, the confidence gate, routing and citation checks. Jev is unavailable. | All seven tickets get valid enrichment and take the right lane in the graph, tickets 1 and 2 get correct replies (ticket 1 cited), and the eval dataset's type, service and lane labels give a first score |
-| 5. Layer 2 tools + indexer | 8–9 | HolmesGPT toolset config with the custom `jaeger` and `history` toolsets and `condense_traces.py`; the codebase container with read-only worktrees and helper commands; indexer with universal-ctags, ast-grep, `protoc` and service cards, run from `deploy.sh`. Characterization tests for `condense_traces.py`, the helper commands and the indexer | Each toolset and helper command returns condensed real data, a write attempt is refused, both versions are indexed, and those results are pinned by tests |
+| 5. Layer 2 tools + indexer | 8–9 | HolmesGPT toolset config with the custom `jaeger` and `history` toolsets and `condense_traces.py`; the codebase container with read-only worktrees and helper commands; indexer with ast-grep, the `.proto` method list and service cards, run from `deploy.sh`. Characterization tests for `condense_traces.py`, the helper commands and the indexer | Each toolset and helper command returns condensed real data, a write attempt is refused, both versions are indexed, and those results are pinned by tests |
 | 6. Layer 2 nodes | 10–11 | Duplicate check, brief, the two analyst nodes as parallel branches with timeouts and retry policies, each sending tool calls and commands to the stream; conversion of their answers to `Findings` with evidence checks; round 2; verdict; write-back to ticket memory. Tests first for evidence checks, signature normalization, round 2's trigger and the timeout path | Ticket 3 is a false positive; tickets 4 and 5 are bugs with the right file and commit; ticket 6 is a config incident; ticket 7 links to ticket 4's open issue |
 | 7. Layer 3 + console API | 12 | Layer 3 and approval nodes (`interrupt()`), Linear issue creation, customer ack; the console endpoints: queue, ticket, `/pipeline` from `get_graph()`, stored events, the Server-Sent Events stream with replay, approve (resumes the graph), simulator, scorecard | A bug ticket produces a Linear issue, an approval resumes the paused run, and `curl` on the stream shows a live run's events arriving |
 | 8. Triage Console | 13–15 | Day 13: scaffold, shadcn/AI Elements/React Flow UI installs, generated API client, sidebar shell, `/tickets` queue. Day 14: `/ticket/[id]` with the pipeline, stage inspector, streaming hook and output view. Day 15: approve flow, replay, `/simulator`, `/scorecard`, dark mode | A live ticket lights up the flowchart stage by stage, every tool call shows its code, command or chart, a reply can be approved, and a past run replays |
@@ -929,7 +932,7 @@ support-agent/
     models_config.py   # roles.yaml → Pydantic AI model + LiteLLM string, fallbacks, UsageLimits
     tracing.py         # OpenTelemetry export; spans per node and analyst run
     tasks.py           # Procrastinate: start a ticket's run, resume after approval
-    indexer/           # ctags, ast-grep patterns, protoc map, service cards
+    indexer/           # ast-grep extraction, gRPC map, service cards, TSV export
     retrieval/
       embed.py         # EmbeddingClient interface + local bge-small model
       chunk.py         # split help articles at ## headings

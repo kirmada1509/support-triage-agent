@@ -174,6 +174,7 @@ LIMITS = {
     "requests": UsageLimits(request_limit=3, total_tokens_limit=10_000),
     "findings": UsageLimits(request_limit=3, total_tokens_limit=40_000),
     "verdict": UsageLimits(request_limit=3, total_tokens_limit=40_000, cost_limit=Decimal("0.05")),
+    "indexer": UsageLimits(request_limit=3, total_tokens_limit=120_000),
 }
 
 

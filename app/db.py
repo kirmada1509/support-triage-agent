@@ -7,9 +7,9 @@ outside the ORM on purpose: the SSE stream LISTENs on a plain psycopg connection
 
 from datetime import timedelta
 from decimal import Decimal
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from sqlalchemy import func, select, update
+from sqlalchemy import delete, func, select, update
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
@@ -17,14 +17,22 @@ from app.events import Event, EventAdapter, StageEvent, StoredEvent
 from app.models import ContextBundle, Deploy, FlagChange, Ticket
 from app.settings import settings
 from app.tables import (
+    CodeSymbolRow,
     DeployRow,
+    ErrorStringRow,
     EvalResultRow,
     EventRow,
     FlagChangeRow,
+    FlagReadRow,
     InvestigationRow,
+    RpcMapRow,
+    ServiceCardRow,
     TenantRow,
     TicketRow,
 )
+
+if TYPE_CHECKING:
+    from app.indexer.build import CodeIndex
 
 engine = create_async_engine(settings.sqlalchemy_url, pool_pre_ping=True)
 Session = async_sessionmaker(engine, expire_on_commit=False)
@@ -241,6 +249,98 @@ async def fetch_context(ticket: Ticket, services: dict[str, str], hours: int = 2
             ],
             services=services,
         )
+
+
+# --- code index (app/indexer) -----------------------------------------------------------------
+
+_CODE_TABLES = (CodeSymbolRow, ErrorStringRow, RpcMapRow, FlagReadRow)
+
+
+async def replace_code_index(index: "CodeIndex") -> None:
+    """Store a service's index at one commit, replacing only that (service, commit)."""
+    key = {"service": index.service, "git_sha": index.git_sha}
+    rows: list = [
+        CodeSymbolRow(
+            **key, file=x.file, line=x.line, kind=x.kind, name=x.name, signature=x.signature
+        )
+        for x in index.symbols
+    ]
+    rows += [ErrorStringRow(**key, file=x.file, line=x.line, text=x.text) for x in index.errors]
+    rows += [
+        RpcMapRow(**key, method=x.method, handler_file=x.file, handler_line=x.line)
+        for x in index.rpcs
+    ]
+    rows += [FlagReadRow(**key, flag=x.flag, file=x.file, line=x.line) for x in index.flags]
+    async with Session.begin() as s:
+        for table in _CODE_TABLES:
+            await s.execute(
+                delete(table).where(table.service == index.service, table.git_sha == index.git_sha)
+            )
+        s.add_all(rows)
+
+
+async def code_index_exists(service: str, git_sha: str) -> bool:
+    async with Session() as s:
+        found = await s.scalar(
+            select(CodeSymbolRow.id)
+            .where(CodeSymbolRow.service == service, CodeSymbolRow.git_sha == git_sha)
+            .limit(1)
+        )
+        return found is not None
+
+
+async def load_code_index(git_sha: str) -> list["CodeIndex"]:
+    """Every service indexed at a commit (without source files)."""
+    from app.indexer import extract
+    from app.indexer.build import CodeIndex
+
+    indexes: dict[str, CodeIndex] = {}
+
+    def get(service: str) -> CodeIndex:
+        return indexes.setdefault(service, CodeIndex(service, git_sha))
+
+    async with Session() as s:
+        for r in await s.scalars(
+            select(CodeSymbolRow)
+            .where(CodeSymbolRow.git_sha == git_sha)
+            .order_by(CodeSymbolRow.file, CodeSymbolRow.line)
+        ):
+            get(r.service).symbols.append(
+                extract.Symbol(r.file, r.line, r.kind, r.name, r.signature or r.name)
+            )
+        for r in await s.scalars(
+            select(ErrorStringRow)
+            .where(ErrorStringRow.git_sha == git_sha)
+            .order_by(ErrorStringRow.file, ErrorStringRow.line)
+        ):
+            get(r.service).errors.append(extract.ErrorString(r.file, r.line, r.text))
+        for r in await s.scalars(
+            select(RpcMapRow).where(RpcMapRow.git_sha == git_sha).order_by(RpcMapRow.method)
+        ):
+            get(r.service).rpcs.append(extract.Rpc(r.method, r.handler_file, r.handler_line))
+        for r in await s.scalars(
+            select(FlagReadRow)
+            .where(FlagReadRow.git_sha == git_sha)
+            .order_by(FlagReadRow.file, FlagReadRow.line)
+        ):
+            get(r.service).flags.append(extract.FlagRead(r.file, r.line, r.flag))
+    return [indexes[k] for k in sorted(indexes)]
+
+
+async def service_cards(git_sha: str) -> dict[str, str]:
+    async with Session() as s:
+        rows = await s.scalars(select(ServiceCardRow).where(ServiceCardRow.git_sha == git_sha))
+        return {r.service: r.card for r in rows}
+
+
+async def save_service_card(service: str, git_sha: str, card: str) -> None:
+    stmt = insert(ServiceCardRow).values(service=service, git_sha=git_sha, card=card)
+    stmt = stmt.on_conflict_do_update(
+        index_elements=[ServiceCardRow.service, ServiceCardRow.git_sha],
+        set_={"card": stmt.excluded.card},
+    )
+    async with Session.begin() as s:
+        await s.execute(stmt)
 
 
 # --- evals ------------------------------------------------------------------------------------

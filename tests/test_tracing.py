@@ -14,6 +14,7 @@ from app.graph.stream import run_graph
 from tests.conftest import demo_ticket
 
 EXPORTER = InMemorySpanExporter()
+pytestmark = pytest.mark.usefixtures("front_stage_fakes")
 
 
 @pytest.fixture(scope="module", autouse=True)
