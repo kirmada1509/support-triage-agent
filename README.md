@@ -1,7 +1,7 @@
 # Support Triage Agent
 
 An AI first pass for B2B support tickets. A ticket arrives through a Pylon-style signed webhook,
-gets enriched and categorized (Jev), and takes one of three lanes: a cited Layer 1 answer, request
+gets enriched and categorized by a structured LLM call, and takes one of three lanes: a cited Layer 1 answer, request
 triage, or, for tech issues, a Layer 2 investigation where a data analyst (HolmesGPT) and a
 read-only codebase analyst (mini-swe-agent) work in parallel against a real microservice shop.
 False positives are answered directly; real bugs go to the owning engineering team (Layer 3).
@@ -12,12 +12,11 @@ The full design is in `planning/Agent_Architecture_And_Build_Plan.md`. Coding ag
 
 ## Status
 
-Phases 1–2 scaffold: the whole LangGraph pipeline runs end to end with stub nodes, checkpointed
-in Postgres, streaming every event to the console API, pausing for approval and resuming.
-Each stub node says in its docstring what replaces it and in which phase (`TODO(phase N)`).
-Phase 3 adds a local hybrid retrieval index: 31 help articles, 200 labelled synthetic past
-tickets, pgvector plus full-text search, and a fixed 20-ticket hit-rate set. The graph's retrieve
-node remains a stub until phase 4. [planning/Build_Checklist.md](planning/Build_Checklist.md)
+Phases 1–2 provide intake, a checkpointed graph, live events and approval. Phase 3 adds a local
+hybrid retrieval index: 31 help articles, 200 labelled synthetic past tickets and a fixed
+20-ticket hit-rate set. Phase 4 adds real enrichment, retrieval, LLM categorization, cited Layer 1
+answers and request triage. Jev is unavailable; the `jev` stage name remains for existing events.
+Layer 2 and customer reply delivery remain stubs. [planning/Build_Checklist.md](planning/Build_Checklist.md)
 tracks each phase.
 
 ## Run it
@@ -59,7 +58,12 @@ embeds changed text.
 20-ticket score to [evals/retrieval_baseline.json](evals/retrieval_baseline.json). Current results:
 help sections 7/7 in the top five; ticket memory 13/18 exact IDs in the top three (17/18 for an
 equivalent synthetic issue family). Ticket 1's accepted-cards section ranks first. The benchmark
-uses subject and body without an oracle service filter; phase 4 will add the enrichment symptom.
+uses subject and body without an oracle service filter. The graph query also includes the
+enrichment symptom and filters ticket memory by likely service.
+
+`make front-eval` runs the real Phase 4 nodes on the 20 fixed tickets against the indexed local
+database and writes [evals/phase4_baseline.json](evals/phase4_baseline.json). It needs the active
+profile's model key. The score includes the actual route after confidence gating.
 
 ## Layout
 
@@ -68,7 +72,7 @@ app/
   api/            FastAPI: webhook (HMAC), queue, ticket, /pipeline, events + SSE, approve,
                   simulator, scorecard
   graph/          LangGraph: state, build (nodes, edges, retries), routes, stream, layout.yaml
-  nodes/          one async function per stage (stubs until phases 4–7)
+  nodes/          one async function per stage (front pipeline real; later lanes still stubs)
   events.py       event models for the console (discriminated unions)
   models.py       Enrichment, Retrieved, Classification, Findings, Verdict, ...
   models_config.py  roles.yaml -> Pydantic AI model / LiteLLM string, fallbacks, limits
@@ -83,7 +87,7 @@ holmes/           HolmesGPT's image and toolsets (jaeger, history, logs) + their
 codebox/          the codebase analyst's read-only container + helper commands
 sandbox/          the shop fork's kit: pin, overlay, patches, setup, image builds, compose
 scenarios/        tickets.yaml (7 demo tickets), scenario.py, send_ticket.py, deploy.sh, flag.sh
-knowledge/ seed/ evals/   phase 3 help, synthetic memory and labels; phase 9 model runs
+knowledge/ seed/ evals/   help, synthetic memory, fixed labels and the Phase 4 model baseline
 web/                phase 8 (see its README)
 ```
 

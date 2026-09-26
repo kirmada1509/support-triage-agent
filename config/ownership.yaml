@@ -1,6 +1,33 @@
-# The one list of service names. Jev's `service` choices and Enrichment.likely_services use these keys.
-payment:         {team: Payments, linear_team: PAY,  path: src/payment/}
-quote:           {team: Shipping, linear_team: SHIP, path: src/quote/}
-checkout:        {team: Checkout, linear_team: CHK,  path: src/checkout/}
-cart:            {team: Checkout, linear_team: CHK,  path: src/cart/}
-product-catalog: {team: Catalog,  linear_team: CAT,  path: src/product-catalog/}
+# The one service vocabulary. Classification.service and Enrichment.likely_services use these keys.
+payment:
+  team: Payments
+  linear_team: PAY
+  path: src/payment/
+  description: >-
+    Validates card number, card type, expiry month and charges cards. Card decline or expiry
+    errors at checkout belong here. Adding new payment methods is a checkout feature request.
+quote:
+  team: Shipping
+  linear_team: SHIP
+  path: src/quote/
+  description: >-
+    Calculates shipping cost from item quantities and addresses. Wrong shipping estimates belong here.
+checkout:
+  team: Checkout
+  linear_team: CHK
+  path: src/checkout/
+  description: >-
+    Orchestrates order placement, currency conversion, cart clearing after purchase and
+    confirmation email. New payment methods such as Apple Pay belong here.
+cart:
+  team: Checkout
+  linear_team: CHK
+  path: src/cart/
+  description: >-
+    Stores and changes basket items before payment, including emptying a cart.
+product-catalog:
+  team: Catalog
+  linear_team: CAT
+  path: src/product-catalog/
+  description: >-
+    Lists products and serves their names, descriptions and prices. Missing storefront items belong here.

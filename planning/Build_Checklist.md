@@ -4,11 +4,11 @@ What's built and what isn't, phase by phase, against `Agent_Architecture_And_Bui
 Tick an item when it works and is tested the way the plan's "How it's tested" says; tick a
 phase's "Done when" only when that whole criterion has been seen working.
 
-Last updated Sep 26, 2026, after phase 3 retrieval. Suite inventory (provider calls depend on credit):
+Last updated Sep 26, 2026, after phase 4 front pipeline. Suite inventory (provider calls depend on credit):
 
 | Suite | Command | Needs | Tests |
 | --- | --- | --- | --- |
-| Units, graph in memory, scenario logic, sandbox kit, tracing, model config, retrieval | `make test` | nothing | 92 |
+| Units, graph in memory, front pipeline, scenario logic, sandbox kit, tracing, model config, retrieval | `make test` | nothing | 99 |
 | Database | `make test-db` | `make db` | 9 |
 | The fork: tags, planted bugs, overlay, images | `make test-sandbox` | `make sandbox` | 18 |
 | The running shop: every scenario, read-only role, metrics, logs | `make test-shop` | `make shop-up` | 15 |
@@ -82,17 +82,23 @@ Last updated Sep 26, 2026, after phase 3 retrieval. Suite inventory (provider ca
 
 ## Phase 4: Front-of-pipeline nodes (day 7)
 
-- [ ] Tests first: enrichment validation, the confidence gate, routing, Layer 1 citation checks
-- [ ] Context node on real data
-- [ ] Enrichment with validation (ticket times are the customer's local time; the window must allow for it)
-- [ ] Describe each service by what it does in the categorization prompts: models read "expired at
-  checkout" as a checkout problem, not payment (spike)
-- [ ] Retrieve node
-- [ ] Jev with the LLM fallback below 0.7
-- [ ] Layer 1 with citation checks
-- [ ] Request triage
-- [ ] **Done when:** all seven tickets get valid enrichment and the right lane, tickets 1 and 2
-  get correct, cited replies, and the eval dataset's type, service and lane labels give a first score
+- [x] Tests first: enrichment validation, confidence gate, routing and Layer 1 citation checks
+- [x] Context node on real data (`make test-db`, phase 1)
+- [x] Enrichment with identifier, change, service and UTC window validation; unknown customer
+  timezone gets a broad bounded window
+- [x] Service descriptions live in `ownership.yaml`; prompts distinguish card declines from
+  checkout features such as Apple Pay
+- [x] Retrieve node: top five help sections and top three similar tickets from hybrid search
+- [x] Jev unavailable: structured LLM classification in the existing `jev` stage, with a 0.7
+  confidence gate and severity escalation for revenue blocking
+- [x] Layer 1 with code-checked citation IDs and a minimum help hit
+- [x] Request triage with a truthful acknowledgement before any team handoff exists
+- [x] Live `make front-eval` baseline on 20 fixed tickets with DeepSeek Flash: 20/20 type,
+  service and effective lane; all 20 valid windows and 7/7 expected help citations. Tickets 1–7
+  took their expected lanes; ticket 2 produced an Apple Pay feature acknowledgement
+- [x] **Done when:** all seven tickets get valid enrichment and the right lane, ticket 1 gets a
+  correct cited answer, ticket 2 gets a correct acknowledgement, and type, service and lane labels
+  have a first score
 
 ## Phase 5: Layer 2 tools and indexer (days 8–9)
 
@@ -116,7 +122,7 @@ Last updated Sep 26, 2026, after phase 3 retrieval. Suite inventory (provider ca
 ## Phase 6: Layer 2 nodes (days 10–11)
 
 - [ ] Tests first: evidence checks, error-signature normalization, round 2's trigger, the timeout path
-- [ ] Duplicate check: exact signature, retrieval over open tickets, Jev confirmation
+- [ ] Duplicate check: exact signature, retrieval over open tickets, structured LLM confirmation
 - [ ] Brief
 - [ ] Data analyst node: runs HolmesGPT's container, enforces the 90 s timeout and tool-call budget
   itself (its step limit counts model turns: the spike made 36 calls in 15 turns), streams its tool calls

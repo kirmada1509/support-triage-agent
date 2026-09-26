@@ -92,7 +92,7 @@ def build_graph(checkpointer=None):
     g.add_edge(START, "context")
     g.add_edge("context", "enrich")
     g.add_edge("enrich", "retrieve")
-    g.add_edge("enrich", "jev")  # retrieval and Jev run side by side
+    g.add_edge("enrich", "jev")  # retrieval and classification run side by side
     g.add_edge(["retrieve", "jev"], "route")  # waits for both
     g.add_conditional_edges("route", pick_lane, ["layer1", "requests", "duplicates", "approve"])
     g.add_conditional_edges("duplicates", is_duplicate, ["reply", "brief"])

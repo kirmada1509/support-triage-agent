@@ -53,7 +53,7 @@ async def close_checkpointer() -> None:
 def _sink(ticket_id: str):
     async def sink(event: Event) -> None:
         await db.record_event(ticket_id, event)
-        if isinstance(event, JevEvent):  # the queue shows lane and severity as soon as Jev answers
+        if isinstance(event, JevEvent):  # legacy event name; show lane and severity immediately
             answers = {a.question: a.answer for a in event.answers}
             await db.update_ticket(
                 ticket_id, lane=answers.get("ticket_type"), severity=answers.get("severity")

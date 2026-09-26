@@ -9,7 +9,7 @@ LANE_TO_NODE = {"how_to": "layer1", "request": "requests", "tech_issue": "duplic
 
 def pick_lane(state: TicketState) -> Literal["layer1", "requests", "duplicates", "approve"]:
     c = state["classification"]
-    if c.needs_human:  # Jev and the LLM re-read were both unsure: a person takes it
+    if c.needs_human:  # The classifier was unsure or returned an unknown service.
         return "approve"
     return LANE_TO_NODE[c.ticket_type]
 

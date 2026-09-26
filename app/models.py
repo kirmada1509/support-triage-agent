@@ -73,7 +73,7 @@ class Retrieved(BaseModel):
     score: float
 
 
-# --- categorization (Jev) ---------------------------------------------------------------------
+# --- categorization ---------------------------------------------------------------------------
 
 
 class JevAnswer(BaseModel):
@@ -89,7 +89,7 @@ class Classification(BaseModel):
     severity: int = Field(ge=1, le=4)
     revenue_blocking: bool
     revenue_blocking_confidence: float
-    source: Literal["jev", "llm_fallback", "stub"] = "jev"
+    source: Literal["jev", "llm", "llm_fallback", "stub"] = "llm"
     needs_human: bool = False
     answers: list[JevAnswer] = []
 

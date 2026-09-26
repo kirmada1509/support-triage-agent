@@ -60,7 +60,6 @@ def test_deepseek_is_the_default():
 def test_every_profile_covers_the_same_roles(config, profile):
     config(profile)
     assert set(models_config._roles()) == set(models_config.LIMITS) | {
-        "jev_fallback",
         "data_analyst",
         "codebase_analyst",
         "indexer",

@@ -3,12 +3,12 @@
 Context and rules for coding agents working in this repo. Read it before changing anything, and
 keep it true (see "Keeping this file current" at the end).
 
-Last updated: Sep 26, 2026, after phase 3 retrieval.
+Last updated: Sep 26, 2026, after phase 4 front pipeline.
 
 ## What this is
 
 An AI first pass for B2B support tickets (built for a Zuddl demo). A ticket arrives through a
-Pylon-style signed webhook, is enriched and categorized (Jev), and takes one of three lanes: a
+Pylon-style signed webhook, is enriched and categorized by a structured LLM call, and takes one of three lanes: a
 cited Layer 1 answer, request triage, or a Layer 2 investigation where a data analyst
 (HolmesGPT) and a read-only codebase analyst (mini-swe-agent) work in parallel against a real
 microservice shop. Real bugs go to the owning team as Linear issues (Layer 3). A person approves
@@ -31,7 +31,7 @@ anything uncertain. A Next.js Triage Console shows every stage live.
    matching section of the plan. Build what the plan says, or change the plan first and say why.
 3. **Test first** for anything with a spec code can check (see "Testing"). Model behaviour is
    judged by evals, not unit tests. A bug found later gets a failing test before its fix.
-4. **One list of service names:** `config/ownership.yaml`. Jev's `service` choices, the
+4. **One list of service names:** `config/ownership.yaml`. Classification's `service` choice, the
    enrichment's `likely_services`, and the sandbox's versioned services all use its keys.
 5. **Read-only everywhere the agents touch the shop:** the data analyst's SQL runs as `agent_ro`,
    the codebase analyst gets read-only worktrees and no network. Never widen these to make
@@ -61,7 +61,7 @@ app/
   graph/routes.py   pick_lane, is_duplicate, pick_outcome: pure functions of the state
   graph/stream.py   emit() from inside nodes, staged() wrapper, run_graph() -> event sink
   graph/layout.yaml node positions for the console's flowchart
-  nodes/*.py        one async run(state) per stage; stubs say `TODO(phase N)` in their docstring
+  nodes/*.py        one async run(state) per stage; later stubs say `TODO(phase N)`
   events.py         event models (discriminated union) the console renders
   models.py         Ticket, ContextBundle, Enrichment, Retrieved, Classification, Findings, Verdict...
   models_config.py  roles.yaml -> Pydantic AI model / LiteLLM string, fallbacks, UsageLimits, cost
@@ -87,7 +87,7 @@ tests/              pytest suites (see Testing); tests/fixtures/ holds real capt
 planning/           the plan, the build checklist, the phase 2 spike results, three HTML diagrams
 knowledge/          31 help articles / 62 sections with source map
 seed/               200 labelled synthetic tickets and generator
-evals/              20 fixed ticket labels and retrieval baseline (model runs in phase 9)
+evals/              20 fixed ticket labels, retrieval and Phase 4 model baselines
 web/                phase 8 placeholder
 .claude/skills/     project skills: sandbox-shop, planted-bugs (see "Skills and plugins")
 ```
@@ -118,7 +118,7 @@ web/                phase 8 placeholder
   memories into `retrieval_docs` with local `BAAI/bge-small-en-v1.5` pinned at `5c38ec7c`.
   Unchanged text is not
   re-embedded. Search filters the vector and full-text candidates, then fuses their ranks. The
-  graph's retrieve node is still a phase 4 stub. `make retrieval-hits` uses a separate throwaway
+  The graph's retrieve node now uses the index. `make retrieval-hits` uses a separate throwaway
   database and records the 20-ticket result in `evals/retrieval_baseline.json` (help 7/7 top 5,
   ticket memory 13/18 exact IDs top 3, 17/18 same synthetic issue family). Ticket 1's section is
   first.
@@ -141,8 +141,14 @@ web/                phase 8 placeholder
   environment); mini-swe-agent is a dependency and runs each command in the codebox container.
   Both worked on the demo tickets in the phase 2 spike (`planning/Phase_2_Spike.md`); their graph
   nodes are phase 6.
-- **Status.** Every node except `context`, `route` and `approve` is still a stub returning fixed
-  data. See the checklist for what each phase replaces.
+- **Front pipeline.** `enrich` extracts a UTC window and ticket clues, then code checks IDs,
+  service names and changes. `retrieve` runs hybrid help and ticket searches. The legacy `jev`
+  stage now calls the configured `classification` LLM role; Jev is unavailable. Below 0.7 type
+  confidence or an unknown service goes to a person. `layer1` verifies every cited ID and needs
+  a relevant help section; `requests` drafts an acknowledgement. `make front-eval` runs these
+  nodes on 20 fixed tickets and records `evals/phase4_baseline.json`.
+- **Status.** Context, enrichment, retrieval, categorization, routing, Layer 1, request triage
+  and approval are real. Layer 2, Layer 3, reply delivery and memory write-back remain stubs.
 
 ## The sandbox shop
 
@@ -213,6 +219,7 @@ make analyst-images                # sandbox/holmes:0.42.0 and sandbox/codebox
 make models                        # model per role, missing keys (ROLE_PROFILE=openai make models)
 make index-help index-tickets      # fill retrieval_docs, re-embed only changed text
 make retrieval-hits               # isolated retrieval benchmark on triage_retrieval_test
+make front-eval                    # 20 live front pipeline cases (indexed DB + model key)
 make lint fmt                      # ruff, line length 100
 ```
 
@@ -231,7 +238,7 @@ make lint fmt                      # ruff, line length 100
   `DATABASE_URL` names a database ending in `_test`; the make targets set it.
 - **Replacing a stub node:** write its test first against `TicketState` (the state it receives,
   the keys it returns), with the model or tool faked, then implement; `tests/test_graph.py`
-  keeps the lanes working end to end. Put each outside call (model, Jev, HolmesGPT, Postgres,
+  keeps the lanes working end to end. Put each outside call (model, HolmesGPT, Postgres,
   HTTP) behind one small function a test can replace, send progress with `emit(...)`, and give a
   node that calls out a `RetryPolicy` in `app/graph/build.py`.
 - **Scenario logic** is tested against `FakeShop` in `tests/test_scenarios.py`: every scenario

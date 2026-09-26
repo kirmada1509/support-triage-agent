@@ -18,7 +18,8 @@ from app.alembic_config import alembic_config
 from app.events import JevEvent, StageEvent, ToolCallEvent
 from app.history_access import history_url_for_database, setup_history_reader
 from app.migrate import setup_libraries
-from app.models import Ticket
+from app.models import Enrichment, RequestTriage, Ticket
+from app.nodes import enrich, jev, requests, retrieve
 from app.retrieval.chunk import HelpSection, content_hash
 from app.retrieval.index import index_help, index_tickets
 from app.retrieval.search import search
@@ -249,7 +250,46 @@ async def test_insert_notifies_listeners():
     assert note.payload == f"{t.id}:{event_id}"
 
 
-async def test_worker_runs_pauses_and_resumes():
+async def test_worker_runs_pauses_and_resumes(monkeypatch):
+    def is_request_ticket(prompt):
+        return '"id":"T-W2"' in prompt.split("Ticket: ", 1)[1].split("\n", 1)[0]
+
+    async def fake_enrich(role, output_type, prompt):
+        source = ticket("2") if is_request_ticket(prompt) else ticket("4")
+        end = source.received_at
+        return Enrichment(
+            window_start=end - timedelta(hours=3),
+            window_end=end,
+            window_basis="test",
+            symptom=source.subject,
+        ), "fake-model"
+
+    async def fake_classify(role, output_type, prompt):
+        request = is_request_ticket(prompt)
+        return jev.Categorization(
+            ticket_type="request" if request else "tech_issue",
+            ticket_type_confidence=0.9,
+            service="checkout" if request else "payment",
+            service_confidence=0.9,
+            severity=3,
+            severity_confidence=0.8,
+            revenue_blocking=not request,
+            revenue_blocking_confidence=0.9,
+        ), "fake-model"
+
+    async def fake_request(role, output_type, prompt):
+        return RequestTriage(
+            kind="feature", summary="Apple Pay", acknowledgement="Thanks for the suggestion."
+        ), "fake-model"
+
+    async def no_hits(query, embedder, **kwargs):
+        return []
+
+    monkeypatch.setattr(enrich, "call", fake_enrich)
+    monkeypatch.setattr(jev, "call", fake_classify)
+    monkeypatch.setattr(requests, "call", fake_request)
+    monkeypatch.setattr(retrieve, "search", no_hits)
+    monkeypatch.setattr(retrieve, "embedder", lambda: None)
     # A request goes straight through.
     t2 = ticket("2", "T-W2")
     await db.insert_ticket(t2)

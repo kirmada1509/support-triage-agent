@@ -169,6 +169,7 @@ def cost_usd(model_key: str, input_tokens: int, output_tokens: int, cached: int 
 # Limits per single-call role; the analysts have their own step limits and a hard timeout.
 LIMITS = {
     "enrichment": UsageLimits(request_limit=3, total_tokens_limit=20_000),
+    "classification": UsageLimits(request_limit=3, total_tokens_limit=20_000),
     "layer1": UsageLimits(request_limit=3, total_tokens_limit=30_000),
     "requests": UsageLimits(request_limit=3, total_tokens_limit=10_000),
     "findings": UsageLimits(request_limit=3, total_tokens_limit=40_000),

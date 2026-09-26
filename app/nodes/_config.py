@@ -14,3 +14,8 @@ def ownership() -> dict[str, dict]:
 
 def service_names() -> list[str]:
     return list(ownership())
+
+
+def service_glossary() -> dict[str, str]:
+    """Model prompt descriptions from the one service vocabulary."""
+    return {name: item["description"] for name, item in ownership().items()}

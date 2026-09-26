@@ -1,15 +1,30 @@
-"""Hybrid retrieval over help-center sections and past tickets (pgvector + full text, RRF).
+"""Hybrid retrieval over help sections and resolved past tickets."""
 
-TODO(phase 3): app.retrieval.search.search(query=ticket text + enrichment.symptom, ...).
-"""
+from functools import cache
 
 from app.events import RetrievalEvent
 from app.graph.state import TicketState
 from app.graph.stream import emit
+from app.retrieval.embed import LocalBGE
+from app.retrieval.search import search
+
+
+@cache
+def embedder() -> LocalBGE:
+    return LocalBGE()
 
 
 async def run(state: TicketState) -> dict:
-    query = f"{state['ticket'].subject}\n{state['enrichment'].symptom}"
-    results: list = []  # stub
+    ticket = state["ticket"]
+    query = f"{ticket.subject}\n{ticket.body}\n{state['enrichment'].symptom}"
+    help_hits = await search(query, embedder(), kind="help_section", limit=5)
+    ticket_hits = await search(
+        query,
+        embedder(),
+        kind="ticket",
+        services=state["enrichment"].likely_services or None,
+        limit=3,
+    )
+    results = help_hits + ticket_hits
     emit(RetrievalEvent(stage="retrieve", query=query, results=results))
-    return {"retrieved": results, "_summary": f"{len(results)} results"}
+    return {"retrieved": results, "_summary": f"{len(help_hits)} help, {len(ticket_hits)} tickets"}

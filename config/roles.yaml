@@ -9,7 +9,7 @@ profiles:
   # gemini-3.8-flash: less than one analyst run.
   gemini:
     enrichment:        {model: gemini-flash-lite, fallback: gemini-3.5-flash-lite}
-    jev_fallback:      {model: gemini-flash-lite, fallback: gemini-3.5-flash-lite}
+    classification:    {model: gemini-flash-lite, fallback: gemini-3.5-flash-lite}
     layer1:            {model: gemini-flash-lite, fallback: gemini-3.5-flash-lite}
     requests:          {model: gemini-flash-lite, fallback: gemini-3.5-flash-lite}
     data_analyst:      {model: gemini-3.8-flash,  fallback: gemini-flash-lite}
@@ -20,7 +20,7 @@ profiles:
   # OpenAI's API (OPENAI_API_KEY).
   openai:
     enrichment:        {model: gpt-5.4-mini, fallback: gpt-5.4-nano}
-    jev_fallback:      {model: gpt-5.4-mini, fallback: gpt-5.4-nano}
+    classification:    {model: gpt-5.4-mini, fallback: gpt-5.4-nano}
     layer1:            {model: gpt-5.4-mini, fallback: gpt-5.4-nano}
     requests:          {model: gpt-5.4-mini, fallback: gpt-5.4-nano}
     data_analyst:      {model: gpt-5.4-mini, fallback: gpt-5.4}
@@ -31,7 +31,7 @@ profiles:
   # DeepSeek's API (DEEPSEEK_API_KEY). The default.
   deepseek:
     enrichment:        {model: deepseek-flash,    fallback: deepseek-v4-pro}
-    jev_fallback:      {model: deepseek-flash,    fallback: deepseek-v4-pro}
+    classification:    {model: deepseek-flash,    fallback: deepseek-v4-pro}
     layer1:            {model: deepseek-flash,    fallback: deepseek-v4-pro}
     requests:          {model: deepseek-flash,    fallback: deepseek-v4-pro}
     data_analyst:      {model: deepseek-flash,    fallback: deepseek-v4-pro}
@@ -42,7 +42,7 @@ profiles:
   # Everything through OpenRouter (OPENROUTER_API_KEY): one key for any model it lists.
   openrouter:
     enrichment:        {model: or-deepseek-flash,  fallback: or-deepseek-v4-pro}
-    jev_fallback:      {model: or-deepseek-flash,  fallback: or-deepseek-v4-pro}
+    classification:    {model: or-deepseek-flash,  fallback: or-deepseek-v4-pro}
     layer1:            {model: or-deepseek-flash,  fallback: or-deepseek-v4-pro}
     requests:          {model: or-deepseek-flash,  fallback: or-deepseek-v4-pro}
     data_analyst:      {model: or-deepseek-flash,  fallback: or-deepseek-v4-pro}

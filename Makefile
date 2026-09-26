@@ -1,7 +1,7 @@
 TEST_DATABASE_URL = postgresql://triage:triage@localhost:5433/triage_test
 
 .PHONY: install db migrate migration check-migrations api worker send deploy flag test test-db lint fmt \
-    index-help index-tickets retrieval-hits \
+    index-help index-tickets retrieval-hits front-eval \
 	sandbox sandbox-images shop-up shop-down test-sandbox test-shop test-llm test-spike analyst-images models
 
 install:            ## install Python deps (uv) and pin them in uv.lock
@@ -81,6 +81,9 @@ retrieval-hits:     ## build a throwaway retrieval index and score both corpora 
 	DATABASE_URL=postgresql://triage:triage@localhost:5433/triage_retrieval_test uv run python -m app.migrate
 	DATABASE_URL=postgresql://triage:triage@localhost:5433/triage_retrieval_test uv run python -m app.retrieval.cli index-all
 	DATABASE_URL=postgresql://triage:triage@localhost:5433/triage_retrieval_test uv run python -m app.retrieval.cli hit-rate --output evals/retrieval_baseline.json
+
+front-eval:         ## run live Phase 4 nodes on 20 fixed tickets (needs indexed db and model key)
+	uv run python -m evals.phase4 --output evals/phase4_baseline.json
 
 analyst-images:     ## the analysts' containers: HolmesGPT (holmes/) and the read-only codebox
 	docker build -t sandbox/holmes:0.42.0 holmes/

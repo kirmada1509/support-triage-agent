@@ -8,7 +8,7 @@ Assemble the agent from proven open-source parts and write only the glue that's 
 
 **What the head of tech sees**
 
-- A ticket arrives through a Pylon-style signed webhook. Jev categorizes it in under a second.
+- A ticket arrives through a Pylon-style signed webhook. A structured LLM call categorizes it.
 - Layer 1 answers a how-to question on its own, from help-center sections found by the RAG search.
 - Layer 2 runs two open-source agents in parallel: **HolmesGPT** as the data analyst (traces, metrics, logs, database, flags) and **mini-swe-agent** as the codebase analyst (source code and git history). One ticket turns out to be expected behaviour and gets a direct reply. Another is a real bug.
 - Layer 3 routes the real bug to the owning team as a Linear issue, with the root cause, evidence links and the suspect file and line.
@@ -26,7 +26,7 @@ Assemble the agent from proven open-source parts and write only the glue that's 
 | Retrieval (RAG) | Hybrid search (pgvector + Postgres full-text, local embedding model) over two indexes: help-center sections for Layer 1, and past and open tickets for Layer 1, the Layer 2 brief and duplicate detection |
 | Agent runtime | Open-source parts: LangGraph (the pipeline graph: routing, parallel analysts, approval pauses, checkpoints, live progress), Pydantic AI (model calls, typed output, limits, fallback, tracing), HolmesGPT (data analyst), mini-swe-agent (codebase analyst). You write the nodes, tools, retrieval and guardrails. |
 | Models | Start on DeepSeek V4.1 Flash for single calls and analysts and DeepSeek V4 Pro for the verdict; the eval scorecard then picks per role |
-| Categorization | Jev (`jev-latest`), with an LLM fallback below 0.7 confidence |
+| Categorization | One structured LLM call, with confidence gating below 0.7; Jev is unavailable |
 | Ticket source | Real Pylon webhook if you have an account, otherwise a local Pylon simulator with the same payload |
 | Engineering handoff | Linear issue + service ownership map |
 | Timeline | About 17 working days |
@@ -213,7 +213,7 @@ Python everywhere on the agent side, one Postgres, and open-source parts whereve
 | Code index | universal-ctags for symbols, ast-grep for error messages across languages, `protoc` for the gRPC map | Mature tools; no parser to write | Same |
 | Models | Configured per role in `config/roles.yaml`. Start: DeepSeek V4.1 Flash for single calls and both analysts, DeepSeek V4 Pro for the verdict | Cheapest current models with tool calling and JSON output; one config change per role | Whatever the eval scorecard and Zuddl's data rules pick |
 | Retrieval (RAG) | Help-center sections and past or open tickets in pgvector (HNSW, cosine) + Postgres full-text, merged by reciprocal rank fusion; embeddings from `BAAI/bge-small-en-v1.5` via sentence-transformers | Free, no extra service; hybrid search keeps exact terms matching while vectors catch paraphrases | A hosted embedding model and a reranker, fed by Zuddl's real tickets |
-| Categorization | Jev via `typesafe-sdk`, model `jev-latest` | Typed choice, score and yes/no answers with calibrated confidence, in one call | Same |
+| Categorization | Pydantic AI structured LLM output | Typed choices and confidence estimates in one call, checked against `ownership.yaml` | A calibrated classifier if available |
 | Layer 1 knowledge | About 30 help-center articles in Markdown, split into sections by heading and indexed for retrieval; Layer 1 gets the top 5 sections | Scales past what fits in a prompt, and each answer cites the exact section it used | Index Zuddl's real help center and re-index on every article change |
 | Engineering handoff | Linear API (GraphQL) + `ownership.yaml` (service → team, on-call, Linear team) | Free tier works; issue links look good on screen | Jira if that's what Zuddl uses |
 | Ticket source | Pylon webhook, or the console's simulator page that sends the same signed payload | Demo works without a Pylon account | Real Pylon webhook + API for replies |
@@ -224,7 +224,7 @@ Python everywhere on the agent side, one Postgres, and open-source parts whereve
 
 ## Agent architecture
 
-Agents run in one lane only: tech issues and suspected bugs. Finding a root cause takes many lookups where each depends on the last, so that lane gets an orchestrator, a data analyst and a read-only coding agent. Every other step, including enrichment, Layer 1 answers and request triage, is a single LLM call with structured output. Jev decides the lane.
+Agents run in one lane only: tech issues and suspected bugs. Finding a root cause takes many lookups where each depends on the last, so that lane gets an orchestrator, a data analyst and a read-only coding agent. Every other step, including enrichment, categorization, Layer 1 answers and request triage, is a single LLM call with structured output. The classifier decides the lane.
 
 ```mermaid
 flowchart TD
@@ -232,9 +232,9 @@ flowchart TD
   W --> Q[(Postgres job queue)]
   Q --> C[Fetch context: tenant, deploys, flags, incidents]
   C --> E[Enrichment: one LLM call]
-  E --> J{Jev categorization}
+  E --> J{LLM categorization}
   E --> S[(RAG: help center + ticket memory)]
-  J -->|confidence below 0.7| H[LLM re-read, then human]
+  J -->|confidence below 0.7| H[Human review]
   J -->|how_to| L1[Layer 1: one LLM call]
   J -->|request| R[Request triage: one LLM call]
   J -->|tech_issue| M{Matches an open investigation?}
@@ -278,7 +278,7 @@ for name, fn in NODES.items():  # context, enrich, retrieve, jev, route, layer1,
 g.add_edge(START, "context")
 g.add_edge("context", "enrich")
 g.add_edge("enrich", "retrieve")
-g.add_edge("enrich", "jev")  # retrieval and Jev run side by side
+g.add_edge("enrich", "jev")  # retrieval and classification run side by side
 g.add_edge(["retrieve", "jev"], "route")  # waits for both
 g.add_conditional_edges("route", pick_lane, ["layer1", "requests", "duplicates"])
 g.add_conditional_edges("duplicates", is_duplicate, ["reply", "brief"])
@@ -294,7 +294,7 @@ graph = g.compile(checkpointer=postgres_checkpointer)
 - **Nodes are plain async functions.** Each takes the state and returns the keys it changes. Pydantic AI calls, HolmesGPT and mini-swe-agent all run inside nodes; LangGraph only decides what runs when.
 - **Parallel analysts.** `brief` fans out to both analyst nodes in the same step. The `findings` key adds both results together, and `round2` waits for both before deciding whether a second check is needed.
 - **Approval.** When a person must approve, the `approve` node calls `interrupt()` with the draft reply. The run pauses and its state stays in the checkpointer. `POST /tickets/{id}/approve` enqueues a task that resumes it with `Command(resume=decision)`.
-- **Retries.** Nodes that call outside services get a retry policy, so a failed Jev call or model timeout retries that node only, not the whole ticket.
+- **Retries.** Nodes that call outside services get a retry policy, so a failed model call retries that node only, not the whole ticket.
 - **Live progress.** The worker runs the graph with `astream(stream_mode=["updates", "custom"])`. `updates` reports each node finishing, which becomes a stage event. Inside nodes, `get_stream_writer()` sends tool calls, commands and model text as they happen. Each chunk is written to the `events` table with a NOTIFY for the console ([streaming docs](https://docs.langchain.com/oss/python/langgraph/streaming)).
 - **The flowchart comes from the code.** `GET /pipeline` returns the compiled graph's nodes and edges from `graph.get_graph()`, with positions from a short `layout.yaml`, so the console's flowchart always matches what actually runs.
 - **Where LangGraph stops.** It doesn't run the analysts' inner loops (HolmesGPT and mini-swe-agent do), doesn't call models directly (Pydantic AI does), and doesn't queue work (Procrastinate does).
@@ -334,9 +334,17 @@ Use a proven tool wherever one exists, and write only what's specific to support
 - **Context fetch (code).** The worker gathers a context bundle without interpreting it: the tenant record, the tenant's last 3 tickets, deploys and flag changes from the last 24 hours with their commit titles, open incidents, and the service catalog with one line per service.
 - **Enrichment (one call to the fast model, about 1–3 s).** The model reads the ticket and the bundle and returns an `Enrichment` object: identifiers, the time window and the phrase it came from, the symptom in one sentence, likely services in order, the deploys and flag changes that fall in or just before the window, and what's missing.
 - **Validation (code).** Every identifier must appear in the ticket or exist in the tenant's data, every deploy or flag must come from the bundle, and the window must fall within 7 days before the ticket. Anything that fails is dropped and logged, so the model can't invent an order ID for the agents to chase.
-- The result goes into Jev's input and the Layer 2 brief. For ticket 4, enrichment already points at payment `v1.4.0` at 09:30 before any agent runs.
+- The result goes into categorization and the Layer 2 brief. For ticket 4, enrichment already points at payment `v1.4.0` at 09:30 before any agent runs.
 
-### Categorization (Jev, one call)
+### Categorization (one structured LLM call)
+
+Jev is unavailable for this build. The existing `jev` graph stage and event name remain stable for
+stored runs and the console, but the configured fast LLM is now the primary classifier. It returns
+the same typed answers and confidence values. The application validates the service against
+`ownership.yaml`, gates ticket types below 0.7 for human review, and escalates high-confidence
+revenue blocking tickets. Confidence is the model's estimate, not a calibrated Jev score; the
+20-ticket eval set measures its reliability. A future Jev adapter can use this contract without
+changing the graph.
 
 | Question | Type | Answers |
 | --- | --- | --- |
@@ -345,7 +353,8 @@ Use a proven tool wherever one exists, and write only what's specific to support
 | `severity` | Score | 1–4 |
 | `revenue_blocking` | Noul (yes/no) | "Customers cannot complete purchases" |
 
-Below 0.7 confidence on `ticket_type`, the fast model re-reads the full thread with the same schema. If it's still unsure, the ticket goes to a person. `revenue_blocking` above 0.8 raises severity and forces human approval of any customer-facing reply.
+Below 0.7 confidence on `ticket_type`, the ticket goes to a person. `revenue_blocking` above
+0.8 raises severity and forces human approval of any customer-facing reply.
 
 ### Layer 1: Product support (one LLM call)
 
@@ -355,13 +364,13 @@ Below 0.7 confidence on `ticket_type`, the fast model re-reads the full thread w
 
 ### Request triage (one LLM call)
 
-One call to the fast model returns `{kind: feature | billing | account, summary, roadmap_tag, acknowledgement}`. Code then routes it: feature requests go to the roadmap list, billing and account questions to the account manager, and the acknowledgement goes to the customer.
+One call to the fast model returns `{kind: feature | billing | account, summary, roadmap_tag, acknowledgement}`. In Phase 4, code uses the model's kind, summary and tag but constructs a short acknowledgement from the ticket subject; it cannot claim a roadmap or team handoff before that exists. Phase 7 routes feature requests to the roadmap list, billing and account questions to the account manager, and sends the acknowledgement to the customer.
 
 ### Layer 2: Tech support orchestrator + two subagents
 
 This is the only lane that runs agents. A single call can't read a trace, decide what to search next, then check git history based on what it found; that takes a tool loop.
 
-The brief node writes one investigation brief: identifiers, time window, the suspected service from Jev, and the customer's own words. Round 1 runs both analysts as parallel branches of the graph, each with a 90-second limit and at most 15 tool calls. If the data analyst finds an exact error message or span, round 2 sends it to the codebase analyst for a short check of that one code path.
+The brief node writes one investigation brief: identifiers, time window, the suspected service from categorization, and the customer's own words. Round 1 runs both analysts as parallel branches of the graph, each with a 90-second limit and at most 15 tool calls. If the data analyst finds an exact error message or span, round 2 sends it to the codebase analyst for a short check of that one code path.
 
 |  | Data analyst (HolmesGPT) | Codebase analyst (mini-swe-agent) |
 | --- | --- | --- |
@@ -560,7 +569,7 @@ The codebase can be analysed ahead of time. The indexer does it once per deploye
 
 **Cost:** for the five services in scope, about a minute and five model calls per deploy.
 
-**Memory of past investigations.** An `investigations` table stores each finished verdict: service, version, error signature, root cause, file and line, and the Linear issue. Before Layer 2 runs, the duplicates node checks for an open investigation with the same service, version and error signature (the normalized error text, when the customer quoted one), or a close match from the retrieval search over open investigations. A Jev yes/no question also asks whether the ticket describes the same problem as the open issue. On a match, the ticket is linked to the existing issue and the customer gets its current status, without running the analysts again. In the demo, if 14 shoppers each wrote in about the expiry bug, you'd get one investigation, not 14.
+**Memory of past investigations.** An `investigations` table stores each finished verdict: service, version, error signature, root cause, file and line, and the Linear issue. Before Layer 2 runs, the duplicates node checks for an open investigation with the same service, version and error signature (the normalized error text, when the customer quoted one), or a close match from the retrieval search over open investigations. A structured LLM yes/no check also asks whether the ticket describes the same problem as the open issue. On a match, the ticket is linked to the existing issue and the customer gets its current status, without running the analysts again. In the demo, if 14 shoppers each wrote in about the expiry bug, you'd get one investigation, not 14.
 
 **Not in the demo:** vector search over code. It helps with vague tickets that have no error text, but exact error messages and the repo map already cover the demo tickets. Add it when Zuddl's real tickets show the need.
 
@@ -574,7 +583,7 @@ Each role's model is set in `roles.yaml`, so the plan names what each role needs
 | Data analyst, codebase analyst | Dependable multi-step tool use; good at reading code and numbers | DeepSeek V4.1 Flash; move to V4 Pro if the scorecard shows misses |
 | Orchestrator brief and verdict | The best judgment; only two calls per ticket | DeepSeek V4 Pro (`deepseek-v4-pro`) |
 | Indexer (service cards) | Accurate code summaries, once per deploy | DeepSeek V4 Pro |
-| Categorization | Typed answers with calibrated confidence | Jev (`jev-latest`) |
+| Categorization | Typed answers with estimated confidence | Configured fast LLM |
 
 **Cheap options**. All of them work with Pydantic AI, and with LiteLLM, which HolmesGPT and mini-swe-agent use.
 
@@ -603,7 +612,7 @@ Each role's model is set in `roles.yaml`, so the plan names what each role needs
 | Orchestrator (V4 Pro, 2 calls) | 20k in, 2k out | about $0.03 |
 | **Total** |  | **about $0.10**, less with cache hits or off-peak |
 
-At that rate, building, evals and rehearsals should fit within the suggested credit. A ticket linked to an existing investigation costs only the enrichment and Jev calls.
+At that rate, building, evals and rehearsals should fit within the suggested credit. A ticket linked to an existing investigation costs only the enrichment and classification calls.
 
 ## Retrieval (RAG): help center and ticket memory
 
@@ -621,7 +630,7 @@ Two indexes share one pipeline. The help center is split into sections, so Layer
 | Consumer | What it gets | What it does with it |
 | --- | --- | --- |
 | Layer 1 (single call) | Top 5 help sections and top 3 resolved tickets | Answers only from them and cites their IDs; hands off to a person when no section scores above the threshold |
-| Duplicate check, before Layer 2 | Open tickets that match by meaning | A Jev yes/no question confirms "same problem as open issue X?" before linking |
+| Duplicate check, before Layer 2 | Open tickets that match by meaning | A structured LLM yes/no check confirms "same problem as open issue X?" before linking |
 | Layer 2 orchestrator brief | Top 3 similar past investigations, with root cause, file and fix | Passes them to the analysts as hypotheses to check, never as facts |
 
 ### What goes into ticket memory
@@ -652,7 +661,7 @@ Two indexes share one pipeline. The help center is split into sections, so Layer
    create index on retrieval_docs using gin (tsv);
    create index on retrieval_docs (kind, status);
    ```
-4. **Search (hybrid).** It runs right after enrichment, alongside Jev. The query is the ticket text plus the enrichment's one-line symptom. For each index, take the top 20 by vector similarity and the top 20 by keyword match, and merge them with reciprocal rank fusion. Filter by kind and status (and by likely services, for tickets), and keep results above a similarity threshold tuned on the eval set. Keyword search keeps exact product terms and error words matching; vectors catch the paraphrases.
+4. **Search (hybrid).** It runs right after enrichment, alongside categorization. The query is the ticket text plus the enrichment's one-line symptom. For each index, take the top 20 by vector similarity and the top 20 by keyword match, and merge them with reciprocal rank fusion. Filter by kind and status (and by likely services, for tickets), and keep results above a similarity threshold tuned on the eval set. Keyword search keeps exact product terms and error words matching; vectors catch the paraphrases.
 5. **Use with citations.** Results go into the prompt with their IDs, and code checks that every cited ID was among them.
 
 ### How it's evaluated
@@ -663,7 +672,7 @@ Two indexes share one pipeline. The help center is split into sections, so Layer
 
 ### The demo moment
 
-After ticket 4's verdict is recorded, send ticket 7: "Our shoppers keep getting told their card has expired at checkout, but it hasn't." It has no error text and no card digits, so the exact signature match can't catch it. Retrieval finds ticket 4's open entry, Jev confirms it's the same problem, and the ticket is linked to the Linear issue in a few seconds, without running the analysts.
+After ticket 4's verdict is recorded, send ticket 7: "Our shoppers keep getting told their card has expired at checkout, but it hasn't." It has no error text and no card digits, so the exact signature match can't catch it. Retrieval finds ticket 4's open entry, an LLM check confirms it's the same problem, and the ticket is linked to the Linear issue in a few seconds, without running the analysts.
 
 ## Frontend: Triage Console
 
@@ -697,8 +706,8 @@ The console is a Next.js app that shows everything the agent does, as it does it
 
 ### The ticket page, `/ticket/[id]`
 
-- **Header:** the customer's words, tenant, lane, severity, Jev's answers with confidence bars, total cost and duration, and links to the Linear issue and the run's Jaeger trace. When a reply needs a person, an AI Elements Confirmation with the draft reply appears here, with Approve and Edit.
-- **Left pane, the pipeline:** a React Flow canvas of every stage: intake, context, enrichment, retrieval, Jev, lane choice, Layer 1 or request triage, duplicate check, brief, data analyst, codebase analyst, round 2, verdict, Layer 3, reply. Each node shows its status (waiting, running, done, skipped, failed), duration and a one-line result. The edges the ticket actually took are animated; skipped lanes are dimmed. Clicking a node selects it.
+- **Header:** the customer's words, tenant, lane, severity, The classifier's answers with confidence bars, total cost and duration, and links to the Linear issue and the run's Jaeger trace. When a reply needs a person, an AI Elements Confirmation with the draft reply appears here, with Approve and Edit.
+- **Left pane, the pipeline:** a React Flow canvas of every stage: intake, context, enrichment, retrieval, categorization, lane choice, Layer 1 or request triage, duplicate check, brief, data analyst, codebase analyst, round 2, verdict, Layer 3, reply. Each node shows its status (waiting, running, done, skipped, failed), duration and a one-line result. The edges the ticket actually took are animated; skipped lanes are dimmed. Clicking a node selects it.
 - **Right pane, the stage inspector** (shadcn Resizable, so the admin can widen either side), with three tabs:
   - **Stage:** everything the selected stage did, in order: model output streaming in, each tool call with its input and output, code it read, commands it ran, results it returned.
   - **Timeline:** every event from every stage, newest last, as an AI Elements Chain of Thought, so you can follow the whole run top to bottom.
@@ -768,7 +777,7 @@ Other event kinds follow the same pattern: `model_delta` (streamed text), `model
 | A trace | checkout `PlaceOrder` ← payment `Charge` failed | shadcn **Table** of spans, with a button that opens the trace in Jaeger |
 | SQL rows, deploy and flag history | payment `v1.3.0` → `v1.4.0` at 09:30 | shadcn **Table** |
 | Retrieval results | help sections and past tickets with scores | AI Elements **Sources**, with a shadcn Badge for each score |
-| Jev's answers | `ticket_type` = `tech_issue`, 0.93 | shadcn **Table** with a Progress bar per confidence |
+| The classifier's answers | `ticket_type` = `tech_issue`, 0.93 | shadcn **Table** with a Progress bar per confidence |
 | Model output streaming in | the verdict's customer reply, word by word | AI Elements **Message** (Streamdown), **Shimmer** while waiting |
 | A typed result | the `Enrichment` or `Verdict` object | `@uiw/react-json-view` inside a shadcn Card |
 | An agent's steps in order | the codebase analyst's four commands | AI Elements **Chain of Thought** |
@@ -839,7 +848,7 @@ web/
 | Endpoint | Returns |
 | --- | --- |
 | `GET /tickets` | Queue rows: current stage, stages done out of total, flags, cost, duration |
-| `GET /tickets/{id}` | The ticket's text, tenant, lane, Jev answers, cost and links |
+| `GET /tickets/{id}` | The ticket's text, tenant, lane, classifier answers, cost and links |
 | `GET /pipeline` | The flowchart: nodes, edges and positions |
 | `GET /tickets/{id}/events` | All stored events, for the Raw tab |
 | `GET /tickets/{id}/events/stream` | Server-Sent Events: stored events, then live ones; `?replay=1` replays at the original pace |
@@ -859,7 +868,7 @@ Seven tickets cover every exit from the flow. All come from one tenant, "Figma M
 | 4 | "Shoppers say their card is rejected as expired, but it's valid until the end of this month" | Planted expiry bug, deploy `v1.4.0` | Layer 2 → **confirmed bug** → Payments team | Data: "expired" errors only for cards expiring this month, starting at the deploy. Code: `git diff` shows `>` changed to `>=` in the expiry check. |
 | 5 | "Shipping cost roughly doubled on bulk orders since yesterday" | Planted quote bug, deploy `v1.4.0` | Layer 2 → **confirmed bug** → Shipping team | Data: quotes for quantities over 10 jump after the deploy. Code: the batching change in the quote service, with file and line. |
 | 6 | "About 1 in 4 checkouts have failed since 11:05" | `paymentFailure` = 25% | Layer 2 → **config incident** → Payments on-call | Data: Payment error rate jumps to about 25% a minute after the flag change. Code: no deploy in the window. Recommendation: roll the flag back. |
-| 7 | "Our shoppers keep getting told their card has expired at checkout, but it hasn't" | Sent after ticket 4's verdict is recorded | Retrieval → **linked to the open issue** | Retrieval finds ticket 4's resolution by meaning; Jev confirms it's the same problem; linked to the Payments issue without running the analysts |
+| 7 | "Our shoppers keep getting told their card has expired at checkout, but it hasn't" | Sent after ticket 4's verdict is recorded | Retrieval → **linked to the open issue** | Retrieval finds ticket 4's resolution by meaning; an LLM check confirms it's the same problem; linked to the Payments issue without running the analysts |
 
 Tickets 3 and 4 are the heart of the demo. Both produce the same kind of payment error, but one is intended behaviour and the other is a regression, and telling them apart is the whole job of Layer 2. Ticket 7 shows the RAG pipeline: it has no error text and no card digits, so only a search by meaning can connect it to ticket 4. The cart and catalog-listing bugs from the sandbox section are spares for questions or the eval set.
 
@@ -871,10 +880,10 @@ The build takes about 17 working days in ten phases. Day 4 puts the LangGraph sk
 
 **Before you start**
 
-- **Accounts and keys:** an LLM provider key (OpenRouter or DeepSeek), a TypeSafe key for Jev, a Linear workspace and API key (the free tier works), and optionally a Pylon account. Keep them in `.env.agent`, never in the repo.
+- **Accounts and keys:** an LLM provider key (OpenRouter or DeepSeek), a Linear workspace and API key (the free tier works), and optionally a Pylon account. Keep them in `.env.agent`, never in the repo.
 - **Machine:** Docker with about 8 GB of RAM free for the shop, your Postgres and the codebase analyst's container; Python 3.12 with `uv`; Node 20 or later with `pnpm`. A cloud VM with 16 GB is the fallback.
 - **Two repos:** your fork of the shop (the sandbox) and `support-agent` (everything you build, backend and console). Keeping them separate means the codebase analyst only ever reads the sandbox.
-- **One list of service names:** `ownership.yaml`, Jev's `service` choices and the enrichment's `likely_services` use the same names. Fix the list on day 1.
+- **One list of service names:** `ownership.yaml`, classification's `service` choice and the enrichment's `likely_services` use the same names. Fix the list on day 1.
 - **Pinned versions:** pin exact versions of LangGraph, Pydantic AI, HolmesGPT, mini-swe-agent and TanStack Query (its streaming helper is experimental), and upgrade on purpose, not by accident, while you're building toward a demo date.
 
 **How it's tested**
@@ -885,7 +894,7 @@ Phases 0–2 are discovery and plumbing: what the real shop does, and whether th
 | --- | --- | --- |
 | Logic with a spec that code can check | Test first (pytest), then the code | Section chunking, content hashing, reciprocal rank fusion, enrichment validation, `pick_lane` / `is_duplicate` / `pick_outcome`, the confidence and approval gates, citation and evidence checks, error-signature normalization, a timeout ending as `inconclusive` |
 | A graph node | Test first against `TicketState`: the state it receives and the keys it returns, with the model or tool faked | Every stub in `app/nodes/`; `tests/test_graph.py` already runs the whole pipeline in memory and keeps the lanes honest |
-| Model behaviour (prompts, structured output) | Evals: the 20 labelled tickets, scored in aggregate, not pass/fail per case | Enrichment, Jev's fallback, Layer 1, request triage, findings conversion, the verdict |
+| Model behaviour (prompts, structured output) | Evals: the 20 labelled tickets, scored in aggregate, not pass/fail per case | Enrichment, categorization, Layer 1, request triage, findings conversion, the verdict |
 | Open-source parts and the sandbox | Spike first; once they work, characterization tests record what they return | `condense_traces.py` on saved Jaeger responses, helper-command output, a refused write. For the sandbox: `pytest -m sandbox` checks the fork's tags and planted diffs, `pytest -m shop` runs every scenario against the running shop, and the default suite runs the scenario logic against a simulated shop with and without each bug |
 | The console | Generated API types, checked by hand in phase 8 | |
 
@@ -897,7 +906,7 @@ Two rules keep this honest: a bug found in a later phase gets a failing test bef
 | 1. Intake + events | 3 | FastAPI webhook with HMAC check, `send_ticket.py`, Postgres schema (`tickets`, `events`, `verdicts`), the event models, Procrastinate tasks, context fetchers for tenant, deploys, flags and incidents | A sent ticket is stored and queued with its context bundle |
 | 2. Graph skeleton, model layer, open-source spike | 4 | LangGraph `StateGraph` with every node as a stub, all edges, the Postgres checkpointer, streaming into the `events` table; Pydantic AI with `roles.yaml`, fallback models, `UsageLimits` and OpenTelemetry export; install and pin HolmesGPT and mini-swe-agent and run each once against the sandbox | A ticket runs end to end through the stub graph, a stub approval pauses and resumes, a Pydantic AI call works on two providers by changing only config, and both open-source agents run once. Any poor fit shows up now, not on day 10 |
 | 3. Retrieval (RAG) | 5–6 | Draft and check about 30 help-center articles; generate and label the \~200-ticket seed history from reviewed templates with near-misses; `EmbeddingClient` with the local model; `retrieval_docs` table; section chunking; hybrid search with reciprocal rank fusion; a hit-rate script over labelled queries; the 20-ticket eval dataset (labels only, see Demo tickets). Tests first for chunking, hashing, fusion and filters | Hit rates are measured for both indexes over the eval dataset's labels, and ticket 1's answering section comes back in the top 5 |
-| 4. Front-of-pipeline nodes | 7 | Fill in the context, enrichment (with validation), retrieval, Jev (with LLM fallback and confidence gate), routing, Layer 1 (with citation checks) and request triage nodes. Tests first for validation, the confidence gate, routing and citation checks | All seven tickets get valid enrichment and take the right lane in the graph, tickets 1 and 2 get correct, cited replies, and the eval dataset's type, service and lane labels give a first score |
+| 4. Front-of-pipeline nodes | 7 | Fill in context, enrichment (with validation), retrieval, LLM categorization in the existing `jev` stage (with confidence gate), routing, Layer 1 (with citation checks) and request triage nodes. Tests first for validation, the confidence gate, routing and citation checks. Jev is unavailable. | All seven tickets get valid enrichment and take the right lane in the graph, tickets 1 and 2 get correct replies (ticket 1 cited), and the eval dataset's type, service and lane labels give a first score |
 | 5. Layer 2 tools + indexer | 8–9 | HolmesGPT toolset config with the custom `jaeger` and `history` toolsets and `condense_traces.py`; the codebase container with read-only worktrees and helper commands; indexer with universal-ctags, ast-grep, `protoc` and service cards, run from `deploy.sh`. Characterization tests for `condense_traces.py`, the helper commands and the indexer | Each toolset and helper command returns condensed real data, a write attempt is refused, both versions are indexed, and those results are pinned by tests |
 | 6. Layer 2 nodes | 10–11 | Duplicate check, brief, the two analyst nodes as parallel branches with timeouts and retry policies, each sending tool calls and commands to the stream; conversion of their answers to `Findings` with evidence checks; round 2; verdict; write-back to ticket memory. Tests first for evidence checks, signature normalization, round 2's trigger and the timeout path | Ticket 3 is a false positive; tickets 4 and 5 are bugs with the right file and commit; ticket 6 is a config incident; ticket 7 links to ticket 4's open issue |
 | 7. Layer 3 + console API | 12 | Layer 3 and approval nodes (`interrupt()`), Linear issue creation, customer ack; the console endpoints: queue, ticket, `/pipeline` from `get_graph()`, stored events, the Server-Sent Events stream with replay, approve (resumes the graph), simulator, scorecard | A bug ticket produces a Linear issue, an approval resumes the paused run, and `curl` on the stream shows a live run's events arriving |
@@ -931,10 +940,10 @@ support-agent/
       context.py       # tenant, deploys, flags, incidents, service catalog
       enrich.py        # Pydantic AI call → Enrichment, then validation
       retrieve.py
-      jev.py           # Jev client, LLM fallback, confidence gate
+      jev.py           # structured LLM classifier and confidence gate
       layer1.py        # Pydantic AI call over retrieved sections and tickets
       requests.py      # Pydantic AI call
-      duplicates.py    # exact signature + retrieval over open tickets + Jev check
+      duplicates.py    # exact signature + retrieval over open tickets + LLM check
       brief.py
       data_analyst.py      # HolmesGPT: config, toolsets, question, timeout, tool-call events
       codebase_analyst.py  # mini-swe-agent in its container, task prompt, timeout, command events
@@ -975,10 +984,10 @@ The demo runs 10 minutes and opens on the running system, not slides. Keep four 
 | Time | What you do | What you say |
 | --- | --- | --- |
 | 0:00–1:00 | Show the flowchart, then the shop running with live traffic | "Support at Zuddl goes through three layers. This agent does the first pass of each, against a real e-commerce app." |
-| 1:00–2:00 | Send tickets 1 and 2 from the simulator | "Jev categorizes in under a second, with a confidence score per answer. How-to questions get a reply that cites the help-center section it used; feature asks never reach engineering." |
+| 1:00–2:00 | Send tickets 1 and 2 from the simulator | "A structured LLM categorizes with a confidence estimate per answer. How-to questions get a reply that cites the help-center section it used; feature asks never reach engineering." |
 | 2:00–3:45 | Send ticket 3 (Amex), open its ticket page, and watch the pipeline light up while both analysts' tool calls, code and commands stream into the inspector | "The data analyst found the failing trace; the codebase analyst confirmed the card check is intended and unchanged. False positive, answered in about a minute." |
 | 3:45–5:45 | Send ticket 4 (expiry). Approve its customer reply in the console, then open the Linear issue and its diff link | "Same kind of error, different answer. It tied the errors to this morning's deploy and found the one-character change. The engineer starts from the root cause." |
-| 5:45–6:45 | Send ticket 7, the vague repeat | "No error text, no card digits. The search over past tickets found ticket 4 by meaning, Jev confirmed it's the same problem, and it's linked to the open issue in seconds." |
+| 5:45–6:45 | Send ticket 7, the vague repeat | "No error text, no card digits. The search over past tickets found ticket 4 by meaning, an LLM check confirmed it's the same problem, and it's linked to the open issue in seconds." |
 | 6:45–7:45 | Open the run's trace in Jaeger, then `graph/build.py` | "The pipeline is a LangGraph graph, and the flowchart you just watched is drawn from it. The agent loops are proven open-source parts: HolmesGPT, mini-swe-agent and Pydantic AI. What I wrote is the triage: the nodes, the tools they lacked, retrieval and the guardrails. Every step is traced like any other service." |
 | 7:45–8:45 | Show the eval scorecard and the guardrails list | "20 labelled tickets, scored on three models; each role runs on the cheapest model that passes. Here's the difference retrieval makes. Read-only access everywhere, and a person approves anything uncertain." |
 | 8:45–10:00 | Questions; run ticket 5 or 6 if asked for more | — |
@@ -1011,7 +1020,7 @@ The biggest demo risk is a slow or wrong live Layer 2 run; the biggest productio
 | Planted bugs look planted | Ordinary commit messages, mixed with harmless commits in the same deploy; say openly that you planted them, since the point is how the agent finds them |
 | Flag faults look staged, since the code reads flags by name | Present them as config incidents found from the flag change, not as code bugs |
 | Agent reaches a confident wrong verdict | Two independent analysts must agree; disagreement goes to a person; eval set tracks this |
-| Jev API down or rate-limited | The LLM fallback already uses the same schema |
+| Classifier API down or rate-limited | Pydantic AI uses the configured fallback model |
 | Pylon payload differs from the simulator's | Confirm against [Pylon's webhook docs](https://docs.usepylon.com/pylon-docs/developer/webhooks) before claiming Pylon compatibility |
 
 **What changes for real Zuddl use**
@@ -1032,7 +1041,6 @@ The biggest demo risk is a slow or wrong live Layer 2 run; the biggest productio
 - [Collector observability config](https://raw.githubusercontent.com/open-telemetry/opentelemetry-demo/main/src/otel-collector/otelcol-config-observability.yml), [Prometheus config](https://raw.githubusercontent.com/open-telemetry/opentelemetry-demo/main/src/prometheus/prometheus-config.yaml), [Jaeger config](https://raw.githubusercontent.com/open-telemetry/opentelemetry-demo/main/src/jaeger/config.yml)
 - Service code: [payment `charge.js`](https://raw.githubusercontent.com/open-telemetry/opentelemetry-demo/main/src/payment/charge.js), [quote `routes.php`](https://raw.githubusercontent.com/open-telemetry/opentelemetry-demo/main/src/quote/app/routes.php), [checkout `main.go`](https://raw.githubusercontent.com/open-telemetry/opentelemetry-demo/main/src/checkout/main.go), [product catalog `main.go`](https://raw.githubusercontent.com/open-telemetry/opentelemetry-demo/main/src/product-catalog/main.go), [Locust load generator](https://raw.githubusercontent.com/open-telemetry/opentelemetry-demo/main/src/load-generator/locustfile.py)
 - [QuickPizza README](https://raw.githubusercontent.com/grafana/quickpizza/main/README.md) and [Mythical Beasts (intro-to-mltp) README](https://raw.githubusercontent.com/grafana/intro-to-mltp/main/README.md)
-- [TypeSafe AI quickstart](https://docs.typesafe.ai/introduction/quickstart) and [introduction](https://docs.typesafe.ai/introduction)
 - Model pricing: [DeepSeek](https://api-docs.deepseek.com/quick_start/pricing), [Gemini API](https://ai.google.dev/gemini-api/docs/pricing), [OpenRouter FAQ](https://openrouter.ai/docs/faq)
 - Pydantic AI: [overview](https://pydantic.dev/docs/ai/overview/), [OpenAI-compatible and DeepSeek models](https://pydantic.dev/docs/ai/models/openai/), [usage and spend limits](https://pydantic.dev/docs/ai/harness/spend/)
 - HolmesGPT: [README](https://raw.githubusercontent.com/robusta-dev/holmesgpt/master/README.md), [docs](https://holmesgpt.dev/latest/), [Python SDK](https://holmesgpt.dev/latest/reference/python-sdk/), [custom toolsets](https://holmesgpt.dev/latest/data-sources/custom-toolsets/)

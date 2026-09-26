@@ -165,7 +165,7 @@ class JevEvent(BaseModel):
     kind: Literal["jev"] = "jev"
     stage: str
     answers: list[JevAnswer]
-    source: Literal["jev", "llm_fallback", "stub"] = "jev"
+    source: Literal["jev", "llm", "llm_fallback", "stub"] = "llm"
 
 
 class ApprovalRequiredEvent(BaseModel):

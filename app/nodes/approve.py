@@ -1,8 +1,8 @@
 """Human approval. Pauses the run with interrupt() when a person must check the reply; the
 console's Approve button resumes it from the checkpoint with an ApprovalDecision.
 
-Approval is required for: Sev1, revenue_blocking above 0.8, categorization below 0.7 (or Jev and
-the LLM re-read both unsure), an inconclusive verdict or one below 0.7, an unconfident Layer 1
+Approval is required for: Sev1, revenue_blocking above 0.8, categorization below 0.7, an
+inconclusive verdict or one below 0.7, an unconfident Layer 1
 answer, and no draft reply at all.
 """
 

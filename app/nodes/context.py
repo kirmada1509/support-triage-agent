@@ -3,11 +3,11 @@
 
 from app.db import fetch_context
 from app.graph.state import TicketState
-from app.nodes._config import ownership
+from app.nodes._config import service_glossary
 
 
 async def run(state: TicketState) -> dict:
-    services = {name: f"{o['team']} team, {o['path']}" for name, o in ownership().items()}
+    services = service_glossary()
     ctx = await fetch_context(state["ticket"], services)
     return {
         "context": ctx,
