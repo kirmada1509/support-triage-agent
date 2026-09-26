@@ -208,7 +208,7 @@ Python everywhere on the agent side, one Postgres, and open-source parts whereve
 | Job queue | [Procrastinate](https://github.com/procrastinate-org/procrastinate) (task queue on Postgres) | Starts one graph run per ticket and resumes it after an approval, with retries and locking, without running Redis | Temporal for long, resumable investigations |
 | State store | PostgreSQL 16 with pgvector (separate from the shop's) | Tickets, events, graph checkpoints, verdicts, eval results, code index and retrieval index in one database; NOTIFY pushes new events to the console | Same |
 | Model calls, typed output, limits | [Pydantic AI](https://pydantic.dev/docs/ai/overview/), inside the graph's nodes | Models swapped by name (DeepSeek, OpenRouter, Gemini, Ollama, any OpenAI-compatible endpoint), Pydantic output types with retries, per-run limits on requests, tool calls, tokens and cost, fallback models, OpenTelemetry spans | Same |
-| Data analyst | [HolmesGPT](https://holmesgpt.dev/latest/) (Apache 2.0, CNCF sandbox), called through its Python SDK from one graph node | Built-in Prometheus, OpenSearch and PostgreSQL toolsets; custom YAML toolsets for Jaeger and deploy/flag history; any model through LiteLLM | Point its built-in toolsets at Zuddl's stack (it also covers Datadog, Loki, Tempo and more) |
+| Data analyst | [HolmesGPT](https://holmesgpt.dev/latest/) (Apache 2.0, CNCF sandbox), in its own container on the shop's network, run by one graph node (it can't share the app's Python environment; see `planning/Phase_2_Spike.md`) | Built-in Prometheus, OpenSearch and PostgreSQL toolsets; custom YAML toolsets for Jaeger and deploy/flag history; any model through LiteLLM | Point its built-in toolsets at Zuddl's stack (it also covers Datadog, Loki, Tempo and more) |
 | Codebase analyst | [mini-swe-agent](https://github.com/SWE-agent/mini-swe-agent) (MIT), run in a Docker container from one graph node | About 100 lines of agent, strong on code, any model through LiteLLM; the container gives read-only access and no network | Same, with a code search service for large monorepos |
 | Code index | universal-ctags for symbols, ast-grep for error messages across languages, `protoc` for the gRPC map | Mature tools; no parser to write | Same |
 | Models | Configured per role in `config/roles.yaml`. Start: DeepSeek V4.1 Flash for single calls and both analysts, DeepSeek V4 Pro for the verdict | Cheapest current models with tool calling and JSON output; one config change per role | Whatever the eval scorecard and Zuddl's data rules pick |
@@ -309,7 +309,7 @@ Use a proven tool wherever one exists, and write only what's specific to support
 | Single model calls: enrichment, Layer 1, request triage, verdict, service cards, ticket summaries | Pydantic AI `Agent` with an `output_type` | Prompts and Pydantic output models |
 | Switching models and providers | Pydantic AI model names; LiteLLM model strings inside HolmesGPT and mini-swe-agent | `roles.yaml`: each role's model and fallback |
 | Limits | Pydantic AI `UsageLimits` (requests, tool calls, tokens, cost); the step limits in HolmesGPT and mini-swe-agent; LangGraph retry policies per node | A hard timeout around each analyst run |
-| Data analyst loop | HolmesGPT, through its Python SDK | Which toolsets are enabled, two custom toolsets, the brief it receives |
+| Data analyst loop | HolmesGPT, in its own container | Which toolsets are enabled, two custom toolsets, the brief it receives |
 | Codebase analyst loop | mini-swe-agent, in a Docker container | The container image, helper commands for the code index, the task prompt |
 | Job queue | Procrastinate | Two tasks: start a ticket's run, resume it after approval |
 | Tracing | Pydantic AI's OpenTelemetry instrumentation | A span per node and per analyst run |
@@ -320,7 +320,7 @@ Use a proven tool wherever one exists, and write only what's specific to support
 **What you write, and what's worth showing in the demo:**
 
 - **The graph** (`graph/build.py`). About 40 lines wiring the nodes, edges, checkpointer and retry policies, as above.
-- **The nodes.** Plain async functions, one per stage. The analyst nodes run HolmesGPT in a worker thread and mini-swe-agent as a container, each with a timeout, and send every tool call and command to the stream.
+- **The nodes.** Plain async functions, one per stage. The analyst nodes run HolmesGPT and mini-swe-agent each in its own container, each with a timeout they enforce themselves, and send every tool call and command to the stream.
 - **Findings conversion.** HolmesGPT and mini-swe-agent answer in text. A Pydantic AI call turns each answer, plus its log of tool calls, into `Findings`. Code then checks that every evidence item points at a tool call that actually happened.
 - **The tools the open-source agents don't have:** the Jaeger and history toolsets, the code-index helper commands, and the indexer that fills the index.
 - **The rest of the triage logic:** retrieval, enrichment validation, the duplicate check, guardrails and Layer 3.
@@ -462,7 +462,7 @@ Neither analyst reads everything. Each starts from a short task prompt (the brie
 
 ### Data analyst under the hood (HolmesGPT)
 
-**How it's called.** The data analyst node builds a HolmesGPT config with the role's model and only the toolsets below enabled, then asks one question through the Python SDK. The question contains the brief, the `Enrichment` object and a short guide to the shop's telemetry: service names, the span attributes that matter (`user.id`, `service.version`, the `demo.*` attributes), metric names and the log index. The call runs in a worker thread with a 90-second timeout.
+**How it's called.** HolmesGPT runs in its own image (`holmes/Dockerfile`) on the shop's network, because its dependencies conflict with Pydantic AI's; the data analyst node runs `holmes ask` there with the role's model, only the toolsets below enabled, and a JSON output file holding the answer and every tool call. It runs on OpenRouter's DeepSeek, because DeepSeek's own API rejects some of HolmesGPT's tool schemas (details in `planning/Phase_2_Spike.md`). The question contains the brief, the `Enrichment` object and a short guide to the shop's telemetry: service names, the span attributes that matter (`user.id`, `service.version`, the `demo.*` attributes), metric names and the log index. The node enforces the 90-second timeout and the tool-call budget itself: HolmesGPT's step limit counts model turns, and the spike's run made 36 tool calls in 15 turns.
 
 **Its toolsets:**
 

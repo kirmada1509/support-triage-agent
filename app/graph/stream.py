@@ -14,6 +14,8 @@ from typing import Any
 from langgraph.config import get_stream_writer
 from langgraph.errors import GraphBubbleUp
 from langgraph.types import Command
+from opentelemetry import trace
+from opentelemetry.trace import Status, StatusCode
 from pydantic import BaseModel
 
 from app.events import ApprovalRequiredEvent, ErrorEvent, Event, EventAdapter, StageEvent
@@ -27,23 +29,36 @@ def emit(event: Event) -> None:
     get_stream_writer()(event)
 
 
+def _tracer() -> trace.Tracer:
+    """Looked up on each use, so it's whatever provider setup_tracing (or a test) installed."""
+    return trace.get_tracer("support-triage-agent")
+
+
 def staged(name: str, fn: NodeFn) -> NodeFn:
     """Emit running/done/failed stage events around a node. A node may return `_summary`, the
-    one line shown on its flowchart node; it's removed before the update reaches the state."""
+    one line shown on its flowchart node; it's removed before the update reaches the state.
+    Each run of a node is also a span, a child of its ticket's span (see run_graph)."""
 
     @functools.wraps(fn)
     async def node(state: dict) -> dict:
         emit(StageEvent(stage=name, status="running"))
         t0 = time.monotonic()
-        try:
-            update = dict(await fn(state) or {})
-        except GraphBubbleUp:  # interrupt(): the run pauses, not a failure
-            raise
-        except Exception as e:
-            ms = int((time.monotonic() - t0) * 1000)
-            emit(StageEvent(stage=name, status="failed", summary=str(e)[:200], duration_ms=ms))
-            emit(ErrorEvent(stage=name, message=str(e), traceback=traceback.format_exc()))
-            raise
+        ticket = state.get("ticket")
+        attrs = {"langgraph.node": name, "ticket.id": ticket.id if ticket else ""}
+        with _tracer().start_as_current_span(
+            f"node {name}", attributes=attrs, record_exception=False, set_status_on_exception=False
+        ) as span:
+            try:
+                update = dict(await fn(state) or {})
+            except GraphBubbleUp:  # interrupt(): the run pauses, not a failure
+                raise
+            except Exception as e:
+                span.record_exception(e)
+                span.set_status(Status(StatusCode.ERROR, str(e)))
+                ms = int((time.monotonic() - t0) * 1000)
+                emit(StageEvent(stage=name, status="failed", summary=str(e)[:200], duration_ms=ms))
+                emit(ErrorEvent(stage=name, message=str(e), traceback=traceback.format_exc()))
+                raise
         ms = int((time.monotonic() - t0) * 1000)
         emit(
             StageEvent(
@@ -72,16 +87,20 @@ async def run_graph(
     seen = set(seen or ())
     paused: dict | None = None
 
-    async for mode, chunk in graph.astream(graph_input, config, stream_mode=["updates", "custom"]):
-        if mode == "custom":
-            event = _as_event(chunk)
-            if isinstance(event, StageEvent):
-                seen.add(event.stage)
-            await sink(event)
-        elif mode == "updates" and "__interrupt__" in chunk:
-            for intr in chunk["__interrupt__"]:
-                paused = intr.value
-                await sink(ApprovalRequiredEvent(**intr.value))
+    resumed = isinstance(graph_input, Command)
+    attrs = {"ticket.id": ticket_id, "langgraph.resumed": resumed}
+    with _tracer().start_as_current_span(f"ticket {ticket_id}", attributes=attrs):
+        stream = graph.astream(graph_input, config, stream_mode=["updates", "custom"])
+        async for mode, chunk in stream:
+            if mode == "custom":
+                event = _as_event(chunk)
+                if isinstance(event, StageEvent):
+                    seen.add(event.stage)
+                await sink(event)
+            elif mode == "updates" and "__interrupt__" in chunk:
+                for intr in chunk["__interrupt__"]:
+                    paused = intr.value
+                    await sink(ApprovalRequiredEvent(**intr.value))
 
     if paused is None:
         for stage in stage_names(graph):

@@ -19,6 +19,7 @@ from app.graph.build import build_graph, checkpoint_serde
 from app.graph.stream import run_graph
 from app.models import Ticket
 from app.settings import settings
+from app.tracing import setup_tracing
 
 app = procrastinate.App(
     connector=procrastinate.PsycopgConnector(conninfo=settings.database_url),
@@ -62,6 +63,7 @@ def _sink(ticket_id: str):
 
 
 async def _drive(ticket_id: str, graph_input, seen: set[str] | None = None) -> None:
+    setup_tracing()  # here, not at import: the API and tests import this module too
     graph = build_graph(await checkpointer())
     await db.update_ticket(ticket_id, status="running")
     try:

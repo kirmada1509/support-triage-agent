@@ -3,7 +3,7 @@
 Context and rules for coding agents working in this repo. Read it before changing anything, and
 keep it true (see "Keeping this file current" at the end).
 
-Last updated: Sep 26, 2026, end of phase 0 (sandbox) plus its test suites.
+Last updated: Sep 26, 2026, end of phase 2 (graph, model layer, open-source spike).
 
 ## What this is
 
@@ -45,7 +45,8 @@ anything uncertain. A Next.js Triage Console shows every stage live.
    recreating the dev database (`docker compose down -v`), `git push`, or anything that rewrites
    history outside the fork's generated `sandbox` branch.
 9. **Pinned versions:** add dependencies with `uv add`, pin exact versions for LangGraph, Pydantic
-   AI, HolmesGPT and mini-swe-agent, and upgrade on purpose.
+   AI and mini-swe-agent (`pyproject.toml`) and HolmesGPT (`holmes/Dockerfile`), and upgrade on
+   purpose, rerunning `make test-spike`.
 
 ## Repository map
 
@@ -67,16 +68,18 @@ app/
   tasks.py          Procrastinate: run_ticket, resume_ticket; the checkpointer's psycopg pool
   tables.py, db.py  SQLAlchemy 2.0 tables (source of the migrations) and every query
   migrate.py        make migrate: Alembic, Procrastinate schema, checkpoint tables, demo tenant
+  tracing.py        the agent's own OpenTelemetry export (off unless OTEL_EXPORTER_OTLP_ENDPOINT)
   retrieval/, indexer/   empty until phases 3 and 5
 config/             models.yaml (names, prices), roles.yaml (model per role), ownership.yaml
 db/migrations/      Alembic; 0001 also creates the events NOTIFY trigger by hand
-holmes/             HolmesGPT toolsets (drafted, not yet run) and condense_traces.py
-codebox/            the codebase analyst's container and helper commands (drafted, not yet run)
+holmes/             HolmesGPT's image (Dockerfile), config.yaml, toolsets.yaml, condense_traces.py
+codebox/            the codebase analyst's read-only container and helper commands (the helpers
+                    fall back to ctags and rg until phase 5's code index exists)
 sandbox/            builds the shop fork: pin, overlay, patches, setup, images, compose wrapper
 scenarios/          tickets.yaml (7 demo tickets), scenario.py, send_ticket.py, deploy.sh, flag.sh,
                     record.py (writes deploy and flag history)
 tests/              pytest suites (see Testing); tests/fixtures/ holds real captured data
-planning/           the plan, the build checklist, three HTML diagrams
+planning/           the plan, the build checklist, the phase 2 spike results, three HTML diagrams
 knowledge/ seed/ evals/ web/   placeholders with a README each (phases 3, 3, 3 and 9, 8)
 .claude/skills/     project skills: sandbox-shop, planted-bugs (see "Skills and plugins")
 ```
@@ -101,9 +104,19 @@ knowledge/ seed/ evals/ web/   placeholders with a README each (phases 3, 3, 3 a
 - **Database.** One Postgres 16 + pgvector (`make db`, localhost:5433, user/password/db
   `triage`). Our tables are SQLAlchemy models migrated by Alembic; Procrastinate and the LangGraph
   checkpointer own their tables, which Alembic ignores.
-- **Models.** `config/roles.yaml` picks a model and fallback per role (profile `cheap`: DeepSeek);
-  `pydantic_ai_model(role)` and `litellm_model(role)` give the two naming forms;
-  `LIMITS` caps each single call (`UsageLimits`).
+- **Models.** `config/roles.yaml` picks a model and fallback per role; `ROLE_PROFILE` switches the
+  whole set (`cheap`: DeepSeek direct, the data analyst through OpenRouter; `openrouter`: all
+  through one OpenRouter key). `pydantic_ai_model(role)` builds each model with its own
+  `settings` from `config/models.yaml` (a `max_tokens` cap, thinking off for direct DeepSeek);
+  `litellm_model(role)` gives the analysts' LiteLLM string; `LIMITS` caps each single call.
+- **Tracing.** The worker calls `setup_tracing()` on its first run; with
+  `OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:8080/otlp-http` each ticket run is one trace in the
+  shop's Jaeger (service `support-triage-agent`): a `ticket <id>` span, a `node <name>` span per
+  node, and Pydantic AI's spans per model call.
+- **Analysts.** HolmesGPT runs in its own image on the shop's network (it can't share this
+  environment); mini-swe-agent is a dependency and runs each command in the codebox container.
+  Both worked on the demo tickets in the phase 2 spike (`planning/Phase_2_Spike.md`); their graph
+  nodes are phase 6.
 - **Status.** Every node except `context`, `route` and `approve` is still a stub returning fixed
   data. See the checklist for what each phase replaces.
 
@@ -172,6 +185,7 @@ make scenario-4                    # reproduce ticket 4 and send it (needs make 
 make deploy s=quote v=v1.4.0       # switch a versioned service, recorded
 make flag f=paymentFailure v=off   # change a flag, recorded (FLAG_RECORD=0 to skip recording)
 make migration m="..." ; make migrate ; make check-migrations
+make analyst-images                # sandbox/holmes:0.42.0 and sandbox/codebox
 make lint fmt                      # ruff, line length 100
 ```
 
@@ -183,8 +197,10 @@ make lint fmt                      # ruff, line length 100
 | `db` | `make test-db` | `make db` | migrations up/down, queries, NOTIFY, the worker pausing and resuming |
 | `sandbox` | `make test-sandbox` | `make sandbox` | the fork's tags, each planted diff, `git blame` to the planted commits, images |
 | `shop` | `make test-shop` | `make shop-up` | every scenario live (~3 min), recorded deploys, metrics, logs, `agent_ro` |
+| `llm` | `make test-llm` | keys in `.env.agent` | one real typed call per provider profile (a fraction of a cent) |
+| `spike` | `make test-spike` | shop, `make analyst-images`, keys | both analysts on demo tickets (~3 min, a few cents), codebox guardrails |
 
-- Markers are excluded by default (`pyproject.toml` addopts). `db` and `shop` refuse to run unless
+- Markers are excluded by default (`pyproject.toml` addopts). `db`, `shop` and `spike` refuse to run unless
   `DATABASE_URL` names a database ending in `_test`; the make targets set it.
 - **Replacing a stub node:** write its test first against `TicketState` (the state it receives,
   the keys it returns), with the model or tool faked, then implement; `tests/test_graph.py`
@@ -232,6 +248,17 @@ make lint fmt                      # ruff, line length 100
 - `condense_traces.py` still looks for `app.user.id` and `app.payment.card_type`; the shop sends
   `user.id` and `demo.payment.card_type` (fix in phase 5).
 - The frontend has no search box and nothing calls `SearchProducts`; don't build on search.
+- Every model in `config/models.yaml` needs `settings.max_tokens`: without it OpenRouter reserves
+  65536 output tokens per request and returns 402 once the key's credit can't cover that. Direct
+  DeepSeek also needs thinking off for Pydantic AI's typed output.
+- HolmesGPT can't be `uv add`ed: 0.42.0 needs `openai<3`, and uv quietly resolves a 2025 release
+  that downgrades Pydantic AI to 1.x. It lives in `holmes/Dockerfile`. Its default toolsets
+  include a shell, internet access and kubectl; `holmes/toolsets.yaml` turns them off.
+- DeepSeek's own API rejects some of HolmesGPT's tool schemas; the data analyst uses OpenRouter.
+- Agents' step limits count model turns, not tool calls (HolmesGPT made 36 calls in 15 turns);
+  enforce time and call budgets in the node.
+- In the codebox, mount the fork's `.git` at `/git` and set `GIT_DIR=/git/worktrees/shop@<tag>`,
+  `GIT_WORK_TREE=/repo`: mounting it at its host path silently fails under Docker Desktop.
 
 ## Skills and plugins
 

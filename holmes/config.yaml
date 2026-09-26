@@ -1,0 +1,4 @@
+# HolmesGPT's config for the data analyst: holmes ask --config /etc/holmes/config.yaml.
+# The model comes from config/roles.yaml (role data_analyst) and is passed with --model.
+custom_toolsets:
+  - /etc/holmes/toolsets.yaml

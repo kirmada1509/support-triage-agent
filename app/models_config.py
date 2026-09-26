@@ -1,7 +1,8 @@
 """roles.yaml + models.yaml -> the model each role uses, in both naming schemes.
 
 Pydantic AI takes names like "deepseek:deepseek-flash"; HolmesGPT and mini-swe-agent take LiteLLM
-strings like "deepseek/deepseek-flash". Switching provider or model is a config change only.
+strings like "deepseek/deepseek-flash". Switching provider or model is a config change only
+(ROLE_PROFILE picks a set of roles). Each model carries its own request settings from models.yaml.
 """
 
 from dataclasses import dataclass
@@ -11,6 +12,8 @@ from functools import cache
 import yaml
 from pydantic_ai.models import Model, infer_model
 from pydantic_ai.models.fallback import FallbackModel
+from pydantic_ai.models.openai import OpenAIChatModel
+from pydantic_ai.settings import ModelSettings
 from pydantic_ai.usage import UsageLimits
 
 from app.settings import settings
@@ -22,6 +25,7 @@ class ModelSpec:
     pydantic_ai: str
     litellm: str
     price: dict
+    settings: ModelSettings
 
 
 @dataclass(frozen=True)
@@ -35,7 +39,13 @@ class RoleSpec:
 def _models() -> dict[str, ModelSpec]:
     raw = yaml.safe_load((settings.config_dir / "models.yaml").read_text())
     return {
-        k: ModelSpec(key=k, pydantic_ai=v["pydantic_ai"], litellm=v["litellm"], price=v["price"])
+        k: ModelSpec(
+            key=k,
+            pydantic_ai=v["pydantic_ai"],
+            litellm=v["litellm"],
+            price=v["price"],
+            settings=v.get("settings", {}),
+        )
         for k, v in raw.items()
     }
 
@@ -54,13 +64,26 @@ def role(name: str) -> RoleSpec:
     return RoleSpec(role=name, primary=models[r["model"]], fallback=models[fb] if fb else None)
 
 
+# Providers that speak the OpenAI chat API, so their models can be built with settings attached.
+_OPENAI_COMPATIBLE = {"openai", "deepseek", "openrouter"}
+
+
+def build_model(spec: ModelSpec) -> Model:
+    provider, name = spec.pydantic_ai.split(":", 1)
+    if provider in _OPENAI_COMPATIBLE:
+        return OpenAIChatModel(name, provider=provider, settings=spec.settings)
+    if spec.settings:
+        raise ValueError(f"{spec.key}: settings are only supported for {_OPENAI_COMPATIBLE}")
+    return infer_model(spec.pydantic_ai)
+
+
 def pydantic_ai_model(role_name: str) -> Model:
     """The role's model for a Pydantic AI Agent, falling back on API errors."""
     spec = role(role_name)
-    primary = infer_model(spec.primary.pydantic_ai)
+    primary = build_model(spec.primary)
     if spec.fallback is None:
         return primary
-    return FallbackModel(primary, infer_model(spec.fallback.pydantic_ai))
+    return FallbackModel(primary, build_model(spec.fallback))
 
 
 def litellm_model(role_name: str) -> str:

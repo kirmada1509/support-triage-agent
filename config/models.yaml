@@ -1,5 +1,10 @@
 # Per model: how Pydantic AI and LiteLLM name it, capabilities, prices (USD per 1M tokens).
 # Prices from the providers' pages; check before quoting costs.
+# `settings` go on every request to that model (Pydantic AI ModelSettings):
+#   max_tokens: required. Without it OpenRouter reserves 65536 output tokens per request and
+#     refuses the call once the key's credit can't cover that.
+#   extra_body.thinking: DeepSeek's thinking mode rejects the forced tool choice Pydantic AI uses
+#     for typed output, so it's off for direct DeepSeek calls.
 deepseek-flash:
   pydantic_ai: "deepseek:deepseek-flash"
   litellm: "deepseek/deepseek-flash"
@@ -7,6 +12,7 @@ deepseek-flash:
   json_output: true
   context_tokens: 1000000
   price: {input: 0.30, cached_input: 0.006, output: 1.20}
+  settings: {max_tokens: 4096, extra_body: {thinking: {type: disabled}}}
 deepseek-v4-pro:
   pydantic_ai: "deepseek:deepseek-v4-pro"
   litellm: "deepseek/deepseek-v4-pro"
@@ -14,6 +20,7 @@ deepseek-v4-pro:
   json_output: true
   context_tokens: 1000000
   price: {input: 1.32, cached_input: 0.044, output: 3.96}
+  settings: {max_tokens: 8192, extra_body: {thinking: {type: disabled}}}
 gemini-flash-lite:
   pydantic_ai: "openrouter:google/gemini-3.1-flash-lite"
   litellm: "openrouter/google/gemini-3.1-flash-lite"
@@ -21,3 +28,21 @@ gemini-flash-lite:
   json_output: true
   context_tokens: 1000000
   price: {input: 0.25, output: 1.50}
+  settings: {max_tokens: 4096}
+# The same DeepSeek models through OpenRouter (one key for everything; prices from OpenRouter).
+or-deepseek-flash:
+  pydantic_ai: "openrouter:deepseek/deepseek-v4-flash"
+  litellm: "openrouter/deepseek/deepseek-v4-flash"
+  tools: true
+  json_output: true
+  context_tokens: 1048576
+  price: {input: 0.047, cached_input: 0.0094, output: 0.0941}
+  settings: {max_tokens: 4096}
+or-deepseek-v4-pro:
+  pydantic_ai: "openrouter:deepseek/deepseek-v4-pro"
+  litellm: "openrouter/deepseek/deepseek-v4-pro"
+  tools: true
+  json_output: true
+  context_tokens: 1048576
+  price: {input: 0.4188, cached_input: 0.0349, output: 0.8376}
+  settings: {max_tokens: 8192}

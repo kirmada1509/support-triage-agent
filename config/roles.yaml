@@ -6,8 +6,20 @@ profiles:
     jev_fallback:      {model: deepseek-flash,  fallback: gemini-flash-lite}
     layer1:            {model: deepseek-flash,  fallback: gemini-flash-lite}
     requests:          {model: deepseek-flash,  fallback: gemini-flash-lite}
-    data_analyst:      {model: deepseek-flash,  fallback: deepseek-v4-pro}
+    # DeepSeek's own API rejects some of HolmesGPT's tool schemas; OpenRouter's DeepSeek takes them.
+    data_analyst:      {model: or-deepseek-flash,  fallback: or-deepseek-v4-pro}
     codebase_analyst:  {model: deepseek-flash,  fallback: deepseek-v4-pro}
     findings:          {model: deepseek-flash,  fallback: deepseek-v4-pro}
     verdict:           {model: deepseek-v4-pro, fallback: deepseek-flash}
     indexer:           {model: deepseek-v4-pro, fallback: deepseek-flash}
+  # Everything through OpenRouter's single key: ROLE_PROFILE=openrouter
+  openrouter:
+    enrichment:        {model: or-deepseek-flash,  fallback: gemini-flash-lite}
+    jev_fallback:      {model: or-deepseek-flash,  fallback: gemini-flash-lite}
+    layer1:            {model: or-deepseek-flash,  fallback: gemini-flash-lite}
+    requests:          {model: or-deepseek-flash,  fallback: gemini-flash-lite}
+    data_analyst:      {model: or-deepseek-flash,  fallback: or-deepseek-v4-pro}
+    codebase_analyst:  {model: or-deepseek-flash,  fallback: or-deepseek-v4-pro}
+    findings:          {model: or-deepseek-flash,  fallback: or-deepseek-v4-pro}
+    verdict:           {model: or-deepseek-v4-pro, fallback: or-deepseek-flash}
+    indexer:           {model: or-deepseek-v4-pro, fallback: or-deepseek-flash}

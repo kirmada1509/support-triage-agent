@@ -1,10 +1,13 @@
-"""Data analyst: HolmesGPT (Python SDK) with the Prometheus, OpenSearch and PostgreSQL toolsets
-plus the custom jaeger and history toolsets (holmes/toolsets.yaml).
+"""Data analyst: HolmesGPT in its own container (holmes/Dockerfile) on the shop's network, with the
+Prometheus, OpenSearch and PostgreSQL toolsets plus the custom jaeger and history toolsets
+(holmes/toolsets.yaml). It can't be imported: its dependencies conflict with Pydantic AI's.
 
-TODO(phase 6): build the HolmesGPT config with litellm_model("data_analyst") and only those
-toolsets; ask one question (brief + enrichment + telemetry guide) in a worker thread with a 90 s
-timeout and at most 15 tool calls; emit a ToolCallEvent per tool call (wrap its tool executor,
-or send its tool log when it finishes); convert the answer with findings.to_findings().
+TODO(phase 6): in that container, run `holmes ask --config /etc/holmes/config.yaml --model
+<litellm_model("data_analyst")> --json-output-file ...` with one question (brief + enrichment +
+telemetry guide). Enforce the 90 s timeout and the tool-call budget here: its --max-steps counts
+model turns, not calls. Emit a ToolCallEvent per entry of the output file's tool_calls, and convert
+the answer with findings.to_findings(). tests/test_spike.py has a working run;
+planning/Phase_2_Spike.md says what to watch.
 The stub shows the deploy history from the context bundle, so the console has real rows.
 """
 

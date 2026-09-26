@@ -4,14 +4,16 @@ What's built and what isn't, phase by phase, against `Agent_Architecture_And_Bui
 Tick an item when it works and is tested the way the plan's "How it's tested" says; tick a
 phase's "Done when" only when that whole criterion has been seen working.
 
-Last updated Sep 26, 2026, after phase 0. Tests, all passing:
+Last updated Sep 26, 2026, after phase 2. Tests, all passing:
 
 | Suite | Command | Needs | Tests |
 | --- | --- | --- | --- |
-| Units, graph in memory, scenario logic, sandbox kit | `make test` | nothing | 45 |
+| Units, graph in memory, scenario logic, sandbox kit, tracing, model config | `make test` | nothing | 51 |
 | Database | `make test-db` | `make db` | 6 |
 | The fork: tags, planted bugs, overlay, images | `make test-sandbox` | `make sandbox` | 18 |
 | The running shop: every scenario, read-only role, metrics, logs | `make test-shop` | `make shop-up` | 15 |
+| Real model calls on each provider profile | `make test-llm` | keys in `.env.agent` | 2 |
+| Both analysts on demo tickets, codebox guardrails | `make test-spike` | shop, `make analyst-images`, keys | 4 |
 
 ## Phase 0: Sandbox (days 1–2)
 
@@ -47,14 +49,16 @@ Last updated Sep 26, 2026, after phase 0. Tests, all passing:
 - [x] LangGraph `StateGraph`: every node as a stub, all edges, per-node retry policies
 - [x] Postgres checkpointer; streaming into the `events` table with NOTIFY
 - [x] `roles.yaml` to Pydantic AI and LiteLLM names, fallback models, `UsageLimits`
-- [ ] OpenTelemetry export of the agent's own spans (code in `app/tracing.py`; its packages aren't installed)
-- [ ] One Pydantic AI call working on two providers by changing only config (needs API keys)
-- [ ] Install and pin HolmesGPT; run it once against the sandbox
-- [ ] Install and pin mini-swe-agent; run it once in the codebox container
+- [x] OpenTelemetry export: a span per ticket run and per node, in the shop's Jaeger (`make test`)
+- [x] One Pydantic AI call on two providers by changing only `ROLE_PROFILE` (`make test-llm`);
+  per-model settings in `models.yaml` fix DeepSeek's thinking mode and OpenRouter's token reservation
+- [x] HolmesGPT 0.42.0 pinned in its own image (it can't share the app's environment); run on ticket 4
+- [x] mini-swe-agent 2.4.6 pinned; run on tickets 4 and 3 in the read-only codebox
 - [x] A stub approval pauses and resumes
-- [ ] **Done when:** a ticket runs end to end through the stub graph (yes), a stub approval pauses
-  and resumes (yes), a Pydantic AI call works on two providers by config only, and both
-  open-source agents run once
+- [x] The spike repeatable: `make test-spike`; findings in `planning/Phase_2_Spike.md`
+- [x] **Done when:** a ticket runs end to end through the stub graph, a stub approval pauses and
+  resumes, a Pydantic AI call works on two providers by config only, and both open-source agents
+  run once
 
 ## Phase 3: Retrieval, and the eval dataset (days 5–6)
 
@@ -73,6 +77,8 @@ Last updated Sep 26, 2026, after phase 0. Tests, all passing:
 - [ ] Tests first: enrichment validation, the confidence gate, routing, Layer 1 citation checks
 - [ ] Context node on real data
 - [ ] Enrichment with validation (ticket times are the customer's local time; the window must allow for it)
+- [ ] Describe each service by what it does in the categorization prompts: models read "expired at
+  checkout" as a checkout problem, not payment (spike)
 - [ ] Retrieve node
 - [ ] Jev with the LLM fallback below 0.7
 - [ ] Layer 1 with citation checks
@@ -82,11 +88,13 @@ Last updated Sep 26, 2026, after phase 0. Tests, all passing:
 
 ## Phase 5: Layer 2 tools and indexer (days 8–9)
 
-- [ ] HolmesGPT toolsets: built-ins plus `jaeger` and `history` (drafted in `holmes/toolsets.yaml`, not yet run)
+- [x] HolmesGPT toolsets load and connect: `prometheus/metrics`, `elasticsearch/data`, `database/sql`,
+  `jaeger`, `history`; its default shell, internet and kubectl toolsets are off (spike)
+- [ ] Give `/prev` in the codebox its own git environment (`GIT_DIR` currently points at the deployed tag)
 - [ ] `condense_traces.py` keeps the shop's real attribute names (it looks for `app.user.id` and
   `app.payment.card_type`; the shop sends `user.id` and `demo.payment.card_type`)
 - [ ] Characterization tests for `condense_traces.py` on saved Jaeger responses
-- [ ] Codebox container with read-only worktrees (`../shop@v1.3.0`, `../shop@v1.4.0`) and no network
+- [x] Codebox container with read-only worktrees and no network; writes and network refused (`make test-spike`)
 - [ ] Helper commands: `repo-map`, `lookup-error`, `find-symbol`, `rpc-handler` (drafted, not yet run)
 - [ ] Indexer: universal-ctags, ast-grep, `protoc`, service cards; run from `deploy.sh` step 4
 - [ ] **Done when:** each toolset and helper command returns condensed real data, a write attempt
@@ -97,9 +105,11 @@ Last updated Sep 26, 2026, after phase 0. Tests, all passing:
 - [ ] Tests first: evidence checks, error-signature normalization, round 2's trigger, the timeout path
 - [ ] Duplicate check: exact signature, retrieval over open tickets, Jev confirmation
 - [ ] Brief
-- [ ] Data analyst node (HolmesGPT) with timeout, streaming its tool calls
+- [ ] Data analyst node: runs HolmesGPT's container, enforces the 90 s timeout and tool-call budget
+  itself (its step limit counts model turns: the spike made 36 calls in 15 turns), streams its tool calls
 - [ ] Codebase analyst node (mini-swe-agent) with timeout, streaming its commands
-- [ ] Findings conversion with evidence checks
+- [ ] Findings conversion with evidence checks (HolmesGPT guesses about code it never read; drop those)
+- [ ] Cost per analyst run from tokens and `models.yaml` prices (LiteLLM has no price for deepseek-flash)
 - [ ] Round 2
 - [ ] Verdict
 - [ ] Write-back to ticket memory and `investigations`

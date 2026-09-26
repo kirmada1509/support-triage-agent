@@ -1,6 +1,6 @@
-# HolmesGPT toolsets for the data analyst (phase 5). Only these are enabled; every other built-in
-# toolset stays off. Check the built-in names and config keys against the pinned HolmesGPT version.
-# Hosts are the shop's compose service names; the agent containers join the shop's network.
+# HolmesGPT toolsets for the data analyst. Only these are enabled; every other built-in toolset
+# stays off. Names and config keys are HolmesGPT 0.42.0's (holmes/Dockerfile pins it).
+# Hosts are the shop's compose service names: HolmesGPT runs on the shop's network.
 
 toolsets:
   prometheus/metrics:
@@ -8,17 +8,26 @@ toolsets:
     config:
       prometheus_url: http://prometheus:9090
 
-  opensearch/logs:
+  elasticsearch/data:                      # OpenSearch speaks the same API; logs are otel-logs-yyyy-MM-dd
     enabled: true
     config:
-      opensearch_url: http://opensearch:9200
-      index_pattern: otel-logs-*          # one index a day: otel-logs-yyyy-MM-dd
+      api_url: http://opensearch:9200
 
   database/sql:                            # the shop's catalog schema, read-only role
     enabled: true
     config:
       # agent_ro is created by the sandbox's src/postgresql/init.sql (sandbox/patches/v1.3.0)
       connection_url: postgresql://agent_ro:agent_ro_password@astronomy-db:5432/astronomy_db
+      read_only: true
+
+  # HolmesGPT enables these by default; the data analyst must only read through the toolsets above
+  # (a shell or open internet access would bypass the read-only role and the condensed output).
+  bash: {enabled: false}
+  internet: {enabled: false}
+  connectivity_check: {enabled: false}
+  kubectl-run: {enabled: false}
+  kubernetes/kube-prometheus-stack: {enabled: false}
+  skills: {enabled: false}
 
   jaeger:
     description: "Find and read traces in the shop's Jaeger. Output is condensed: trace ID, duration, root operation, user.id, service.version and the first error."
