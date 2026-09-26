@@ -36,8 +36,12 @@ package = false
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 testpaths = ["tests"]
-markers = ["db: needs Postgres; run with `make test-db`"]
-addopts = "-m 'not db'"
+markers = [
+    "db: needs Postgres; run with `make test-db`",
+    "sandbox: needs the shop fork (make sandbox); run with `make test-sandbox`",
+    "shop: needs the running shop (make shop-up); run with `make test-shop`",
+]
+addopts = "-m 'not db and not sandbox and not shop'"
 
 [tool.ruff]
 line-length = 100

@@ -86,6 +86,17 @@ Shoppers are the Figma Merch tenant's (`figma-shopper-01` to `-20`); the load ge
 traffic uses random IDs and belongs to no tenant. Checkout puts `user.id` on its `PlaceOrder`
 span, which is how the data analyst finds one tenant's orders.
 
+## Tests
+
+| Command | Needs | Checks |
+| --- | --- | --- |
+| `make test` | nothing | each scenario against a simulated shop: it passes with the bug and fails without it; the ticket text it sends; cards, payloads, signing; the kit's files agree with each other |
+| `make test-sandbox` | the fork | tags at the expected SHAs, v1.3.0 is upstream plus the setup, each bug line blames to its planted commit, the Amex rule blames to upstream, the lines this README cites, the images' revisions |
+| `make test-shop` | the running shop | every scenario for real (a few minutes), deploys recorded with their commits, `service_version` on span metrics, the daily log index, `agent_ro` can read but not write |
+
+`make test-shop` records deploys into the throwaway `triage_test` database, not the dev one, and
+turns the `paymentFailure` flag back off when it's done.
+
 ## Changing the fork
 
 The fork is rebuilt from scratch on every `make sandbox`, with fixed authors, committer and dates,

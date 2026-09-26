@@ -1,5 +1,7 @@
+TEST_DATABASE_URL = postgresql://triage:triage@localhost:5433/triage_test
+
 .PHONY: install db migrate migration check-migrations api worker send deploy flag test test-db lint fmt \
-	sandbox sandbox-images shop-up shop-down
+	sandbox sandbox-images shop-up shop-down test-sandbox test-shop
 
 install:            ## install Python deps (uv) and pin them in uv.lock
 	uv sync
@@ -51,7 +53,15 @@ test:               ## unit tests and the graph end to end, no database needed
 
 test-db:            ## tests against Postgres, on a throwaway triage_test database (needs make db)
 	docker compose exec -T db sh -c 'dropdb -U triage --if-exists --force triage_test && createdb -U triage triage_test'
-	DATABASE_URL=postgresql://triage:triage@localhost:5433/triage_test uv run pytest -q -m db
+	DATABASE_URL=$(TEST_DATABASE_URL) uv run pytest -q -m db
+
+test-sandbox:       ## the shop fork: tags, planted bugs, overlay, images (needs make sandbox)
+	uv run pytest -q -m sandbox
+
+test-shop:          ## every scenario against the running shop (needs make shop-up; a few minutes)
+	docker compose exec -T db sh -c 'dropdb -U triage --if-exists --force triage_test && createdb -U triage triage_test'
+	DATABASE_URL=$(TEST_DATABASE_URL) uv run python -m app.migrate
+	DATABASE_URL=$(TEST_DATABASE_URL) uv run pytest -q -m shop
 
 lint:
 	uv run ruff check .

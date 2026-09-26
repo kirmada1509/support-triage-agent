@@ -16,6 +16,14 @@ if [ ! -d "$SANDBOX_DIR/.git" ]; then
   git clone --no-tags "$UPSTREAM_URL" "$SANDBOX_DIR"
 fi
 cd "$SANDBOX_DIR"
+dirty=$(git status --porcelain --untracked-files=no)
+if [ -n "$dirty" ]; then
+  echo "$SANDBOX_DIR has uncommitted changes; the sandbox branch is rebuilt from scratch:" >&2
+  echo "$dirty" >&2
+  echo "(flag.sh edits src/flagd/demo.flagd.json: git -C $SANDBOX_DIR checkout -- src/flagd)" >&2
+  exit 1
+fi
+
 git config remote.origin.tagOpt --no-tags
 if ! git cat-file -e "${UPSTREAM_SHA}^{commit}" 2>/dev/null; then
   git fetch --no-tags origin "$UPSTREAM_SHA"
@@ -25,14 +33,6 @@ for t in 1.3.0 1.4.0; do
     echo "warning: upstream tag $t is present next to v$t; the agent must always use the v tags" >&2
   fi
 done
-
-dirty=$(git status --porcelain --untracked-files=no)
-if [ -n "$dirty" ]; then
-  echo "$SANDBOX_DIR has uncommitted changes; the sandbox branch is rebuilt from scratch:" >&2
-  echo "$dirty" >&2
-  echo "(flag.sh edits src/flagd/demo.flagd.json: git -C $SANDBOX_DIR checkout -- src/flagd)" >&2
-  exit 1
-fi
 
 # versions.env is what deploy.sh says is running; it belongs to this checkout, not to the fork.
 grep -qx versions.env .git/info/exclude 2>/dev/null || echo versions.env >> .git/info/exclude

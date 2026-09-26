@@ -4,8 +4,14 @@ What's built and what isn't, phase by phase, against `Agent_Architecture_And_Bui
 Tick an item when it works and is tested the way the plan's "How it's tested" says; tick a
 phase's "Done when" only when that whole criterion has been seen working.
 
-Last updated Sep 26, 2026, after phase 0. Tests: 11 unit and graph tests (`make test`) and 6
-database tests (`make test-db`), all passing.
+Last updated Sep 26, 2026, after phase 0. Tests, all passing:
+
+| Suite | Command | Needs | Tests |
+| --- | --- | --- | --- |
+| Units, graph in memory, scenario logic, sandbox kit | `make test` | nothing | 45 |
+| Database | `make test-db` | `make db` | 6 |
+| The fork: tags, planted bugs, overlay, images | `make test-sandbox` | `make sandbox` | 18 |
+| The running shop: every scenario, read-only role, metrics, logs | `make test-shop` | `make shop-up` | 15 |
 
 ## Phase 0: Sandbox (days 1–2)
 
@@ -20,6 +26,7 @@ database tests (`make test-db`), all passing.
 - [x] Tenant seed data (`figma-merch`, shoppers `figma-shopper-01` to `-20`) and `ownership.yaml`
 - [x] Scenario scripts for tickets 1–7 and the two spare bugs, each checked in Jaeger (`make scenario-*`)
 - [x] The plan's "still to confirm" list checked against the real shop
+- [x] Tests: the fork's planted bugs (`make test-sandbox`), every scenario live (`make test-shop`), and the scenario logic against a simulated shop with and without each bug (`make test`)
 - [ ] Look at each scenario in Grafana by hand (Prometheus queries are verified; dashboards aren't)
 - [ ] Optional: a Grafana annotation for each deploy
 - [ ] **Done when:** every scenario reproduces by hand and shows up in Jaeger and Grafana
@@ -82,7 +89,6 @@ database tests (`make test-db`), all passing.
 - [ ] Codebox container with read-only worktrees (`../shop@v1.3.0`, `../shop@v1.4.0`) and no network
 - [ ] Helper commands: `repo-map`, `lookup-error`, `find-symbol`, `rpc-handler` (drafted, not yet run)
 - [ ] Indexer: universal-ctags, ast-grep, `protoc`, service cards; run from `deploy.sh` step 4
-- [ ] `pytest -m sandbox`: the scenario checks against a running shop
 - [ ] **Done when:** each toolset and helper command returns condensed real data, a write attempt
   is refused, both versions are indexed, and those results are pinned by tests
 

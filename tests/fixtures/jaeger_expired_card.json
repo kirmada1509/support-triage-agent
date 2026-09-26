@@ -1,0 +1,995 @@
+{
+ "traceID": "900126e652c68e7d89b80e7dab1f8e6b",
+ "spans": [
+  {
+   "traceID": "900126e652c68e7d89b80e7dab1f8e6b",
+   "spanID": "b05b9222cdbd4d46",
+   "operationName": "charge",
+   "startTime": 1790391652026000,
+   "duration": 1034,
+   "tags": [
+    {
+     "key": "otel.scope.name",
+     "type": "string",
+     "value": "payment"
+    },
+    {
+     "key": "demo.payment.card_type",
+     "type": "string",
+     "value": "visa"
+    },
+    {
+     "key": "demo.payment.card_valid",
+     "type": "bool",
+     "value": true
+    },
+    {
+     "key": "demo.user_context.loyalty_level",
+     "type": "string",
+     "value": "platinum"
+    },
+    {
+     "key": "error.type",
+     "type": "string",
+     "value": "Error"
+    },
+    {
+     "key": "span.kind",
+     "type": "string",
+     "value": "internal"
+    },
+    {
+     "key": "otel.status_code",
+     "type": "string",
+     "value": "ERROR"
+    },
+    {
+     "key": "error",
+     "type": "bool",
+     "value": true
+    },
+    {
+     "key": "otel.status_description",
+     "type": "string",
+     "value": "The credit card (ending 4242) expired on 9/2026."
+    }
+   ],
+   "logs": [
+    {
+     "timestamp": 1790391652027016,
+     "fields": [
+      {
+       "key": "event",
+       "type": "string",
+       "value": "exception"
+      },
+      {
+       "key": "exception.message",
+       "type": "string",
+       "value": "The credit card (ending 4242) expired on 9/2026."
+      },
+      {
+       "key": "exception.stacktrace",
+       "type": "string",
+       "value": "Error: The credit card (ending 4242) expired on 9/2026.\n    at module.exports.charge (/usr/src/app/charge.js:89:13)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async Object.chargeServiceHandler [as charge] (/usr/src/app/index.js:22:22)"
+      },
+      {
+       "key": "exception.type",
+       "type": "string",
+       "value": "Error"
+      }
+     ]
+    }
+   ],
+   "processID": "p4"
+  },
+  {
+   "traceID": "900126e652c68e7d89b80e7dab1f8e6b",
+   "spanID": "7fd31d5fde9db3a2",
+   "operationName": "oteldemo.PaymentService/Charge",
+   "startTime": 1790391652025000,
+   "duration": 1815,
+   "tags": [
+    {
+     "key": "otel.scope.name",
+     "type": "string",
+     "value": "@opentelemetry/instrumentation-grpc"
+    },
+    {
+     "key": "otel.scope.version",
+     "type": "string",
+     "value": "0.220.0"
+    },
+    {
+     "key": "demo.payment.amount",
+     "type": "string",
+     "value": "30.94"
+    },
+    {
+     "key": "error.type",
+     "type": "string",
+     "value": "Error"
+    },
+    {
+     "key": "grpc.error_message",
+     "type": "string",
+     "value": "The credit card (ending 4242) expired on 9/2026."
+    },
+    {
+     "key": "grpc.error_name",
+     "type": "string",
+     "value": "Error"
+    },
+    {
+     "key": "original_span_name",
+     "type": "string",
+     "value": "grpc.oteldemo.PaymentService/Charge"
+    },
+    {
+     "key": "rpc.method",
+     "type": "string",
+     "value": "Charge"
+    },
+    {
+     "key": "rpc.service",
+     "type": "string",
+     "value": "oteldemo.PaymentService"
+    },
+    {
+     "key": "rpc.system",
+     "type": "string",
+     "value": "grpc"
+    },
+    {
+     "key": "span.kind",
+     "type": "string",
+     "value": "server"
+    },
+    {
+     "key": "otel.status_code",
+     "type": "string",
+     "value": "ERROR"
+    },
+    {
+     "key": "error",
+     "type": "bool",
+     "value": true
+    },
+    {
+     "key": "otel.status_description",
+     "type": "string",
+     "value": "The credit card (ending 4242) expired on 9/2026."
+    }
+   ],
+   "logs": [],
+   "processID": "p4"
+  },
+  {
+   "traceID": "900126e652c68e7d89b80e7dab1f8e6b",
+   "spanID": "ec8c939d5c8e4835",
+   "operationName": "oteldemo.CartService/GetCart",
+   "startTime": 1790391652011572,
+   "duration": 1270,
+   "tags": [
+    {
+     "key": "otel.scope.name",
+     "type": "string",
+     "value": "go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
+    },
+    {
+     "key": "otel.scope.version",
+     "type": "string",
+     "value": "0.71.0"
+    },
+    {
+     "key": "rpc.method",
+     "type": "string",
+     "value": "oteldemo.CartService/GetCart"
+    },
+    {
+     "key": "rpc.response.status_code",
+     "type": "string",
+     "value": "OK"
+    },
+    {
+     "key": "rpc.system.name",
+     "type": "string",
+     "value": "grpc"
+    },
+    {
+     "key": "server.address",
+     "type": "string",
+     "value": "172.20.0.20"
+    },
+    {
+     "key": "server.port",
+     "type": "int64",
+     "value": 7070
+    },
+    {
+     "key": "span.kind",
+     "type": "string",
+     "value": "client"
+    }
+   ],
+   "logs": [],
+   "processID": "p9"
+  },
+  {
+   "traceID": "900126e652c68e7d89b80e7dab1f8e6b",
+   "spanID": "e7da5e8f55c4e545",
+   "operationName": "oteldemo.ProductCatalogService/GetProduct",
+   "startTime": 1790391652012875,
+   "duration": 7063,
+   "tags": [
+    {
+     "key": "otel.scope.name",
+     "type": "string",
+     "value": "go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
+    },
+    {
+     "key": "otel.scope.version",
+     "type": "string",
+     "value": "0.71.0"
+    },
+    {
+     "key": "rpc.method",
+     "type": "string",
+     "value": "oteldemo.ProductCatalogService/GetProduct"
+    },
+    {
+     "key": "rpc.response.status_code",
+     "type": "string",
+     "value": "OK"
+    },
+    {
+     "key": "rpc.system.name",
+     "type": "string",
+     "value": "grpc"
+    },
+    {
+     "key": "server.address",
+     "type": "string",
+     "value": "172.20.0.21"
+    },
+    {
+     "key": "server.port",
+     "type": "int64",
+     "value": 3550
+    },
+    {
+     "key": "span.kind",
+     "type": "string",
+     "value": "client"
+    }
+   ],
+   "logs": [],
+   "processID": "p9"
+  },
+  {
+   "traceID": "900126e652c68e7d89b80e7dab1f8e6b",
+   "spanID": "4b896a8e60363118",
+   "operationName": "oteldemo.CurrencyService/Convert",
+   "startTime": 1790391652019961,
+   "duration": 682,
+   "tags": [
+    {
+     "key": "otel.scope.name",
+     "type": "string",
+     "value": "go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
+    },
+    {
+     "key": "otel.scope.version",
+     "type": "string",
+     "value": "0.71.0"
+    },
+    {
+     "key": "rpc.method",
+     "type": "string",
+     "value": "oteldemo.CurrencyService/Convert"
+    },
+    {
+     "key": "rpc.response.status_code",
+     "type": "string",
+     "value": "OK"
+    },
+    {
+     "key": "rpc.system.name",
+     "type": "string",
+     "value": "grpc"
+    },
+    {
+     "key": "server.address",
+     "type": "string",
+     "value": "172.20.0.12"
+    },
+    {
+     "key": "server.port",
+     "type": "int64",
+     "value": 7001
+    },
+    {
+     "key": "span.kind",
+     "type": "string",
+     "value": "client"
+    }
+   ],
+   "logs": [],
+   "processID": "p9"
+  },
+  {
+   "traceID": "900126e652c68e7d89b80e7dab1f8e6b",
+   "spanID": "017b9ecfa87302a2",
+   "operationName": "oteldemo.CurrencyService/Convert",
+   "startTime": 1790391652023939,
+   "duration": 269,
+   "tags": [
+    {
+     "key": "otel.scope.name",
+     "type": "string",
+     "value": "go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
+    },
+    {
+     "key": "otel.scope.version",
+     "type": "string",
+     "value": "0.71.0"
+    },
+    {
+     "key": "rpc.method",
+     "type": "string",
+     "value": "oteldemo.CurrencyService/Convert"
+    },
+    {
+     "key": "rpc.response.status_code",
+     "type": "string",
+     "value": "OK"
+    },
+    {
+     "key": "rpc.system.name",
+     "type": "string",
+     "value": "grpc"
+    },
+    {
+     "key": "server.address",
+     "type": "string",
+     "value": "172.20.0.12"
+    },
+    {
+     "key": "server.port",
+     "type": "int64",
+     "value": 7001
+    },
+    {
+     "key": "span.kind",
+     "type": "string",
+     "value": "client"
+    }
+   ],
+   "logs": [],
+   "processID": "p9"
+  },
+  {
+   "traceID": "900126e652c68e7d89b80e7dab1f8e6b",
+   "spanID": "a49ed230eb3418a0",
+   "operationName": "oteldemo.PaymentService/Charge",
+   "startTime": 1790391652024233,
+   "duration": 3477,
+   "tags": [
+    {
+     "key": "otel.scope.name",
+     "type": "string",
+     "value": "go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
+    },
+    {
+     "key": "otel.scope.version",
+     "type": "string",
+     "value": "0.71.0"
+    },
+    {
+     "key": "rpc.method",
+     "type": "string",
+     "value": "oteldemo.PaymentService/Charge"
+    },
+    {
+     "key": "rpc.response.status_code",
+     "type": "string",
+     "value": "UNKNOWN"
+    },
+    {
+     "key": "rpc.system.name",
+     "type": "string",
+     "value": "grpc"
+    },
+    {
+     "key": "server.address",
+     "type": "string",
+     "value": "172.20.0.16"
+    },
+    {
+     "key": "server.port",
+     "type": "int64",
+     "value": 50051
+    },
+    {
+     "key": "span.kind",
+     "type": "string",
+     "value": "client"
+    },
+    {
+     "key": "otel.status_code",
+     "type": "string",
+     "value": "ERROR"
+    },
+    {
+     "key": "error",
+     "type": "bool",
+     "value": true
+    },
+    {
+     "key": "otel.status_description",
+     "type": "string",
+     "value": "The credit card (ending 4242) expired on 9/2026."
+    }
+   ],
+   "logs": [],
+   "processID": "p9"
+  },
+  {
+   "traceID": "900126e652c68e7d89b80e7dab1f8e6b",
+   "spanID": "7fae79b3b86de635",
+   "operationName": "oteldemo.CheckoutService/PlaceOrder",
+   "startTime": 1790391652011289,
+   "duration": 16997,
+   "tags": [
+    {
+     "key": "otel.scope.name",
+     "type": "string",
+     "value": "go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
+    },
+    {
+     "key": "otel.scope.version",
+     "type": "string",
+     "value": "0.71.0"
+    },
+    {
+     "key": "demo.user_context.selected_currency",
+     "type": "string",
+     "value": "USD"
+    },
+    {
+     "key": "rpc.method",
+     "type": "string",
+     "value": "oteldemo.CheckoutService/PlaceOrder"
+    },
+    {
+     "key": "rpc.response.status_code",
+     "type": "string",
+     "value": "INTERNAL"
+    },
+    {
+     "key": "rpc.system.name",
+     "type": "string",
+     "value": "grpc"
+    },
+    {
+     "key": "server.address",
+     "type": "string",
+     "value": "172.20.0.23"
+    },
+    {
+     "key": "server.port",
+     "type": "int64",
+     "value": 5050
+    },
+    {
+     "key": "user.id",
+     "type": "string",
+     "value": "figma-shopper-03"
+    },
+    {
+     "key": "span.kind",
+     "type": "string",
+     "value": "server"
+    },
+    {
+     "key": "otel.status_code",
+     "type": "string",
+     "value": "ERROR"
+    },
+    {
+     "key": "error",
+     "type": "bool",
+     "value": true
+    },
+    {
+     "key": "otel.status_description",
+     "type": "string",
+     "value": "failed to charge card: could not charge the card: rpc error: code = Unknown desc = The credit card (ending 4242) expired on 9/2026."
+    }
+   ],
+   "logs": [
+    {
+     "timestamp": 1790391652028272,
+     "fields": [
+      {
+       "key": "event",
+       "type": "string",
+       "value": "exception"
+      },
+      {
+       "key": "exception.message",
+       "type": "string",
+       "value": "could not charge the card: rpc error: code = Unknown desc = The credit card (ending 4242) expired on 9/2026."
+      },
+      {
+       "key": "exception.type",
+       "type": "string",
+       "value": "*errors.errorString"
+      }
+     ]
+    },
+    {
+     "timestamp": 1790391652011518,
+     "fields": [
+      {
+       "key": "event",
+       "type": "string",
+       "value": "feature_flag.evaluation"
+      },
+      {
+       "key": "feature_flag.context.id",
+       "type": "string",
+       "value": ""
+      },
+      {
+       "key": "feature_flag.key",
+       "type": "string",
+       "value": "emitRawPii"
+      },
+      {
+       "key": "feature_flag.provider.name",
+       "type": "string",
+       "value": "flagd"
+      },
+      {
+       "key": "feature_flag.result.reason",
+       "type": "string",
+       "value": "cached"
+      },
+      {
+       "key": "feature_flag.result.value",
+       "type": "bool",
+       "value": false
+      },
+      {
+       "key": "feature_flag.result.variant",
+       "type": "string",
+       "value": "off"
+      }
+     ]
+    },
+    {
+     "timestamp": 1790391652024229,
+     "fields": [
+      {
+       "key": "event",
+       "type": "string",
+       "value": "feature_flag.evaluation"
+      },
+      {
+       "key": "feature_flag.context.id",
+       "type": "string",
+       "value": ""
+      },
+      {
+       "key": "feature_flag.key",
+       "type": "string",
+       "value": "paymentUnreachable"
+      },
+      {
+       "key": "feature_flag.provider.name",
+       "type": "string",
+       "value": "flagd"
+      },
+      {
+       "key": "feature_flag.result.reason",
+       "type": "string",
+       "value": "cached"
+      },
+      {
+       "key": "feature_flag.result.value",
+       "type": "bool",
+       "value": false
+      },
+      {
+       "key": "feature_flag.result.variant",
+       "type": "string",
+       "value": "off"
+      }
+     ]
+    },
+    {
+     "timestamp": 1790391652024222,
+     "fields": [
+      {
+       "key": "event",
+       "type": "string",
+       "value": "prepared"
+      }
+     ]
+    }
+   ],
+   "processID": "p9"
+  },
+  {
+   "traceID": "900126e652c68e7d89b80e7dab1f8e6b",
+   "spanID": "59351f649259462e",
+   "operationName": "POST",
+   "startTime": 1790391652020720,
+   "duration": 3186,
+   "tags": [
+    {
+     "key": "otel.scope.name",
+     "type": "string",
+     "value": "go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
+    },
+    {
+     "key": "otel.scope.version",
+     "type": "string",
+     "value": "0.71.0"
+    },
+    {
+     "key": "http.request.method",
+     "type": "string",
+     "value": "POST"
+    },
+    {
+     "key": "http.response.status_code",
+     "type": "int64",
+     "value": 200
+    },
+    {
+     "key": "network.protocol.version",
+     "type": "string",
+     "value": "1.1"
+    },
+    {
+     "key": "original_span_name",
+     "type": "string",
+     "value": "HTTP POST"
+    },
+    {
+     "key": "server.address",
+     "type": "string",
+     "value": "shipping"
+    },
+    {
+     "key": "server.port",
+     "type": "int64",
+     "value": 50050
+    },
+    {
+     "key": "url.full",
+     "type": "string",
+     "value": "http://shipping:50050/get-quote"
+    },
+    {
+     "key": "span.kind",
+     "type": "string",
+     "value": "client"
+    }
+   ],
+   "logs": [],
+   "processID": "p9"
+  },
+  {
+   "traceID": "900126e652c68e7d89b80e7dab1f8e6b",
+   "spanID": "680b3875aa847941",
+   "operationName": "prepareOrderItemsAndShippingQuoteFromCart",
+   "startTime": 1790391652011548,
+   "duration": 12672,
+   "tags": [
+    {
+     "key": "otel.scope.name",
+     "type": "string",
+     "value": "checkout"
+    },
+    {
+     "key": "demo.cart.items.count",
+     "type": "int64",
+     "value": 1
+    },
+    {
+     "key": "demo.order.items.count",
+     "type": "int64",
+     "value": 1
+    },
+    {
+     "key": "demo.shipping.amount",
+     "type": "float64",
+     "value": 8.99
+    },
+    {
+     "key": "span.kind",
+     "type": "string",
+     "value": "internal"
+    }
+   ],
+   "logs": [],
+   "processID": "p9"
+  }
+ ],
+ "processes": {
+  "p4": {
+   "serviceName": "payment",
+   "tags": [
+    {
+     "key": "container.id",
+     "type": "string",
+     "value": "0a063efc03ecb0a10fe3551bb5b7681b85dd525fd7e8a3ae31ed0bf8fe034641"
+    },
+    {
+     "key": "host.arch",
+     "type": "string",
+     "value": "arm64"
+    },
+    {
+     "key": "host.cpu.cache.l2.size",
+     "type": "int64",
+     "value": 0
+    },
+    {
+     "key": "host.cpu.family",
+     "type": "string",
+     "value": ""
+    },
+    {
+     "key": "host.cpu.model.id",
+     "type": "string",
+     "value": "0x000"
+    },
+    {
+     "key": "host.cpu.model.name",
+     "type": "string",
+     "value": ""
+    },
+    {
+     "key": "host.cpu.stepping",
+     "type": "string",
+     "value": "0"
+    },
+    {
+     "key": "host.cpu.vendor.id",
+     "type": "string",
+     "value": "Apple"
+    },
+    {
+     "key": "host.name",
+     "type": "string",
+     "value": "docker-desktop"
+    },
+    {
+     "key": "os.description",
+     "type": "string",
+     "value": "Linux 80ac20cac440 6.12.76-linuxkit #1 SMP Fri May 29 10:00:01 UTC 2026 aarch64"
+    },
+    {
+     "key": "os.type",
+     "type": "string",
+     "value": "linux"
+    },
+    {
+     "key": "os.version",
+     "type": "string",
+     "value": "6.12.76-linuxkit"
+    },
+    {
+     "key": "process.command",
+     "type": "string",
+     "value": "/usr/src/app/index.js"
+    },
+    {
+     "key": "process.command_args",
+     "type": "string",
+     "value": "[\"/nodejs/bin/node\",\"/usr/src/app/index.js\"]"
+    },
+    {
+     "key": "process.executable.name",
+     "type": "string",
+     "value": "/nodejs/bin/node"
+    },
+    {
+     "key": "process.executable.path",
+     "type": "string",
+     "value": "/nodejs/bin/node"
+    },
+    {
+     "key": "process.owner",
+     "type": "string",
+     "value": "nonroot"
+    },
+    {
+     "key": "process.pid",
+     "type": "int64",
+     "value": 1
+    },
+    {
+     "key": "process.runtime.description",
+     "type": "string",
+     "value": "Node.js"
+    },
+    {
+     "key": "process.runtime.name",
+     "type": "string",
+     "value": "nodejs"
+    },
+    {
+     "key": "process.runtime.version",
+     "type": "string",
+     "value": "22.22.0"
+    },
+    {
+     "key": "service.criticality",
+     "type": "string",
+     "value": "critical"
+    },
+    {
+     "key": "service.instance.id",
+     "type": "string",
+     "value": "6d1bf0f6-049f-4b8e-a7da-984728aefcae"
+    },
+    {
+     "key": "service.namespace",
+     "type": "string",
+     "value": "opentelemetry-demo"
+    },
+    {
+     "key": "service.version",
+     "type": "string",
+     "value": "v1.4.0"
+    },
+    {
+     "key": "telemetry.sdk.language",
+     "type": "string",
+     "value": "nodejs"
+    },
+    {
+     "key": "telemetry.sdk.name",
+     "type": "string",
+     "value": "opentelemetry"
+    },
+    {
+     "key": "telemetry.sdk.version",
+     "type": "string",
+     "value": "2.9.0"
+    }
+   ]
+  },
+  "p9": {
+   "serviceName": "checkout",
+   "tags": [
+    {
+     "key": "host.arch",
+     "type": "string",
+     "value": "arm64"
+    },
+    {
+     "key": "host.cpu.cache.l2.size",
+     "type": "int64",
+     "value": 0
+    },
+    {
+     "key": "host.cpu.family",
+     "type": "string",
+     "value": ""
+    },
+    {
+     "key": "host.cpu.model.id",
+     "type": "string",
+     "value": "0x000"
+    },
+    {
+     "key": "host.cpu.model.name",
+     "type": "string",
+     "value": ""
+    },
+    {
+     "key": "host.cpu.stepping",
+     "type": "string",
+     "value": "0"
+    },
+    {
+     "key": "host.cpu.vendor.id",
+     "type": "string",
+     "value": "Apple"
+    },
+    {
+     "key": "host.name",
+     "type": "string",
+     "value": "docker-desktop"
+    },
+    {
+     "key": "os.description",
+     "type": "string",
+     "value": "Linux 80ac20cac440 6.12.76-linuxkit #1 SMP Fri May 29 10:00:01 UTC 2026 aarch64"
+    },
+    {
+     "key": "os.type",
+     "type": "string",
+     "value": "linux"
+    },
+    {
+     "key": "process.command_args",
+     "type": "string",
+     "value": "[\"./checkout\"]"
+    },
+    {
+     "key": "process.executable.name",
+     "type": "string",
+     "value": "checkout"
+    },
+    {
+     "key": "process.executable.path",
+     "type": "string",
+     "value": "/usr/src/app/checkout"
+    },
+    {
+     "key": "process.owner",
+     "type": "string",
+     "value": "nonroot"
+    },
+    {
+     "key": "process.pid",
+     "type": "int64",
+     "value": 1
+    },
+    {
+     "key": "process.runtime.description",
+     "type": "string",
+     "value": "go version go1.27.1 linux/arm64"
+    },
+    {
+     "key": "process.runtime.name",
+     "type": "string",
+     "value": "go"
+    },
+    {
+     "key": "process.runtime.version",
+     "type": "string",
+     "value": "go1.27.1"
+    },
+    {
+     "key": "service.criticality",
+     "type": "string",
+     "value": "critical"
+    },
+    {
+     "key": "service.namespace",
+     "type": "string",
+     "value": "opentelemetry-demo"
+    },
+    {
+     "key": "service.version",
+     "type": "string",
+     "value": "v1.4.0"
+    },
+    {
+     "key": "telemetry.sdk.language",
+     "type": "string",
+     "value": "go"
+    },
+    {
+     "key": "telemetry.sdk.name",
+     "type": "string",
+     "value": "opentelemetry"
+    },
+    {
+     "key": "telemetry.sdk.version",
+     "type": "string",
+     "value": "1.46.0"
+    }
+   ]
+  }
+ },
+ "warnings": null
+}
