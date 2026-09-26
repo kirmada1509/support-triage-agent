@@ -1,0 +1,269 @@
+{
+  "model": "BAAI/bge-small-en-v1.5",
+  "model_revision": "5c38ec7c405ec4b44b94cc5a9bb96e735b38267a",
+  "min_vector_similarity": 0.45,
+  "corpus": {
+    "help_sections": 62,
+    "synthetic_tickets": 200
+  },
+  "help_at_5": {
+    "hits": 7,
+    "total": 7,
+    "rate": 1.0
+  },
+  "ticket_at_3": {
+    "hits": 13,
+    "total": 18,
+    "rate": 0.7222222222222222
+  },
+  "ticket_topic_at_3": {
+    "hits": 17,
+    "total": 18,
+    "rate": 0.9444444444444444
+  },
+  "query": "subject plus body; no oracle service filter",
+  "cases": [
+    {
+      "id": "1",
+      "help_found": true,
+      "help_top5": [
+        "payment-cards#accepted-cards",
+        "card-validation#unsupported-type",
+        "checkout-errors#payment-failure",
+        "payment-declines#customer-message",
+        "checkout-steps#order-flow"
+      ],
+      "ticket_found": true,
+      "ticket_topic_found": true,
+      "ticket_top3": [
+        "SYN-01-06",
+        "SYN-01-01",
+        "SYN-01-10"
+      ]
+    },
+    {
+      "id": "2",
+      "ticket_found": true,
+      "ticket_topic_found": true,
+      "ticket_top3": [
+        "SYN-20-01",
+        "SYN-20-06",
+        "SYN-20-07"
+      ]
+    },
+    {
+      "id": "3",
+      "ticket_found": false,
+      "ticket_topic_found": false,
+      "ticket_top3": [
+        "T-4",
+        "SYN-14-07",
+        "SYN-14-10"
+      ]
+    },
+    {
+      "id": "4"
+    },
+    {
+      "id": "5",
+      "ticket_found": false,
+      "ticket_topic_found": true,
+      "ticket_top3": [
+        "SYN-04-03",
+        "SYN-04-02",
+        "SYN-04-05"
+      ]
+    },
+    {
+      "id": "6",
+      "ticket_found": true,
+      "ticket_topic_found": true,
+      "ticket_top3": [
+        "SYN-05-10",
+        "SYN-05-01",
+        "SYN-05-05"
+      ]
+    },
+    {
+      "id": "7",
+      "ticket_found": true,
+      "ticket_topic_found": true,
+      "ticket_top3": [
+        "T-4",
+        "SYN-03-05",
+        "SYN-03-06"
+      ]
+    },
+    {
+      "id": "8",
+      "help_found": true,
+      "help_top5": [
+        "payment-cards#accepted-cards",
+        "card-validation#unsupported-type",
+        "payment-declines#customer-message",
+        "checkout-errors#payment-failure",
+        "card-validation#invalid-number"
+      ],
+      "ticket_found": true,
+      "ticket_topic_found": true,
+      "ticket_top3": [
+        "SYN-01-01",
+        "SYN-01-06",
+        "SYN-01-09"
+      ]
+    },
+    {
+      "id": "9",
+      "help_found": true,
+      "help_top5": [
+        "payment-cards#expiry-month",
+        "card-validation#invalid-number",
+        "card-validation#unsupported-type",
+        "card-entry#security-code",
+        "payment-cards#accepted-cards"
+      ],
+      "ticket_found": true,
+      "ticket_topic_found": true,
+      "ticket_top3": [
+        "SYN-03-04",
+        "SYN-03-01",
+        "SYN-03-02"
+      ]
+    },
+    {
+      "id": "10",
+      "help_found": true,
+      "help_top5": [
+        "order-confirmations#email-recipient",
+        "checkout-email#order-placement",
+        "checkout-steps#successful-response",
+        "shipping-address#completed-order",
+        "shipping-tracking#where-to-find-it"
+      ],
+      "ticket_found": true,
+      "ticket_topic_found": true,
+      "ticket_top3": [
+        "SYN-09-03",
+        "SYN-09-06",
+        "SYN-09-01"
+      ]
+    },
+    {
+      "id": "11",
+      "help_found": true,
+      "help_top5": [
+        "shipping-quotes#before-payment",
+        "order-totals#items-and-shipping",
+        "shipping-quotes#item-count",
+        "shipping-address#quote-request",
+        "order-totals#recorded-amounts"
+      ],
+      "ticket_found": true,
+      "ticket_topic_found": true,
+      "ticket_top3": [
+        "SYN-17-01",
+        "SYN-17-06",
+        "SYN-17-03"
+      ]
+    },
+    {
+      "id": "12",
+      "help_found": true,
+      "help_top5": [
+        "currencies#checkout-currency",
+        "currency-conversion#shipping-and-items",
+        "payment-currency#order-amount",
+        "cart-prices#selected-currency",
+        "product-prices#at-checkout"
+      ],
+      "ticket_found": true,
+      "ticket_topic_found": true,
+      "ticket_top3": [
+        "SYN-08-05",
+        "SYN-08-06",
+        "SYN-08-01"
+      ]
+    },
+    {
+      "id": "13",
+      "ticket_found": false,
+      "ticket_topic_found": true,
+      "ticket_top3": [
+        "SYN-06-05",
+        "SYN-06-03",
+        "SYN-06-10"
+      ]
+    },
+    {
+      "id": "14",
+      "ticket_found": false,
+      "ticket_topic_found": true,
+      "ticket_top3": [
+        "SYN-07-07",
+        "SYN-07-03",
+        "SYN-07-06"
+      ]
+    },
+    {
+      "id": "15",
+      "ticket_found": true,
+      "ticket_topic_found": true,
+      "ticket_top3": [
+        "SYN-14-01",
+        "SYN-14-03",
+        "SYN-14-06"
+      ]
+    },
+    {
+      "id": "16",
+      "ticket_found": true,
+      "ticket_topic_found": true,
+      "ticket_top3": [
+        "SYN-20-01",
+        "SYN-20-03",
+        "SYN-20-02"
+      ]
+    },
+    {
+      "id": "17",
+      "ticket_found": false,
+      "ticket_topic_found": true,
+      "ticket_top3": [
+        "SYN-04-10",
+        "SYN-04-09",
+        "SYN-04-03"
+      ]
+    },
+    {
+      "id": "18",
+      "ticket_found": true,
+      "ticket_topic_found": true,
+      "ticket_top3": [
+        "SYN-02-05",
+        "SYN-02-01",
+        "SYN-02-06"
+      ]
+    },
+    {
+      "id": "19"
+    },
+    {
+      "id": "20",
+      "help_found": true,
+      "help_top5": [
+        "cart-management#empty-cart",
+        "cart-after-checkout#successful-orders",
+        "checkout-steps#order-flow",
+        "cart-after-checkout#failed-attempts",
+        "shipping-quotes#before-payment"
+      ],
+      "ticket_found": true,
+      "ticket_topic_found": true,
+      "ticket_top3": [
+        "SYN-11-05",
+        "SYN-11-03",
+        "SYN-11-01"
+      ]
+    }
+  ]
+}

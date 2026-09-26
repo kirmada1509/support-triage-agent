@@ -1,0 +1,77 @@
+# Checked against the pinned shop; intended rules use v1.3.0 before planted regressions.
+card-entry#number-format: src/frontend/components/CheckoutForm/CheckoutForm.tsx
+card-entry#security-code: src/frontend/components/CheckoutForm/CheckoutForm.tsx
+card-validation#invalid-number: src/payment/charge.js
+card-validation#unsupported-type: src/payment/charge.js
+cart-after-checkout#failed-attempts: src/checkout/main.go
+cart-after-checkout#successful-orders: src/checkout/main.go
+cart-api#adding-an-item: src/frontend/pages/api/cart.ts
+cart-api#reading-a-cart: src/frontend/pages/api/cart.ts
+cart-management#changing-quantities:
+- src/frontend/components/CartItems/CartItem.tsx
+- src/frontend/providers/Cart.provider.tsx
+cart-management#empty-cart: src/frontend/components/Cart/CartDetail.tsx
+cart-prices#line-total: src/frontend/pages/api/cart.ts
+cart-prices#selected-currency: src/frontend/pages/api/cart.ts
+cart-sessions#per-user-cart: src/cart/src/cartstore/ValkeyCartStore.cs
+cart-sessions#storage-window: src/cart/src/cartstore/ValkeyCartStore.cs
+catalog-categories#catalog-metadata: src/frontend/pages/cart/index.tsx
+catalog-categories#recommendations: src/frontend/pages/cart/index.tsx
+catalog-listing#expected-listing: src/product-catalog/main.go
+catalog-listing#low-prices: src/product-catalog/main.go
+checkout-address#required-fields: src/frontend/components/CheckoutForm/CheckoutForm.tsx
+checkout-address#shipping-use: src/frontend/components/CheckoutForm/CheckoutForm.tsx
+checkout-email#order-placement: src/checkout/main.go
+checkout-email#sandbox-delivery: src/email/email_server.rb
+checkout-errors#order-failure: src/frontend/pages/api/checkout.ts
+checkout-errors#payment-failure: src/frontend/pages/api/checkout.ts
+checkout-steps#order-flow: src/checkout/main.go
+checkout-steps#successful-response: src/checkout/main.go
+currencies#available-choices:
+- src/frontend/pages/api/currency.ts
+- src/currency/src/server.cpp
+currencies#checkout-currency: src/checkout/main.go
+currency-conversion#shipping-and-items: src/currency/src/server.cpp
+currency-conversion#supported-codes: src/currency/src/server.cpp
+currency-display#cart-view: src/frontend/services/ProductCatalog.service.ts
+currency-display#product-prices: src/frontend/services/ProductCatalog.service.ts
+international-shipping#country-field: src/shipping/src/shipping_service.rs
+international-shipping#response-timing: src/shipping/src/shipping_service.rs
+order-confirmations#email-recipient:
+- src/checkout/main.go
+- src/email/email_server.rb
+order-confirmations#message-contents: src/email/views/confirmation.erb
+order-identifiers#order-id:
+- src/checkout/main.go
+- src/email/views/confirmation.erb
+order-identifiers#tracking-id: src/checkout/main.go
+order-items#product-details: src/checkout/main.go
+order-items#quantity: src/checkout/main.go
+order-totals#items-and-shipping: src/checkout/main.go
+order-totals#recorded-amounts: src/checkout/main.go
+payment-cards#accepted-cards: src/payment/charge.js
+payment-cards#expiry-month: src/payment/charge.js
+payment-currency#currency-mismatch: src/checkout/main.go
+payment-currency#order-amount: src/checkout/main.go
+payment-declines#customer-message: src/frontend/pages/api/checkout.ts
+payment-declines#other-checkout-failures: src/frontend/pages/api/checkout.ts
+payment-transaction#declined-charge: src/payment/charge.js
+payment-transaction#successful-charge: src/payment/charge.js
+product-list#listing:
+- src/frontend/services/ProductCatalog.service.ts
+- src/frontend/pages/index.tsx
+product-list#product-details: src/frontend/services/ProductCatalog.service.ts
+product-pages#image-and-name: src/frontend/components/CartItems/CartItem.tsx
+product-pages#product-id: src/frontend/components/CartItems/CartItem.tsx
+product-prices#at-checkout: src/frontend/services/ProductCatalog.service.ts
+product-prices#base-price: src/frontend/services/ProductCatalog.service.ts
+shipping-address#completed-order: src/checkout/main.go
+shipping-address#quote-request: src/checkout/main.go
+shipping-quotes#before-payment: src/shipping/src/shipping_service.rs
+shipping-quotes#item-count:
+- src/shipping/src/shipping_service.rs
+- src/quote/app/routes.php
+shipping-tracking#created-after-charge: src/shipping/src/shipping_service/tracking.rs
+shipping-tracking#where-to-find-it:
+- src/checkout/main.go
+- src/email/views/confirmation.erb

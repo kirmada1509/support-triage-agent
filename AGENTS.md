@@ -3,7 +3,7 @@
 Context and rules for coding agents working in this repo. Read it before changing anything, and
 keep it true (see "Keeping this file current" at the end).
 
-Last updated: Sep 26, 2026, after the history tool read-only fix.
+Last updated: Sep 26, 2026, after phase 3 retrieval.
 
 ## What this is
 
@@ -71,7 +71,9 @@ app/
                     demo tenant
   history_access.py provisions the history_ro login for the analyst's deploy/flag queries
   tracing.py        the agent's own OpenTelemetry export (off unless OTEL_EXPORTER_OTLP_ENDPOINT)
-  retrieval/, indexer/   empty until phases 3 and 5
+  retrieval/        phase 3: Markdown chunking, local embeddings, incremental indexing,
+                    hybrid search and hit-rate CLI
+  indexer/          empty until phase 5
 config/             models.yaml (names, prices), roles.yaml (model per role), ownership.yaml
 db/migrations/      Alembic; 0001 also creates the events NOTIFY trigger by hand
 holmes/             HolmesGPT's image (Dockerfile), config.yaml, toolsets.yaml, condense_traces.py,
@@ -83,7 +85,10 @@ scenarios/          tickets.yaml (7 demo tickets), scenario.py, send_ticket.py, 
                     record.py (writes deploy and flag history)
 tests/              pytest suites (see Testing); tests/fixtures/ holds real captured data
 planning/           the plan, the build checklist, the phase 2 spike results, three HTML diagrams
-knowledge/ seed/ evals/ web/   placeholders with a README each (phases 3, 3, 3 and 9, 8)
+knowledge/          31 help articles / 62 sections with source map
+seed/               200 labelled synthetic tickets and generator
+evals/              20 fixed ticket labels and retrieval baseline (model runs in phase 9)
+web/                phase 8 placeholder
 .claude/skills/     project skills: sandbox-shop, planted-bugs (see "Skills and plugins")
 ```
 
@@ -109,6 +114,14 @@ knowledge/ seed/ evals/ web/   placeholders with a README each (phases 3, 3, 3 a
   checkpointer own their tables, which Alembic ignores. `make migrate` also provisions
   `history_ro` from `HISTORY_DB_URL`, with SELECT on `deploys` and `flag_changes` only. HolmesGPT's
   history tool passes model values to `psql` variables in `holmes/history_*.sql`.
+- **Retrieval.** `make index-help index-tickets` embeds 62 help sections and 200 synthetic ticket
+  memories into `retrieval_docs` with local `BAAI/bge-small-en-v1.5` pinned at `5c38ec7c`.
+  Unchanged text is not
+  re-embedded. Search filters the vector and full-text candidates, then fuses their ranks. The
+  graph's retrieve node is still a phase 4 stub. `make retrieval-hits` uses a separate throwaway
+  database and records the 20-ticket result in `evals/retrieval_baseline.json` (help 7/7 top 5,
+  ticket memory 13/18 exact IDs top 3, 17/18 same synthetic issue family). Ticket 1's section is
+  first.
 - **Models: provider-agnostic.** No code names a provider. `config/roles.yaml` has one profile
   per provider (`deepseek`, the default; `gemini`; `openai`; `openrouter`), each role with a
   model and a fallback on the same provider, so a profile needs one key. `ROLE_PROFILE` switches
@@ -198,6 +211,8 @@ make flag f=paymentFailure v=off   # change a flag, recorded (FLAG_RECORD=0 to s
 make migration m="..." ; make migrate ; make check-migrations
 make analyst-images                # sandbox/holmes:0.42.0 and sandbox/codebox
 make models                        # model per role, missing keys (ROLE_PROFILE=openai make models)
+make index-help index-tickets      # fill retrieval_docs, re-embed only changed text
+make retrieval-hits               # isolated retrieval benchmark on triage_retrieval_test
 make lint fmt                      # ruff, line length 100
 ```
 
@@ -205,8 +220,8 @@ make lint fmt                      # ruff, line length 100
 
 | Suite | Command | Needs | What it covers |
 | --- | --- | --- | --- |
-| default | `make test` | nothing | units, the whole graph in memory, scenario logic against a simulated shop, the sandbox kit's files |
-| `db` | `make test-db` | `make db` | migrations up/down, queries, history role, NOTIFY, the worker pausing and resuming |
+| default | `make test` | nothing | units, retrieval rules and labels, the whole graph in memory, simulated scenarios, sandbox kit |
+| `db` | `make test-db` | `make db` | migrations up/down, queries, retrieval index/search, history role, NOTIFY, worker pause/resume |
 | `sandbox` | `make test-sandbox` | `make sandbox` | the fork's tags, each planted diff, `git blame` to the planted commits, images |
 | `shop` | `make test-shop` | `make shop-up` | every scenario live (~3 min), recorded deploys, metrics, logs, `agent_ro` |
 | `llm` | `make test-llm` | keys in `.env.agent` | one real typed call per provider profile, skipped without its key (a fraction of a cent) |
@@ -223,6 +238,9 @@ make lint fmt                      # ruff, line length 100
   must pass with its bug and fail without it. Keep that pair when adding a scenario.
 - **Characterization data** (real responses) goes in `tests/fixtures/`, trimmed and free of
   personal data.
+- **Retrieval labels** are fixed in `evals/tickets.yaml`. A retrieval miss is addressed in the
+  index, query or content; do not change a label to match the current ranking. The seed data is
+  explicitly synthetic and includes near-miss issue families.
 - Before committing, run `make lint test`, plus `test-db` if you touched the database,
   `test-sandbox` if you touched `sandbox/`, and `test-shop` if you touched scenarios or the shop.
 

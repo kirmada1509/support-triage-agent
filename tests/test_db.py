@@ -19,13 +19,16 @@ from app.events import JevEvent, StageEvent, ToolCallEvent
 from app.history_access import history_url_for_database, setup_history_reader
 from app.migrate import setup_libraries
 from app.models import Ticket
+from app.retrieval.chunk import HelpSection, content_hash
+from app.retrieval.index import index_help, index_tickets
+from app.retrieval.search import search
 from app.settings import settings
 from app.tables import DeployRow
 from tests.conftest import demo_ticket
 
 pytestmark = pytest.mark.db
 
-TABLES = "tickets, events, verdicts, deploys, flag_changes, investigations, tenants"
+TABLES = "tickets, events, verdicts, deploys, flag_changes, investigations, tenants, retrieval_docs"
 
 
 @pytest.fixture(scope="module", autouse=True)
@@ -56,6 +59,112 @@ def ticket(n: str, id: str | None = None) -> Ticket:
 
 def test_models_match_migrations():
     command.check(alembic_config())  # raises if app/tables.py has changes with no migration
+
+
+class FakeEmbeddings:
+    def __init__(self):
+        self.documents: list[str] = []
+
+    async def embed_documents(self, texts: list[str]) -> list[list[float]]:
+        self.documents.extend(texts)
+        return [self._vector(text) for text in texts]
+
+    async def embed_query(self, text: str) -> list[float]:
+        return self._vector(text)
+
+    @staticmethod
+    def _vector(text: str) -> list[float]:
+        v = [0.0] * 384
+        v[0 if any(word in text.lower() for word in ("card", "visa")) else 1] = 1.0
+        return v
+
+
+async def test_retrieval_index_only_embeds_changed_text_and_updates_metadata():
+    embedder = FakeEmbeddings()
+    section = HelpSection(
+        id="payment-cards#accepted-cards",
+        title="Payment cards — Accepted cards",
+        body="Payment cards\nAccepted cards\nVisa and Mastercard are accepted.",
+        content_hash=content_hash(
+            "Payment cards\nAccepted cards\nVisa and Mastercard are accepted."
+        ),
+    )
+    assert await index_help([section], embedder) == 1
+    assert await index_help([section], embedder) == 0
+    assert len(embedder.documents) == 1
+    changed = section.__class__(
+        id=section.id,
+        title=section.title,
+        body=section.body + " American Express is not accepted.",
+        content_hash=content_hash(section.body + " American Express is not accepted."),
+    )
+    assert await index_help([changed], embedder) == 1
+    assert len(embedder.documents) == 2
+    ticket = {
+        "id": "SYN-01-01",
+        "subject": "Which cards?",
+        "body": "Is Visa accepted?",
+        "summary": "Visa accepted",
+        "status": "open",
+        "service": "payment",
+        "version": None,
+        "verdict": None,
+        "root_cause": None,
+        "linear_issue": None,
+        "tenant": "synthetic",
+    }
+    assert await index_tickets([ticket], embedder) == 1
+    ticket["status"] = "resolved"
+    assert await index_tickets([ticket], embedder) == 0
+    assert len(embedder.documents) == 3
+    async with db.Session() as session:
+        assert (
+            await session.scalar(text("SELECT status FROM retrieval_docs WHERE id = 'SYN-01-01'"))
+            == "resolved"
+        )
+
+
+async def test_hybrid_search_filters_before_ranking():
+    embedder = FakeEmbeddings()
+    await index_help(
+        [
+            HelpSection("cards#accepted", "Accepted cards", "Visa Mastercard payment cards", "h1"),
+            HelpSection("shipping#quote", "Shipping quotes", "Shipping quote for items", "h2"),
+        ],
+        embedder,
+    )
+    tickets = [
+        {
+            "id": id,
+            "subject": subject,
+            "body": subject,
+            "summary": subject,
+            "status": status,
+            "service": service,
+            "version": None,
+            "verdict": None,
+            "root_cause": None,
+            "linear_issue": None,
+            "tenant": "synthetic",
+        }
+        for id, subject, status, service in (
+            ("pay-open", "Visa card rejected", "open", "payment"),
+            ("pay-closed", "Visa card rejected", "resolved", "payment"),
+            ("quote-open", "Shipping cost rejected", "open", "quote"),
+        )
+    ]
+    await index_tickets(tickets, embedder)
+    help_hits = await search("Which Visa cards?", embedder, kind="help_section", limit=5)
+    assert help_hits[0].id == "cards#accepted"
+    open_hits = await search(
+        "Visa card rejected",
+        embedder,
+        kind="ticket",
+        status="open",
+        services=["payment"],
+        limit=3,
+    )
+    assert [hit.id for hit in open_hits] == ["pay-open"]
 
 
 async def test_history_reader_can_only_select_history():

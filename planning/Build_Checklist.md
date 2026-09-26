@@ -4,12 +4,12 @@ What's built and what isn't, phase by phase, against `Agent_Architecture_And_Bui
 Tick an item when it works and is tested the way the plan's "How it's tested" says; tick a
 phase's "Done when" only when that whole criterion has been seen working.
 
-Last updated Sep 26, 2026, after the history tool read-only fix. Tests, all passing:
+Last updated Sep 26, 2026, after phase 3 retrieval. Suite inventory (provider calls depend on credit):
 
 | Suite | Command | Needs | Tests |
 | --- | --- | --- | --- |
-| Units, graph in memory, scenario logic, sandbox kit, tracing, model config | `make test` | nothing | 86 |
-| Database | `make test-db` | `make db` | 7 |
+| Units, graph in memory, scenario logic, sandbox kit, tracing, model config, retrieval | `make test` | nothing | 92 |
+| Database | `make test-db` | `make db` | 9 |
 | The fork: tags, planted bugs, overlay, images | `make test-sandbox` | `make sandbox` | 18 |
 | The running shop: every scenario, read-only role, metrics, logs | `make test-shop` | `make shop-up` | 15 |
 | Real model calls on each provider profile | `make test-llm` | keys in `.env.agent` | 4 |
@@ -69,15 +69,16 @@ Last updated Sep 26, 2026, after the history tool read-only fix. Tests, all pass
 
 ## Phase 3: Retrieval, and the eval dataset (days 5–6)
 
-- [ ] 20-ticket eval dataset, labels only: type, service, verdict, team, answering help section, past tickets to find
-- [ ] About 30 help-center articles, every rule checked against the code (no "product search tips": the storefront has no search)
-- [ ] About 200 labelled seed tickets with near-misses (`seed/past_tickets.jsonl`)
-- [ ] Tests first: section chunking, content hashing, reciprocal rank fusion, filters
-- [ ] `EmbeddingClient` with the local bge-small model
-- [ ] Indexing help sections and tickets into `retrieval_docs`
-- [ ] Hybrid search: pgvector + full text, merged by reciprocal rank fusion
-- [ ] Hit-rate script over the eval dataset's labels
-- [ ] **Done when:** hit rates are measured for both indexes, and ticket 1's answering section is in the top 5
+- [x] 20-ticket eval dataset, labels only: type, service, verdict, team, answering help section, past tickets to find
+- [x] 31 help-center articles / 62 sections, each checked against shop source listed in `knowledge/sources.yaml`; no search-box advice
+- [x] 200 labelled synthetic past tickets with near-misses (`seed/past_tickets.jsonl`)
+- [x] Tests first: section chunking, content hashing, reciprocal rank fusion, filters (`make test`)
+- [x] `EmbeddingClient` with local `BAAI/bge-small-en-v1.5` (384 dimensions)
+- [x] Incremental indexing of help sections and tickets into `retrieval_docs` (`make test-db`, `make index-help index-tickets`)
+- [x] Hybrid search: pgvector + full text, merged by reciprocal rank fusion with kind, status and service filters
+- [x] Hit-rate script over fixed eval labels (`make retrieval-hits`): help 7/7 top 5, ticket memory
+  13/18 exact ID top 3 and 17/18 same synthetic issue family top 3; ticket 1's answer ranked first
+- [x] **Done when:** hit rates measured for both indexes and ticket 1's answer in top 5
 
 ## Phase 4: Front-of-pipeline nodes (day 7)
 

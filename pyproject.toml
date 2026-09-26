@@ -24,6 +24,7 @@ dependencies = [
     "opentelemetry-sdk>=1.45.0",
     "opentelemetry-exporter-otlp-proto-http>=1.45.0",
     "mini-swe-agent==2.4.6",
+    "sentence-transformers>=6.1.0",
 ]
 
 [dependency-groups]
@@ -31,7 +32,6 @@ dev = ["pytest", "pytest-asyncio", "ruff"]
 # Added in later phases:
 #   HolmesGPT is not a dependency: it runs in its own image (holmes/Dockerfile), because it
 #   needs openai<3 and Pydantic AI needs openai 3 (planning/Phase_2_Spike.md).
-#   uv add sentence-transformers             (phase 3 retrieval)
 #   uv add typesafe-sdk                      (phase 4 Jev)
 
 [tool.uv]

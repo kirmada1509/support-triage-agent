@@ -15,8 +15,10 @@ The full design is in `planning/Agent_Architecture_And_Build_Plan.md`. Coding ag
 Phases 1–2 scaffold: the whole LangGraph pipeline runs end to end with stub nodes, checkpointed
 in Postgres, streaming every event to the console API, pausing for approval and resuming.
 Each stub node says in its docstring what replaces it and in which phase (`TODO(phase N)`).
-Phase 0 (the sandbox) is done. [planning/Build_Checklist.md](planning/Build_Checklist.md) tracks what's
-built and what isn't, phase by phase.
+Phase 3 adds a local hybrid retrieval index: 31 help articles, 200 labelled synthetic past
+tickets, pgvector plus full-text search, and a fixed 20-ticket hit-rate set. The graph's retrieve
+node remains a stub until phase 4. [planning/Build_Checklist.md](planning/Build_Checklist.md)
+tracks each phase.
 
 ## Run it
 
@@ -47,6 +49,18 @@ scenario logic against a simulated shop; `make test-db` runs the database tests 
 `triage_test` database. `make test-sandbox` and `make test-shop` check the shop fork and the
 running shop (see [sandbox/README.md](sandbox/README.md)).
 
+## Retrieval
+
+Run `make index-help index-tickets` after `make migrate` to fill the local database. The default
+embedding model is [BAAI/bge-small-en-v1.5](https://huggingface.co/BAAI/bge-small-en-v1.5),
+at revision `5c38ec7c`, downloaded on the first index run. Repeating either index command only
+embeds changed text.
+`make retrieval-hits` builds a separate throwaway `triage_retrieval_test` database and saves the
+20-ticket score to [evals/retrieval_baseline.json](evals/retrieval_baseline.json). Current results:
+help sections 7/7 in the top five; ticket memory 13/18 exact IDs in the top three (17/18 for an
+equivalent synthetic issue family). Ticket 1's accepted-cards section ranks first. The benchmark
+uses subject and body without an oracle service filter; phase 4 will add the enrichment symptom.
+
 ## Layout
 
 ```text
@@ -61,14 +75,16 @@ app/
   tasks.py        Procrastinate: run_ticket, resume_ticket (+ the checkpointer's psycopg pool)
   tables.py       SQLAlchemy 2.0 models for our tables (the source of the migrations)
   db.py           async engine, sessions and every query the app runs
-  retrieval/      phase 3        indexer/   phase 5
+  retrieval/      phase 3 indexing, embedding, hybrid search and hit rates
+  indexer/        phase 5
 config/           models.yaml, roles.yaml, ownership.yaml (the one list of service names)
 db/migrations/    Alembic: env.py and versions/ (0001 also creates the NOTIFY trigger)
 holmes/           HolmesGPT's image and toolsets (jaeger, history, logs) + their helper scripts
 codebox/          the codebase analyst's read-only container + helper commands
 sandbox/          the shop fork's kit: pin, overlay, patches, setup, image builds, compose
 scenarios/        tickets.yaml (7 demo tickets), scenario.py, send_ticket.py, deploy.sh, flag.sh
-knowledge/ seed/ evals/ web/   phase 3, 3, 3 (dataset) and 9 (runs), 8 (see each README)
+knowledge/ seed/ evals/   phase 3 help, synthetic memory and labels; phase 9 model runs
+web/                phase 8 (see its README)
 ```
 
 ## Database
