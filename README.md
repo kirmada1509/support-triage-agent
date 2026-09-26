@@ -64,7 +64,7 @@ app/
   retrieval/      phase 3        indexer/   phase 5
 config/           models.yaml, roles.yaml, ownership.yaml (the one list of service names)
 db/migrations/    Alembic: env.py and versions/ (0001 also creates the NOTIFY trigger)
-holmes/           HolmesGPT toolsets (jaeger, history) + condense_traces.py
+holmes/           HolmesGPT's image and toolsets (jaeger, history, logs) + their helper scripts
 codebox/          the codebase analyst's read-only container + helper commands
 sandbox/          the shop fork's kit: pin, overlay, patches, setup, image builds, compose
 scenarios/        tickets.yaml (7 demo tickets), scenario.py, send_ticket.py, deploy.sh, flag.sh

@@ -1,0 +1,121 @@
+{
+  "took": 3,
+  "timed_out": false,
+  "hits": {
+    "total": {
+      "value": 88,
+      "relation": "eq"
+    },
+    "hits": [
+      {
+        "_index": "otel-logs-2026-09-26",
+        "_id": "XPI33KABCg2oQL1rF0ge",
+        "_source": {
+          "attributes": {
+            "exception.message": "The credit card (ending 5100) expired on 9/2026.",
+            "exception.stacktrace": "Error: The credit card (ending 5100) expired on 9/2026.\n    at module.exports.charge (/usr/src/app/charge.js:89:13)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async Object.chargeServiceHandler [as charge] (/usr/src/app/index.js:22:22)",
+            "exception.type": "Error",
+            "service.name": "payment"
+          },
+          "body": "Charge declined.",
+          "instrumentationScope": {
+            "name": "@opentelemetry/instrumentation-pino",
+            "version": "0.66.0"
+          },
+          "observedTimestamp": "2026-09-26T05:36:33.054398928Z",
+          "resource": {
+            "service.name": "payment",
+            "service.namespace": "opentelemetry-demo",
+            "service.version": "v1.4.0"
+          },
+          "severity": {
+            "text": "warn",
+            "number": 13
+          },
+          "spanId": "a2fcd1264c653094",
+          "@timestamp": "2026-09-26T05:36:31.887Z",
+          "traceId": "9c2d114269fa725bbdba3110f598c1f5"
+        },
+        "sort": [
+          1790400991887
+        ]
+      },
+      {
+        "_index": "otel-logs-2026-09-26",
+        "_id": "WvI33KABCg2oQL1rF0ge",
+        "_source": {
+          "attributes": {
+            "exception.message": "The credit card (ending 1881) expired on 9/2026.",
+            "exception.stacktrace": "Error: The credit card (ending 1881) expired on 9/2026.\n    at module.exports.charge (/usr/src/app/charge.js:89:13)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async Object.chargeServiceHandler [as charge] (/usr/src/app/index.js:22:22)",
+            "exception.type": "Error",
+            "service.name": "payment"
+          },
+          "body": "Charge declined.",
+          "instrumentationScope": {
+            "name": "@opentelemetry/instrumentation-pino",
+            "version": "0.66.0"
+          },
+          "observedTimestamp": "2026-09-26T05:36:33.054384511Z",
+          "resource": {
+            "service.name": "payment",
+            "service.namespace": "opentelemetry-demo",
+            "service.version": "v1.4.0"
+          },
+          "severity": {
+            "text": "warn",
+            "number": 13
+          },
+          "spanId": "651e737089d17eb3",
+          "@timestamp": "2026-09-26T05:36:31.876Z",
+          "traceId": "9717ad336b14a31b49a55d8b8b02f24c"
+        },
+        "sort": [
+          1790400991876
+        ]
+      },
+      {
+        "_index": "otel-logs-2026-09-26",
+        "_id": "Q_I43KABCg2oQL1rbks6",
+        "_source": {
+          "attributes": {
+            "amount": {
+              "currencyCode": "USD",
+              "nanos": 159999982,
+              "units": {
+                "high": 0,
+                "low": 1849,
+                "unsigned": false
+              }
+            },
+            "cardType": "visa",
+            "lastFourDigits": "3657",
+            "loyalty_level": "gold",
+            "service.name": "payment",
+            "transactionId": "f301be21-12e5-45a6-997e-b41e83e00b04"
+          },
+          "body": "Transaction complete.",
+          "instrumentationScope": {
+            "name": "@opentelemetry/instrumentation-pino",
+            "version": "0.66.0"
+          },
+          "observedTimestamp": "2026-09-26T05:38:00.890343552Z",
+          "resource": {
+            "service.name": "payment",
+            "service.namespace": "opentelemetry-demo",
+            "service.version": "v1.4.0"
+          },
+          "severity": {
+            "text": "info",
+            "number": 9
+          },
+          "spanId": "39df01732d07db07",
+          "@timestamp": "2026-09-26T05:37:59.843Z",
+          "traceId": "cbd50504c081a6eaeeb303e89adfab48"
+        },
+        "sort": [
+          1790401079843
+        ]
+      }
+    ]
+  }
+}

@@ -583,10 +583,13 @@ Each role's model is set in `roles.yaml`, so the plan names what each role needs
 | DeepSeek V4.1 Flash, direct | $0.15–0.30 / $0.60–1.20; cached input $0.003–0.006 | Lower end off-peak; 1M-token context; tool calling and JSON output ([pricing](https://api-docs.deepseek.com/quick_start/pricing)) |
 | DeepSeek V4 Pro, direct | $0.66–1.32 / $1.98–3.96 | Stronger; use where judgment matters |
 | Gemini 3.1 Flash-Lite | $0.25 / $1.50 | Has a free tier, but Google may use free-tier data to improve its products ([pricing](https://ai.google.dev/gemini-api/docs/pricing)) |
-| Gemini 3.8 Flash | $0.75 / $3.75 | Also has a free tier; a useful second candidate for the analysts |
+| Gemini 3.8 Flash | $0.75 / $3.75 | Also has a free tier (20 requests a day), too small for the analysts |
+| GPT-5.4 mini / GPT-5.4, direct | $0.75 / $4.50 and $2.50 / $15 | Prepaid credit; reasoning counts against the output cap ([pricing](https://openai.com/api/pricing)) |
 | OpenRouter | The provider's price, plus 5.5% on card top-ups | One key for DeepSeek, Gemini and many others; free models allow 50 requests a day, or 1,000 once you hold $10 of credit ([FAQ](https://openrouter.ai/docs/faq)) |
 
 **What to buy.** About $10–15 of OpenRouter credit is the easiest start. One key lets you run the scorecard across several models, and it raises the free-model limit. If you settle on DeepSeek, topping up DeepSeek directly avoids the 5.5% fee. Gemini's free tier is fine for development against the sandbox, because the sandbox holds no real customer data. For real Zuddl tickets, check each provider's data-handling terms first.
+
+**Staying provider-agnostic.** `roles.yaml` groups the roles into one profile per provider (Gemini, OpenAI, DeepSeek, OpenRouter), with fallbacks on the same provider so each profile needs one key. `ROLE_PROFILE` switches all roles and `ROLE_MODELS` moves single roles, so the scorecard can compare providers and a quota or credit problem is a config change, not a code change.
 
 **Choosing per role with the scorecard.** Run the 20 labelled tickets against each candidate model for each role. The scorecard reports routing accuracy, verdict accuracy, cost per ticket and latency. For each role, pick the cheapest model that meets the bar of at least 18 of 20. Showing this table in the demo makes the model choice a measured decision, not a preference.
 

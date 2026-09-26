@@ -13,7 +13,7 @@ dependencies = [
     "procrastinate",
     "langgraph",
     "langgraph-checkpoint-postgres",
-    "pydantic-ai-slim[openai]",
+    "pydantic-ai-slim[google,openai]",
     "sse-starlette",
     "httpx",
     "pyyaml",

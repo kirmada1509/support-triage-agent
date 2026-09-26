@@ -6,5 +6,8 @@ FROM python:3.12-slim
 RUN apt-get update && apt-get install -y --no-install-recommends curl postgresql-client \
     && rm -rf /var/lib/apt/lists/*
 RUN pip install --no-cache-dir holmesgpt==0.42.0
-COPY condense_traces.py /tools/condense_traces.py
+COPY condense_traces.py search_logs.py /tools/
 COPY toolsets.yaml /etc/holmes/toolsets.yaml
+# Tools without arguments are sent without a `parameters` object: DeepSeek's API rejects an
+# object with no properties, and every other provider accepts either form.
+ENV TOOL_SCHEMA_NO_PARAM_OBJECT_IF_NO_PARAMS=true

@@ -1,10 +1,12 @@
 """roles.yaml + models.yaml -> the model each role uses, in both naming schemes.
 
-Pydantic AI takes names like "deepseek:deepseek-flash"; HolmesGPT and mini-swe-agent take LiteLLM
-strings like "deepseek/deepseek-flash". Switching provider or model is a config change only
-(ROLE_PROFILE picks a set of roles). Each model carries its own request settings from models.yaml.
+Pydantic AI takes names like "openai:gpt-5.4-mini"; HolmesGPT and mini-swe-agent take LiteLLM
+strings like "openai/gpt-5.4-mini". Nothing outside the config names a provider: ROLE_PROFILE
+picks a set of roles, ROLE_MODELS overrides single roles, and each model carries its own request
+settings from models.yaml. `python -m app.models_config` (make models) prints the result.
 """
 
+import os
 from dataclasses import dataclass
 from decimal import Decimal
 from functools import cache
@@ -12,11 +14,20 @@ from functools import cache
 import yaml
 from pydantic_ai.models import Model, infer_model
 from pydantic_ai.models.fallback import FallbackModel
+from pydantic_ai.models.google import GoogleModel
 from pydantic_ai.models.openai import OpenAIChatModel
 from pydantic_ai.settings import ModelSettings
 from pydantic_ai.usage import UsageLimits
 
 from app.settings import settings
+
+# The environment variable each provider's key is read from, by Pydantic AI and LiteLLM alike.
+PROVIDER_KEYS = {
+    "google": "GEMINI_API_KEY",
+    "openai": "OPENAI_API_KEY",
+    "deepseek": "DEEPSEEK_API_KEY",
+    "openrouter": "OPENROUTER_API_KEY",
+}
 
 
 @dataclass(frozen=True)
@@ -26,6 +37,14 @@ class ModelSpec:
     litellm: str
     price: dict
     settings: ModelSettings
+
+    @property
+    def provider(self) -> str:
+        return self.pydantic_ai.split(":", 1)[0]
+
+    @property
+    def key_env(self) -> str:
+        return PROVIDER_KEYS[self.provider]
 
 
 @dataclass(frozen=True)
@@ -50,11 +69,31 @@ def _models() -> dict[str, ModelSpec]:
     }
 
 
+def _overrides() -> dict[str, str]:
+    pairs = [p.strip() for p in (settings.role_models or "").split(",") if p.strip()]
+    if bad := [p for p in pairs if "=" not in p]:
+        raise ValueError(f"ROLE_MODELS: expected role=model, got {bad}")
+    return {r.strip(): m.strip() for r, m in (p.split("=", 1) for p in pairs)}
+
+
 @cache
 def _roles() -> dict[str, dict]:
+    """The profile's roles with ROLE_MODELS applied, every model checked against models.yaml."""
     raw = yaml.safe_load((settings.config_dir / "roles.yaml").read_text())
     profile = settings.role_profile or raw["profile"]
-    return raw["profiles"][profile]
+    if profile not in raw["profiles"]:
+        raise ValueError(f"ROLE_PROFILE={profile}: roles.yaml has {', '.join(raw['profiles'])}")
+    roles = {k: dict(v) for k, v in raw["profiles"][profile].items()}
+    for name, model in _overrides().items():
+        if name not in roles:
+            raise ValueError(f"ROLE_MODELS: no role {name}; roles are {', '.join(roles)}")
+        roles[name] = {"model": model}
+    models = _models()
+    for name, r in roles.items():
+        for key in filter(None, (r["model"], r.get("fallback"))):
+            if key not in models:
+                raise ValueError(f"{name}: no model {key} in models.yaml")
+    return roles
 
 
 def role(name: str) -> RoleSpec:
@@ -62,6 +101,24 @@ def role(name: str) -> RoleSpec:
     models = _models()
     fb = r.get("fallback")
     return RoleSpec(role=name, primary=models[r["model"]], fallback=models[fb] if fb else None)
+
+
+def _specs(role_name: str) -> list[ModelSpec]:
+    spec = role(role_name)
+    return [m for m in (spec.primary, spec.fallback) if m]
+
+
+def key_envs(role_name: str) -> list[str]:
+    """The key variables a role's models need, e.g. to pass into an analyst's container."""
+    return list(dict.fromkeys(m.key_env for m in _specs(role_name)))
+
+
+def required_keys() -> set[str]:
+    return {env for name in _roles() for env in key_envs(name)}
+
+
+def missing_keys() -> set[str]:
+    return {env for env in required_keys() if not os.environ.get(env)}
 
 
 # Providers that speak the OpenAI chat API, so their models can be built with settings attached.
@@ -72,8 +129,10 @@ def build_model(spec: ModelSpec) -> Model:
     provider, name = spec.pydantic_ai.split(":", 1)
     if provider in _OPENAI_COMPATIBLE:
         return OpenAIChatModel(name, provider=provider, settings=spec.settings)
+    if provider == "google":  # Gemini API, GEMINI_API_KEY
+        return GoogleModel(name, provider="google", settings=spec.settings)
     if spec.settings:
-        raise ValueError(f"{spec.key}: settings are only supported for {_OPENAI_COMPATIBLE}")
+        raise ValueError(f"{spec.key}: settings aren't supported for provider {provider}")
     return infer_model(spec.pydantic_ai)
 
 
@@ -88,6 +147,13 @@ def pydantic_ai_model(role_name: str) -> Model:
 
 def litellm_model(role_name: str) -> str:
     return role(role_name).primary.litellm
+
+
+def litellm_kwargs(role_name: str) -> dict:
+    """The role's request settings for LiteLLM (mini-swe-agent's model_kwargs); parameters a
+    provider doesn't take are dropped rather than refused."""
+    s = role(role_name).primary.settings
+    return {k: s[k] for k in ("max_tokens", "extra_body") if k in s} | {"drop_params": True}
 
 
 def cost_usd(model_key: str, input_tokens: int, output_tokens: int, cached: int = 0) -> float:
@@ -108,3 +174,20 @@ LIMITS = {
     "findings": UsageLimits(request_limit=3, total_tokens_limit=40_000),
     "verdict": UsageLimits(request_limit=3, total_tokens_limit=40_000, cost_limit=Decimal("0.05")),
 }
+
+
+if __name__ == "__main__":
+    profile = (
+        settings.role_profile
+        or yaml.safe_load((settings.config_dir / "roles.yaml").read_text())["profile"]
+    )
+    print(
+        f"profile {profile}"
+        + (f", ROLE_MODELS {settings.role_models}" if settings.role_models else "")
+    )
+    for name in _roles():
+        spec = role(name)
+        fb = spec.fallback.key if spec.fallback else "-"
+        print(f"  {name:17} {spec.primary.key:20} fallback {fb:22} {', '.join(key_envs(name))}")
+    missing = missing_keys()
+    print("missing keys: " + (", ".join(sorted(missing)) if missing else "none"))

@@ -11,6 +11,7 @@ import json
 import os
 import subprocess
 import sys
+import time
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
@@ -31,6 +32,11 @@ def ticket_4_data():
     """Scenario 4's orders and deploy, recorded in the throwaway database."""
     if not (make_url(settings.database_url).database or "").endswith("_test"):
         pytest.fail("DATABASE_URL must name a database ending in _test (make test-spike)")
+    if missing := models_config.missing_keys() & {
+        *models_config.key_envs("data_analyst"),
+        *models_config.key_envs("codebase_analyst"),
+    }:
+        pytest.fail(f"set {', '.join(sorted(missing))} in .env.agent, or pick another ROLE_PROFILE")
     for image in ("sandbox/holmes:0.42.0", "sandbox/codebox"):
         if subprocess.run(["docker", "image", "inspect", image], capture_output=True).returncode:
             pytest.fail(f"no image {image}; run make analyst-images")
@@ -70,8 +76,8 @@ Time window: {start} to {now} (UTC).
 The shop: services payment, checkout, quote, cart, product-catalog. Checkout's PlaceOrder span has
 user.id; payment's "charge" span has the decline message. Every span and metric carries
 service.version. Span metrics: traces_span_metrics_calls_total{{service_name, service_version,
-status_code}}. Logs are in OpenSearch indices otel-logs-*. Deploys and flag changes: the history
-toolset. Don't guess about code: another analyst reads it.
+status_code}}. Logs: the logs toolset (OpenSearch, otel-logs-*). Deploys and flag changes: the
+history toolset. Don't guess about code: another analyst reads it.
 
 Answer: what happened, since when, which service and version, how many shoppers are affected, and
 the evidence (trace IDs, queries). Stop once two independent sources agree."""
@@ -85,6 +91,7 @@ def test_data_analyst_finds_the_deploy_and_the_failures(tmp_path):
         HOLMES_PROMPT.format(start=f"{start:{iso}}", now=f"{now:{iso}}")
     )
     history = settings.database_url.replace("localhost", "host.docker.internal")
+    t0 = time.monotonic()
     r = subprocess.run(
         [
             "docker",
@@ -96,10 +103,7 @@ def test_data_analyst_finds_the_deploy_and_the_failures(tmp_path):
             f"{ROOT / 'holmes'}:/etc/holmes:ro",
             "-v",
             f"{tmp_path}:/out",
-            "-e",
-            "OPENROUTER_API_KEY",
-            "-e",
-            "DEEPSEEK_API_KEY",
+            *(arg for env in models_config.key_envs("data_analyst") for arg in ("-e", env)),
             "-e",
             f"HISTORY_DB_URL={history}",
             "sandbox/holmes:0.42.0",
@@ -122,7 +126,12 @@ def test_data_analyst_finds_the_deploy_and_the_failures(tmp_path):
         timeout=300,
     )
     assert r.returncode == 0, r.stdout[-3000:] + r.stderr[-3000:]
-    calls = json.loads((tmp_path / "result.json").read_text())["tool_calls"]
+    result = json.loads((tmp_path / "result.json").read_text())
+    calls = result["tool_calls"]
+    print(
+        f"data analyst: {time.monotonic() - t0:.0f} s, {len(calls)} tool calls, "
+        f"${result['total_cost']:.4f}"
+    )
     used = {c["tool_name"] for c in calls}
     deploys = [c["result"]["data"] or "" for c in calls if c["tool_name"] == "deploys"]
     assert any("payment | v1.3.0 | v1.4.0" in d for d in deploys), "never saw the payment deploy"
@@ -138,6 +147,8 @@ ALLOWED_TOOLS = {
     "find_error_traces",
     "find_traces_for_user",
     "get_trace",
+    "log_indices",
+    "search_logs",
     "execute_prometheus_instant_query",
     "execute_prometheus_range_query",
     "get_metric_names",
@@ -146,13 +157,9 @@ ALLOWED_TOOLS = {
     "get_all_labels",
     "get_series",
     "list_prometheus_rules",
-    "elasticsearch_search",
-    "elasticsearch_list_indices",
-    "elasticsearch_mappings",
-    "execute_sql",
-    "list_tables",
-    "describe_table",
-    "list_schemas",
+    "database_sql_query",
+    "database_sql_list_tables",
+    "database_sql_describe_table",
 }
 
 
@@ -246,7 +253,7 @@ def test_codebase_analyst_reads_the_code(ticket, verdict):
     model = LitellmModel(
         model_name=models_config.litellm_model("codebase_analyst"),
         cost_tracking="ignore_errors",
-        model_kwargs={"max_tokens": 4096, "drop_params": True},
+        model_kwargs=models_config.litellm_kwargs("codebase_analyst"),
     )
     env = codebox()
     agent = DefaultAgent(
@@ -258,11 +265,18 @@ def test_codebase_analyst_reads_the_code(ticket, verdict):
         cost_limit=0.10,
         wall_time_limit_seconds=150,
     )
+    t0 = time.monotonic()
     try:
         result = agent.run(brief)
     finally:
         env.cleanup()
     answer = result.get("submission", "")
+    calls = [
+        c for m in agent.messages if m.get("role") == "assistant" for c in m.get("tool_calls") or []
+    ]
+    print(
+        f"codebase analyst, ticket {ticket}: {time.monotonic() - t0:.0f} s, {len(calls)} commands"
+    )
     assert result.get("exit_status") == "Submitted", result
     assert "charge.js" in answer and verdict in answer.lower(), answer
     if ticket == "4":

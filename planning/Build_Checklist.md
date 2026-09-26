@@ -8,11 +8,11 @@ Last updated Sep 26, 2026, after phase 2. Tests, all passing:
 
 | Suite | Command | Needs | Tests |
 | --- | --- | --- | --- |
-| Units, graph in memory, scenario logic, sandbox kit, tracing, model config | `make test` | nothing | 51 |
+| Units, graph in memory, scenario logic, sandbox kit, tracing, model config | `make test` | nothing | 86 |
 | Database | `make test-db` | `make db` | 6 |
 | The fork: tags, planted bugs, overlay, images | `make test-sandbox` | `make sandbox` | 18 |
 | The running shop: every scenario, read-only role, metrics, logs | `make test-shop` | `make shop-up` | 15 |
-| Real model calls on each provider profile | `make test-llm` | keys in `.env.agent` | 2 |
+| Real model calls on each provider profile | `make test-llm` | keys in `.env.agent` | 4 |
 | Both analysts on demo tickets, codebox guardrails | `make test-spike` | shop, `make analyst-images`, keys | 4 |
 
 ## Phase 0: Sandbox (days 1–2)
@@ -52,6 +52,13 @@ Last updated Sep 26, 2026, after phase 2. Tests, all passing:
 - [x] OpenTelemetry export: a span per ticket run and per node, in the shop's Jaeger (`make test`)
 - [x] One Pydantic AI call on two providers by changing only `ROLE_PROFILE` (`make test-llm`);
   per-model settings in `models.yaml` fix DeepSeek's thinking mode and OpenRouter's token reservation
+- [x] Provider-agnostic models: a profile per provider (`deepseek` default, `gemini`, `openai`,
+  `openrouter`), `ROLE_MODELS` for single roles, the analysts' keys and settings from the config,
+  `make models` (`make test`, `make test-llm`)
+- [x] Every role on DeepSeek direct, the data analyst included: HolmesGPT's log search replaced by
+  our `logs` toolset, which DeepSeek's API accepts (`make test`, `make test-spike`)
+- [ ] Run `make test-llm` and `make test-spike` on `openai` (the account has no credit yet) and on
+  `gemini` (the free tier's 20 requests a day on `gemini-3.8-flash` ran out mid-spike)
 - [x] HolmesGPT 0.42.0 pinned in its own image (it can't share the app's environment); run on ticket 4
 - [x] mini-swe-agent 2.4.6 pinned; run on tickets 4 and 3 in the read-only codebox
 - [x] A stub approval pauses and resumes
@@ -88,8 +95,10 @@ Last updated Sep 26, 2026, after phase 2. Tests, all passing:
 
 ## Phase 5: Layer 2 tools and indexer (days 8–9)
 
-- [x] HolmesGPT toolsets load and connect: `prometheus/metrics`, `elasticsearch/data`, `database/sql`,
-  `jaeger`, `history`; its default shell, internet and kubectl toolsets are off (spike)
+- [x] HolmesGPT toolsets load and connect: `prometheus/metrics`, `database/sql`, `jaeger`, `history`,
+  `logs` (ours, replacing `elasticsearch/data`); its default shell, internet and kubectl toolsets are off (spike)
+- [x] `search_logs.py`: only `_search` on `otel-logs-*`, at most 50 hits, one line each, tested on a
+  saved OpenSearch response
 - [ ] Give `/prev` in the codebox its own git environment (`GIT_DIR` currently points at the deployed tag)
 - [ ] `condense_traces.py` keeps the shop's real attribute names (it looks for `app.user.id` and
   `app.payment.card_type`; the shop sends `user.id` and `demo.payment.card_type`)

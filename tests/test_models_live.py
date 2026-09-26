@@ -1,5 +1,5 @@
-"""Real model calls: the same Pydantic AI code runs on DeepSeek directly and on OpenRouter, and
-only ROLE_PROFILE changes. Needs DEEPSEEK_API_KEY and OPENROUTER_API_KEY in .env.agent.
+"""Real model calls: the same Pydantic AI code runs on each provider's profile, and only
+ROLE_PROFILE changes. A profile whose key isn't in .env.agent is skipped.
 
 Run with `make test-llm` (a few calls, a fraction of a cent).
 """
@@ -26,6 +26,7 @@ class Triage(BaseModel):
 def profile(monkeypatch):
     def use(name: str):
         monkeypatch.setattr(settings, "role_profile", name)
+        monkeypatch.setattr(settings, "role_models", None)
         models_config._roles.cache_clear()
 
     yield use
@@ -34,10 +35,17 @@ def profile(monkeypatch):
 
 @pytest.mark.parametrize(
     ("name", "provider", "model"),
-    [("cheap", "deepseek", "deepseek-flash"), ("openrouter", "openrouter", "deepseek-v4-flash")],
+    [
+        ("gemini", "google", "gemini-3.1-flash-lite"),
+        ("openai", "openai", "gpt-5.4-mini"),
+        ("deepseek", "deepseek", "deepseek-flash"),
+        ("openrouter", "openrouter", "deepseek-v4-flash"),
+    ],
 )
 async def test_same_call_on_each_provider(profile, name, provider, model):
     profile(name)
+    if missing := set(models_config.key_envs("enrichment")) & models_config.missing_keys():
+        pytest.skip(f"no {', '.join(missing)}")
     spec = models_config.role("enrichment")
     assert spec.primary.pydantic_ai.startswith(f"{provider}:")
     agent = Agent(models_config.pydantic_ai_model("enrichment"), output_type=Triage)

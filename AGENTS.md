@@ -72,7 +72,8 @@ app/
   retrieval/, indexer/   empty until phases 3 and 5
 config/             models.yaml (names, prices), roles.yaml (model per role), ownership.yaml
 db/migrations/      Alembic; 0001 also creates the events NOTIFY trigger by hand
-holmes/             HolmesGPT's image (Dockerfile), config.yaml, toolsets.yaml, condense_traces.py
+holmes/             HolmesGPT's image (Dockerfile), config.yaml, toolsets.yaml, condense_traces.py,
+                    search_logs.py (the `logs` toolset's OpenSearch search)
 codebox/            the codebase analyst's read-only container and helper commands (the helpers
                     fall back to ctags and rg until phase 5's code index exists)
 sandbox/            builds the shop fork: pin, overlay, patches, setup, images, compose wrapper
@@ -104,11 +105,17 @@ knowledge/ seed/ evals/ web/   placeholders with a README each (phases 3, 3, 3 a
 - **Database.** One Postgres 16 + pgvector (`make db`, localhost:5433, user/password/db
   `triage`). Our tables are SQLAlchemy models migrated by Alembic; Procrastinate and the LangGraph
   checkpointer own their tables, which Alembic ignores.
-- **Models.** `config/roles.yaml` picks a model and fallback per role; `ROLE_PROFILE` switches the
-  whole set (`cheap`: DeepSeek direct, the data analyst through OpenRouter; `openrouter`: all
-  through one OpenRouter key). `pydantic_ai_model(role)` builds each model with its own
-  `settings` from `config/models.yaml` (a `max_tokens` cap, thinking off for direct DeepSeek);
-  `litellm_model(role)` gives the analysts' LiteLLM string; `LIMITS` caps each single call.
+- **Models: provider-agnostic.** No code names a provider. `config/roles.yaml` has one profile
+  per provider (`deepseek`, the default; `gemini`; `openai`; `openrouter`), each role with a
+  model and a fallback on the same provider, so a profile needs one key. `ROLE_PROFILE` switches
+  every role; `ROLE_MODELS="role=model,..."` moves single roles to any model in
+  `config/models.yaml` (no fallback). A model's provider is the prefix of its `pydantic_ai` name
+  and decides its key (`PROVIDER_KEYS`). `pydantic_ai_model(role)` builds it with its own
+  `settings` (a `max_tokens` cap, thinking off for direct DeepSeek); the analysts get
+  `litellm_model(role)`, `litellm_kwargs(role)` (the same settings for LiteLLM) and
+  `key_envs(role)` (the keys to pass into a container). `make models` prints what each role gets
+  and which keys are missing. `LIMITS` caps each single call. To add a model: an entry in
+  `models.yaml`, then use its key; a new provider also needs `PROVIDER_KEYS` and `build_model`.
 - **Tracing.** The worker calls `setup_tracing()` on its first run; with
   `OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:8080/otlp-http` each ticket run is one trace in the
   shop's Jaeger (service `support-triage-agent`): a `ticket <id>` span, a `node <name>` span per
@@ -186,6 +193,7 @@ make deploy s=quote v=v1.4.0       # switch a versioned service, recorded
 make flag f=paymentFailure v=off   # change a flag, recorded (FLAG_RECORD=0 to skip recording)
 make migration m="..." ; make migrate ; make check-migrations
 make analyst-images                # sandbox/holmes:0.42.0 and sandbox/codebox
+make models                        # model per role, missing keys (ROLE_PROFILE=openai make models)
 make lint fmt                      # ruff, line length 100
 ```
 
@@ -197,7 +205,7 @@ make lint fmt                      # ruff, line length 100
 | `db` | `make test-db` | `make db` | migrations up/down, queries, NOTIFY, the worker pausing and resuming |
 | `sandbox` | `make test-sandbox` | `make sandbox` | the fork's tags, each planted diff, `git blame` to the planted commits, images |
 | `shop` | `make test-shop` | `make shop-up` | every scenario live (~3 min), recorded deploys, metrics, logs, `agent_ro` |
-| `llm` | `make test-llm` | keys in `.env.agent` | one real typed call per provider profile (a fraction of a cent) |
+| `llm` | `make test-llm` | keys in `.env.agent` | one real typed call per provider profile, skipped without its key (a fraction of a cent) |
 | `spike` | `make test-spike` | shop, `make analyst-images`, keys | both analysts on demo tickets (~3 min, a few cents), codebox guardrails |
 
 - Markers are excluded by default (`pyproject.toml` addopts). `db`, `shop` and `spike` refuse to run unless
@@ -254,8 +262,18 @@ make lint fmt                      # ruff, line length 100
 - HolmesGPT can't be `uv add`ed: 0.42.0 needs `openai<3`, and uv quietly resolves a 2025 release
   that downgrades Pydantic AI to 1.x. It lives in `holmes/Dockerfile`. Its default toolsets
   include a shell, internet access and kubectl; `holmes/toolsets.yaml` turns them off.
-- DeepSeek's own API rejects some of HolmesGPT's tool schemas; the data analyst uses OpenRouter.
-- Agents' step limits count model turns, not tool calls (HolmesGPT made 36 calls in 15 turns);
+- DeepSeek's API rejects a tool argument that is an object with no listed properties. HolmesGPT's
+  `elasticsearch_search` has four, so `elasticsearch/data` is off and our `logs` toolset
+  (`holmes/search_logs.py`) takes the query as a JSON string; the image also sets
+  `TOOL_SCHEMA_NO_PARAM_OBJECT_IF_NO_PARAMS`. Check a new toolset's schemas on DeepSeek first.
+- HolmesGPT shell-quotes every tool parameter (`shlex.quote`) before rendering the command, so
+  write `{{ query }}` in a command unquoted.
+- Provider limits look like model bugs: Gemini's free tier allows 20 requests a day on
+  `gemini-3.8-flash` (one spike run uses most of it; the error names
+  `GenerateRequestsPerDayPerProjectPerModel-FreeTier`), and an OpenAI account without credit
+  answers 429 `credit_balance_exhausted` with a valid key. Switch profile
+  (`ROLE_PROFILE=... make test-spike`) rather than editing code.
+- Agents' step limits count model turns, not tool calls (HolmesGPT made up to 62 calls in 15 turns);
   enforce time and call budgets in the node.
 - In the codebox, mount the fork's `.git` at `/git` and set `GIT_DIR=/git/worktrees/shop@<tag>`,
   `GIT_WORK_TREE=/repo`: mounting it at its host path silently fails under Docker Desktop.

@@ -1,7 +1,7 @@
 TEST_DATABASE_URL = postgresql://triage:triage@localhost:5433/triage_test
 
 .PHONY: install db migrate migration check-migrations api worker send deploy flag test test-db lint fmt \
-	sandbox sandbox-images shop-up shop-down test-sandbox test-shop test-llm test-spike analyst-images
+	sandbox sandbox-images shop-up shop-down test-sandbox test-shop test-llm test-spike analyst-images models
 
 install:            ## install Python deps (uv) and pin them in uv.lock
 	uv sync
@@ -65,6 +65,9 @@ test-shop:          ## every scenario against the running shop (needs make shop-
 
 test-llm:           ## real model calls on each provider profile (needs keys in .env.agent)
 	uv run pytest -q -m llm
+
+models:             ## which model each role uses (ROLE_PROFILE, ROLE_MODELS) and missing keys
+	uv run python -m app.models_config
 
 analyst-images:     ## the analysts' containers: HolmesGPT (holmes/) and the read-only codebox
 	docker build -t sandbox/holmes:0.42.0 holmes/

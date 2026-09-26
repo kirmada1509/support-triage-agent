@@ -16,7 +16,8 @@ class Settings(BaseSettings):
     database_url: str = "postgresql://triage:triage@localhost:5433/triage"
     pylon_webhook_secret: str = "dev-secret"
     api_base_url: str = "http://localhost:8000"
-    role_profile: str | None = None
+    role_profile: str | None = None  # ROLE_PROFILE: a profile in config/roles.yaml
+    role_models: str | None = None  # ROLE_MODELS: "role=model,..." overrides single roles
     config_dir: Path = ROOT / "config"
 
     @property

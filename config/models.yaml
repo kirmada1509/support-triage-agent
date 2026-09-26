@@ -1,5 +1,8 @@
 # Per model: how Pydantic AI and LiteLLM name it, capabilities, prices (USD per 1M tokens).
-# Prices from the providers' pages; check before quoting costs.
+# Prices from the providers' pages; check before quoting costs. The prefix of `pydantic_ai` is the
+# provider, which also says which key the model needs (app/models_config.py, PROVIDER_KEYS):
+# google (GEMINI_API_KEY), openai (OPENAI_API_KEY), deepseek (DEEPSEEK_API_KEY), openrouter
+# (OPENROUTER_API_KEY). To add a model: an entry here, then use its key in roles.yaml.
 # `settings` go on every request to that model (Pydantic AI ModelSettings):
 #   max_tokens: required. Without it OpenRouter reserves 65536 output tokens per request and
 #     refuses the call once the key's credit can't cover that.
@@ -22,13 +25,54 @@ deepseek-v4-pro:
   price: {input: 1.32, cached_input: 0.044, output: 3.96}
   settings: {max_tokens: 8192, extra_body: {thinking: {type: disabled}}}
 gemini-flash-lite:
-  pydantic_ai: "openrouter:google/gemini-3.1-flash-lite"
-  litellm: "openrouter/google/gemini-3.1-flash-lite"
+  pydantic_ai: "google:gemini-3.1-flash-lite"
+  litellm: "gemini/gemini-3.1-flash-lite"
   tools: true
   json_output: true
-  context_tokens: 1000000
-  price: {input: 0.25, output: 1.50}
+  context_tokens: 1048576
+  price: {input: 0.25, cached_input: 0.025, output: 1.50}
   settings: {max_tokens: 4096}
+gemini-3.5-flash-lite:
+  pydantic_ai: "google:gemini-3.5-flash-lite"
+  litellm: "gemini/gemini-3.5-flash-lite"
+  tools: true
+  json_output: true
+  context_tokens: 1048576
+  price: {input: 0.30, cached_input: 0.03, output: 2.50}
+  settings: {max_tokens: 4096}
+gemini-3.8-flash:
+  pydantic_ai: "google:gemini-3.8-flash"
+  litellm: "gemini/gemini-3.8-flash"
+  tools: true
+  json_output: true
+  context_tokens: 1048576
+  price: {input: 0.75, cached_input: 0.075, output: 3.75}
+  settings: {max_tokens: 8192}             # it thinks first, and thinking counts against the cap
+# OpenAI. GPT-5.4 models reason before answering, and reasoning counts against max_tokens.
+gpt-5.4-nano:
+  pydantic_ai: "openai:gpt-5.4-nano"
+  litellm: "openai/gpt-5.4-nano"
+  tools: true
+  json_output: true
+  context_tokens: 272000
+  price: {input: 0.20, cached_input: 0.02, output: 1.25}
+  settings: {max_tokens: 4096}
+gpt-5.4-mini:
+  pydantic_ai: "openai:gpt-5.4-mini"
+  litellm: "openai/gpt-5.4-mini"
+  tools: true
+  json_output: true
+  context_tokens: 272000
+  price: {input: 0.75, cached_input: 0.075, output: 4.50}
+  settings: {max_tokens: 8192}
+gpt-5.4:
+  pydantic_ai: "openai:gpt-5.4"
+  litellm: "openai/gpt-5.4"
+  tools: true
+  json_output: true
+  context_tokens: 1050000
+  price: {input: 2.50, cached_input: 0.25, output: 15.00}
+  settings: {max_tokens: 8192}
 # The same DeepSeek models through OpenRouter (one key for everything; prices from OpenRouter).
 or-deepseek-flash:
   pydantic_ai: "openrouter:deepseek/deepseek-v4-flash"

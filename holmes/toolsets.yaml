@@ -8,11 +8,6 @@ toolsets:
     config:
       prometheus_url: http://prometheus:9090
 
-  elasticsearch/data:                      # OpenSearch speaks the same API; logs are otel-logs-yyyy-MM-dd
-    enabled: true
-    config:
-      api_url: http://opensearch:9200
-
   database/sql:                            # the shop's catalog schema, read-only role
     enabled: true
     config:
@@ -28,6 +23,20 @@ toolsets:
   kubectl-run: {enabled: false}
   kubernetes/kube-prometheus-stack: {enabled: false}
   skills: {enabled: false}
+  # Its elasticsearch_search takes free-form objects, which DeepSeek's API rejects; `logs` below
+  # searches the same OpenSearch with the query as a JSON string, on any provider.
+  elasticsearch/data: {enabled: false}
+
+  logs:
+    description: "Search the shop's logs in OpenSearch (one index a day, otel-logs-yyyy-MM-dd). Output is condensed: time, service and version, severity, body, exception and its top frame, trace ID."
+    tools:
+      - name: log_indices
+        description: "The log indices and how many records each holds"
+        command: |
+          curl -s "http://opensearch:9200/_cat/indices/otel-logs-*?h=index,docs.count&s=index"
+      - name: search_logs
+        description: "Search logs with an OpenSearch request body given as a JSON string, e.g. {\"query\": {\"bool\": {\"must\": [{\"match_phrase\": {\"resource.service.name\": \"payment\"}}, {\"range\": {\"@timestamp\": {\"gte\": \"2026-01-01T10:00:00Z\"}}}]}}, \"sort\": [{\"@timestamp\": \"desc\"}]}. Fields: @timestamp, resource.service.name, resource.service.version, severity.text, body, attributes.exception.message, traceId. aggs work too. At most 50 hits."
+        command: python3 /tools/search_logs.py {{ index }} {{ query }}
 
   jaeger:
     description: "Find and read traces in the shop's Jaeger. Output is condensed: trace ID, duration, root operation, user.id, service.version and the first error."

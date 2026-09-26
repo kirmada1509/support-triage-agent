@@ -22,17 +22,21 @@ them. Repeat it with `make test-spike` (`tests/test_spike.py`) after upgrading e
    (`holmes/Dockerfile`, `make analyst-images`) on the shop's network; the `data_analyst` node
    will run it there (`holmes ask ... --json-output-file`) instead of importing it.
 2. **DeepSeek's own API rejects HolmesGPT's tool schemas** ("An object with no properties is not
-   allowed"). OpenRouter's DeepSeek accepts them. **Change:** `data_analyst` uses
-   `or-deepseek-flash` in the `cheap` profile. mini-swe-agent's single tool is fine on DeepSeek
-   direct.
+   allowed"). OpenRouter's DeepSeek accepts them. **First change:** the data analyst went through
+   OpenRouter. **Later change:** the only offender was `elasticsearch_search` (its `query`,
+   `sort`, `source` and `aggregations` are free-form objects). `elasticsearch/data` is off, and
+   our `logs` toolset (`holmes/search_logs.py`, tested) takes the query as a JSON string, so
+   every role runs on DeepSeek direct: ticket 4 in 156 s, 62 tool calls, $0.06, all checks
+   passing. mini-swe-agent's single tool was always fine on DeepSeek direct.
 3. **DeepSeek's thinking mode rejects the forced tool choice Pydantic AI uses for typed output**,
    and **OpenRouter reserves 65536 output tokens per request** unless `max_tokens` is set, then
    refuses the call once credit runs low. **Change:** every model in `config/models.yaml` has
    `settings` (a `max_tokens` cap; thinking off for direct DeepSeek), applied per model.
 4. **HolmesGPT enables a shell, internet access and kubectl by default.** **Change:**
    `holmes/toolsets.yaml` disables them; only our five toolsets and its planning tool remain.
-5. **The draft toolset names were wrong for 0.42.0**: OpenSearch logs come through
-   `elasticsearch/data` (`api_url`), and `database/sql` gained `read_only: true`.
+5. **The draft toolset names were wrong for 0.42.0**: OpenSearch logs came through
+   `elasticsearch/data` (`api_url`, since replaced by `logs`, see 2), and `database/sql` gained
+   `read_only: true`; its tools are `database_sql_query`, `_list_tables` and `_describe_table`.
 6. **Git worktrees don't work in the codebox as mounted.** A worktree's `.git` points at an
    absolute host path, and mounting `.git` at that path doesn't work under Docker Desktop.
    **Change:** mount the fork's `.git` at `/git` with `GIT_DIR=/git/worktrees/shop@<tag>` and

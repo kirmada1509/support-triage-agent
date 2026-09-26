@@ -1,23 +1,50 @@
-# Each role's model and fallback. Switch the whole set with ROLE_PROFILE=<name>.
-profile: cheap
+# Each role's model and fallback, one profile per provider. Switch every role at once with
+# ROLE_PROFILE=<profile>, or single roles with ROLE_MODELS="data_analyst=gpt-5.4,verdict=..."
+# (any key from config/models.yaml, from any provider; an override has no fallback).
+# A profile's fallbacks stay on its provider, so each profile needs only that provider's key.
+# `make models` shows what each role gets and which keys are missing.
+profile: deepseek
 profiles:
-  cheap:
-    enrichment:        {model: deepseek-flash,  fallback: gemini-flash-lite}
-    jev_fallback:      {model: deepseek-flash,  fallback: gemini-flash-lite}
-    layer1:            {model: deepseek-flash,  fallback: gemini-flash-lite}
-    requests:          {model: deepseek-flash,  fallback: gemini-flash-lite}
-    # DeepSeek's own API rejects some of HolmesGPT's tool schemas; OpenRouter's DeepSeek takes them.
-    data_analyst:      {model: or-deepseek-flash,  fallback: or-deepseek-v4-pro}
-    codebase_analyst:  {model: deepseek-flash,  fallback: deepseek-v4-pro}
-    findings:          {model: deepseek-flash,  fallback: deepseek-v4-pro}
-    verdict:           {model: deepseek-v4-pro, fallback: deepseek-flash}
-    indexer:           {model: deepseek-v4-pro, fallback: deepseek-flash}
-  # Everything through OpenRouter's single key: ROLE_PROFILE=openrouter
+  # Gemini through Google's API (GEMINI_API_KEY). The free tier allows only 20 requests a day on
+  # gemini-3.8-flash: less than one analyst run.
+  gemini:
+    enrichment:        {model: gemini-flash-lite, fallback: gemini-3.5-flash-lite}
+    jev_fallback:      {model: gemini-flash-lite, fallback: gemini-3.5-flash-lite}
+    layer1:            {model: gemini-flash-lite, fallback: gemini-3.5-flash-lite}
+    requests:          {model: gemini-flash-lite, fallback: gemini-3.5-flash-lite}
+    data_analyst:      {model: gemini-3.8-flash,  fallback: gemini-flash-lite}
+    codebase_analyst:  {model: gemini-3.8-flash,  fallback: gemini-flash-lite}
+    findings:          {model: gemini-flash-lite, fallback: gemini-3.5-flash-lite}
+    verdict:           {model: gemini-3.8-flash,  fallback: gemini-flash-lite}
+    indexer:           {model: gemini-3.8-flash,  fallback: gemini-flash-lite}
+  # OpenAI's API (OPENAI_API_KEY).
+  openai:
+    enrichment:        {model: gpt-5.4-mini, fallback: gpt-5.4-nano}
+    jev_fallback:      {model: gpt-5.4-mini, fallback: gpt-5.4-nano}
+    layer1:            {model: gpt-5.4-mini, fallback: gpt-5.4-nano}
+    requests:          {model: gpt-5.4-mini, fallback: gpt-5.4-nano}
+    data_analyst:      {model: gpt-5.4-mini, fallback: gpt-5.4}
+    codebase_analyst:  {model: gpt-5.4-mini, fallback: gpt-5.4}
+    findings:          {model: gpt-5.4-mini, fallback: gpt-5.4-nano}
+    verdict:           {model: gpt-5.4,      fallback: gpt-5.4-mini}
+    indexer:           {model: gpt-5.4-mini, fallback: gpt-5.4}
+  # DeepSeek's API (DEEPSEEK_API_KEY). The default.
+  deepseek:
+    enrichment:        {model: deepseek-flash,    fallback: deepseek-v4-pro}
+    jev_fallback:      {model: deepseek-flash,    fallback: deepseek-v4-pro}
+    layer1:            {model: deepseek-flash,    fallback: deepseek-v4-pro}
+    requests:          {model: deepseek-flash,    fallback: deepseek-v4-pro}
+    data_analyst:      {model: deepseek-flash,    fallback: deepseek-v4-pro}
+    codebase_analyst:  {model: deepseek-flash,    fallback: deepseek-v4-pro}
+    findings:          {model: deepseek-flash,    fallback: deepseek-v4-pro}
+    verdict:           {model: deepseek-v4-pro,   fallback: deepseek-flash}
+    indexer:           {model: deepseek-v4-pro,   fallback: deepseek-flash}
+  # Everything through OpenRouter (OPENROUTER_API_KEY): one key for any model it lists.
   openrouter:
-    enrichment:        {model: or-deepseek-flash,  fallback: gemini-flash-lite}
-    jev_fallback:      {model: or-deepseek-flash,  fallback: gemini-flash-lite}
-    layer1:            {model: or-deepseek-flash,  fallback: gemini-flash-lite}
-    requests:          {model: or-deepseek-flash,  fallback: gemini-flash-lite}
+    enrichment:        {model: or-deepseek-flash,  fallback: or-deepseek-v4-pro}
+    jev_fallback:      {model: or-deepseek-flash,  fallback: or-deepseek-v4-pro}
+    layer1:            {model: or-deepseek-flash,  fallback: or-deepseek-v4-pro}
+    requests:          {model: or-deepseek-flash,  fallback: or-deepseek-v4-pro}
     data_analyst:      {model: or-deepseek-flash,  fallback: or-deepseek-v4-pro}
     codebase_analyst:  {model: or-deepseek-flash,  fallback: or-deepseek-v4-pro}
     findings:          {model: or-deepseek-flash,  fallback: or-deepseek-v4-pro}
