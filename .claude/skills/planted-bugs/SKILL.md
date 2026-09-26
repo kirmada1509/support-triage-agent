@@ -50,4 +50,5 @@ never the fork by hand, or the next `make sandbox` throws the edit away.
 ## Verify
 
 `make test test-sandbox`, then `make shop-up` (or `make deploy`) and `make test-shop`.
-`git -C ../opentelemetry-demo status` must be clean afterwards. Finish with `wrap-up`.
+`git -C ../opentelemetry-demo status` must be clean afterwards. Then follow "Finishing a task"
+in AGENTS.md.

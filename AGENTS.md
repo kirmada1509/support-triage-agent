@@ -78,7 +78,7 @@ scenarios/          tickets.yaml (7 demo tickets), scenario.py, send_ticket.py, 
 tests/              pytest suites (see Testing); tests/fixtures/ holds real captured data
 planning/           the plan, the build checklist, three HTML diagrams
 knowledge/ seed/ evals/ web/   placeholders with a README each (phases 3, 3, 3 and 9, 8)
-.claude/skills/     task playbooks for agents (see "Skills")
+.claude/skills/     project skills: sandbox-shop, planted-bugs (see "Skills and plugins")
 ```
 
 ## How it works (as built)
@@ -188,7 +188,9 @@ make lint fmt                      # ruff, line length 100
   `DATABASE_URL` names a database ending in `_test`; the make targets set it.
 - **Replacing a stub node:** write its test first against `TicketState` (the state it receives,
   the keys it returns), with the model or tool faked, then implement; `tests/test_graph.py`
-  keeps the lanes working end to end. The `build-node` skill has the steps.
+  keeps the lanes working end to end. Put each outside call (model, Jev, HolmesGPT, Postgres,
+  HTTP) behind one small function a test can replace, send progress with `emit(...)`, and give a
+  node that calls out a `RetryPolicy` in `app/graph/build.py`.
 - **Scenario logic** is tested against `FakeShop` in `tests/test_scenarios.py`: every scenario
   must pass with its bug and fail without it. Keep that pair when adding a scenario.
 - **Characterization data** (real responses) goes in `tests/fixtures/`, trimmed and free of
@@ -207,6 +209,9 @@ make lint fmt                      # ruff, line length 100
 - Pydantic models for everything passed between steps; never free text between nodes.
 - Every ID a model returns (help section, ticket, deploy, trace, file) is checked in code against
   what it was given or fetched in that run.
+- Database changes: edit `app/tables.py`, `make migration m="..."`, read the generated file and
+  hand-write what autogenerate misses (triggers, functions, data) plus a working `downgrade()`,
+  then `make migrate check-migrations test-db`. Never edit an applied migration; add one.
 - Shell scripts: `set -euo pipefail`, a usage comment at the top, validate arguments before
   changing anything.
 - Commits: one branch per phase (`phase-N-name`), a short imperative subject, a bullet body of
@@ -228,22 +233,38 @@ make lint fmt                      # ruff, line length 100
   `user.id` and `demo.payment.card_type` (fix in phase 5).
 - The frontend has no search box and nothing calls `SearchProducts`; don't build on search.
 
-## Skills
+## Skills and plugins
 
-Playbooks in `.claude/skills/`; load the one that matches the task.
+Project skills in `.claude/skills/`, for work only this repo has:
 
 | Skill | Use it when |
 | --- | --- |
-| `build-node` | replacing a stub node or adding logic to the pipeline (test-first workflow) |
-| `db-change` | adding or changing a table, column, index or trigger |
 | `sandbox-shop` | starting, resetting, or debugging the shop, or reproducing a scenario |
 | `planted-bugs` | changing, adding or removing a commit in the fork, or the overlay |
-| `wrap-up` | finishing any task: tests, checklist, this file, commit |
+
+Recommended plugins from the Claude plugin directory (install them from there; they aren't in
+the repo). Where one disagrees with this file, this file wins.
+
+| Plugin | Use it for |
+| --- | --- |
+| Superpowers | `test-driven-development`, `systematic-debugging`, `verification-before-completion`, `writing-plans` / `executing-plans`, code review. Don't use its `using-git-worktrees` skill here (ground rule 1). |
+| claude-md-management | auditing and updating AGENTS.md at the end of a session |
+| py-pit | FastAPI, Pydantic, SQLAlchemy, Alembic, pytest and uv practices |
+
+## Finishing a task
+
+1. Run the suites that cover the change (see Testing) and read the results. Say which ones you
+   skipped and why; never report a suite as passing without running it.
+2. `planning/Build_Checklist.md`: tick what now works and is tested, add what you found under the
+   phase that will fix it, update the test counts and "Last updated".
+3. This file and the READMEs: fix whatever the change made wrong (next section).
+4. Commit on the phase branch with the docs in the same commit. Never commit `.env.agent`, and
+   leave the fork (`../opentelemetry-demo`) clean.
 
 ## Keeping this file current
 
 This file describes how the repo **is**, not how it will be. Update it in the same commit as the
-change that makes it wrong. The `wrap-up` skill walks through this.
+change that makes it wrong, as step 3 of "Finishing a task".
 
 - **What goes where.** Status (built or not) goes in `planning/Build_Checklist.md`. Design and
   rationale go in the plan. How to operate the sandbox goes in `sandbox/README.md`. This file
