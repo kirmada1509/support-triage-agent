@@ -7,7 +7,8 @@ read-only codebase analyst (mini-swe-agent) work in parallel against a real micr
 False positives are answered directly; real bugs go to the owning engineering team (Layer 3).
 A person approves anything uncertain. The Triage Console shows every stage live.
 
-The full design is in `planning/Agent_Architecture_And_Build_Plan.md`.
+The full design is in `planning/Agent_Architecture_And_Build_Plan.md`. Coding agents: start with
+[AGENTS.md](AGENTS.md) (context, rules, and the playbooks in `.claude/skills/`).
 
 ## Status
 
@@ -41,8 +42,10 @@ curl -X POST localhost:8000/tickets/<id>/approve \
   -H 'content-type: application/json' -d '{"approved": true}'  # resume a paused run
 ```
 
-API docs at http://localhost:8000/docs. `make test` runs the graph end to end in memory;
-`make test-db` runs the database tests on a throwaway `triage_test` database.
+API docs at http://localhost:8000/docs. `make test` runs the graph end to end in memory and the
+scenario logic against a simulated shop; `make test-db` runs the database tests on a throwaway
+`triage_test` database. `make test-sandbox` and `make test-shop` check the shop fork and the
+running shop (see [sandbox/README.md](sandbox/README.md)).
 
 ## Layout
 

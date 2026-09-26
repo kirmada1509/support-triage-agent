@@ -8,3 +8,5 @@ node_modules/
 web/.next/
 .DS_Store
 recordings/
+.claude/worktrees/
+.claude/settings.local.json
