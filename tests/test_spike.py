@@ -30,6 +30,9 @@ pytestmark = pytest.mark.spike
 
 SANDBOX = Path(os.environ.get("SANDBOX_DIR", ROOT.parent / "opentelemetry-demo")).resolve()
 WORKTREES = SANDBOX.parent
+# The HolmesGPT container reaches the agent's Postgres on the host. Docker Desktop defines
+# host.docker.internal; Docker Engine on Linux needs it mapped to the host gateway.
+HOST_GATEWAY = ("--add-host", "host.docker.internal:host-gateway")
 
 
 @pytest.fixture(scope="module", autouse=True)
@@ -110,6 +113,7 @@ def test_data_analyst_finds_the_deploy_and_the_failures(tmp_path, ticket_4_data)
             "--rm",
             "--network",
             "opentelemetry-demo",
+            *HOST_GATEWAY,
             "-v",
             f"{ROOT / 'holmes'}:/etc/holmes:ro",
             "-v",
@@ -180,6 +184,7 @@ def test_history_rejects_model_sql_input(name):
                 "--rm",
                 "--network",
                 "opentelemetry-demo",
+                *HOST_GATEWAY,
                 "-e",
                 f"HISTORY_DB_URL={history}",
                 "sandbox/holmes:0.42.0",
@@ -207,6 +212,7 @@ def test_history_rejects_model_sql_input(name):
                     "--rm",
                     "--network",
                     "opentelemetry-demo",
+                    *HOST_GATEWAY,
                     "-e",
                     f"HISTORY_DB_URL={history}",
                     "sandbox/holmes:0.42.0",

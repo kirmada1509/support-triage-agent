@@ -2,6 +2,9 @@
 gRPC handlers from source text, on snippets shaped like the shop's own code. No git, no database."""
 
 import re
+import shutil
+import tempfile
+from pathlib import Path
 
 import pytest
 
@@ -391,6 +394,18 @@ def test_the_export_keeps_one_record_per_line(tmp_path):
     export.write(tmp_path, [index], {})
     lines = (tmp_path / "errors.tsv").read_text().splitlines()
     assert all(len(line.split("\t")) == 5 for line in lines)
+
+
+def test_the_export_is_readable_by_the_codebox_user():
+    """The codebox runs as its own user, and mkdtemp makes a directory only its owner can read."""
+    out = Path(tempfile.mkdtemp())
+    try:
+        export.write(out, [payment_index()], {"payment": "# payment"})
+        for path in [out, *out.rglob("*")]:
+            other = path.stat().st_mode & 0o007
+            assert other == (0o005 if path.is_dir() else 0o004), path
+    finally:
+        shutil.rmtree(out)
 
 
 async def test_a_service_card_is_written_from_the_code(monkeypatch):

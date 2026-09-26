@@ -39,3 +39,6 @@ def write(out: Path, indexes: list[CodeIndex], cards: dict[str, str]) -> None:
     (out / "cards").mkdir(exist_ok=True)
     for service, text in cards.items():
         (out / "cards" / f"{service}.md").write_text(text)
+    # The codebox runs as its own user, and `out` may come from mkdtemp (owner only).
+    for path in [out, *out.rglob("*")]:
+        path.chmod(0o755 if path.is_dir() else 0o644)

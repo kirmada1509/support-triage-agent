@@ -75,10 +75,10 @@ including investigations, code index and eval results, exist ahead of their work
 
 ## Still incomplete
 
-- The Phase 5 code index is built (all five services at both tags, stored per commit, exported
-  to the codebox's helper commands), but service cards have not yet been written by a real model
-  and the spike has not been rerun with the index mounted. The restricted analyst environments
-  work as standalone spikes, not graph investigations.
+- The Phase 5 code index is built (all five services at both tags, stored per commit, with
+  service cards written by the `indexer` role, exported to the codebox's helper commands), and the
+  spike passes with the index mounted at `/index`. The restricted analyst environments work as
+  standalone spikes, not graph investigations.
 - `duplicates`, `brief`, both analyst nodes, `round2`, `verdict` and `remember` are Phase 6
   placeholders. A technical ticket cannot yet get a trustworthy root cause, duplicate link or
   memory write-back from the graph.
@@ -87,7 +87,7 @@ including investigations, code index and eval results, exist ahead of their work
 - `web/` is a placeholder; the Next.js Triage Console is Phase 8 work. The API and event types
   it will consume already exist. The scorecard endpoint reads the database, but Phase 9 has not
   populated full eval results or performed complete rehearsals.
-- The Phase 0 Grafana dashboard review and several Phase 5 tool checks remain open. See the
+- The Phase 0 Grafana dashboard review remains open. See the
   checklist for exact status; do not infer completion from a wired graph edge or a schema table.
 
 ## Run and verify

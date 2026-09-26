@@ -4,15 +4,15 @@ What's built and what isn't, phase by phase, against `Agent_Architecture_And_Bui
 Tick an item when it works and is tested the way the plan's "How it's tested" says; tick a
 phase's "Done when" only when that whole criterion has been seen working.
 
-Last updated Sep 26, 2026, during phase 5 (code index, helper commands). Suite inventory (provider calls depend on credit):
+Last updated Sep 26, 2026: phase 5 done (every suite run on Linux Docker; `test-llm`'s `openai` case still has no credit). Suite inventory (provider calls depend on credit):
 
 | Suite | Command | Needs | Tests |
 | --- | --- | --- | --- |
-| Units, graph in memory, front pipeline, scenario logic, sandbox kit, tracing, model config, retrieval, indexer, codebox helpers, trace condensing | `make test` | nothing | 158 |
+| Units, graph in memory, front pipeline, scenario logic, sandbox kit, tracing, model config, retrieval, indexer, codebox helpers, trace condensing | `make test` | nothing | 159 |
 | Database | `make test-db` | `make db` | 10 |
 | The fork: tags, planted bugs, overlay, images, the code index at both tags | `make test-sandbox` | `make sandbox` | 27 |
 | The running shop: every scenario, read-only role, metrics, logs | `make test-shop` | `make shop-up` | 15 |
-| Real model calls on each provider profile | `make test-llm` | keys in `.env.agent` | 4 |
+| Real model calls on each provider profile, a real payment service card | `make test-llm` | keys in `.env.agent` | 5 |
 | Both analysts on demo tickets, codebox and history guardrails | `make test-spike` | shop, `make analyst-images`, keys | 6 |
 
 ## Phase 0: Sandbox (days 1–2)
@@ -57,7 +57,7 @@ Last updated Sep 26, 2026, during phase 5 (code index, helper commands). Suite i
   `make models` (`make test`, `make test-llm`)
 - [x] Every role on DeepSeek direct, the data analyst included: HolmesGPT's log search replaced by
   our `logs` toolset, which DeepSeek's API accepts (`make test`, `make test-spike`)
-- [ ] Run `make test-llm` and `make test-spike` on `openai` (the account has no credit yet) and on
+- [ ] Run `make test-llm` and `make test-spike` on `openai` (the account still had no credit on Sep 26) and on
   `gemini` (the free tier's 20 requests a day on `gemini-3.8-flash` ran out mid-spike)
 - [x] HolmesGPT 0.42.0 pinned in its own image (it can't share the app's environment); run on ticket 4
 - [x] mini-swe-agent 2.4.6 pinned; run on tickets 4 and 3 in the read-only codebox
@@ -110,8 +110,8 @@ Last updated Sep 26, 2026, during phase 5 (code index, helper commands). Suite i
 - [x] `search_logs.py`: only `_search` on `otel-logs-*`, at most 50 hits, one line each, tested on a
   saved OpenSearch response
 - [x] Give `/prev` in the codebox its own git environment: `codebox/bin/git` switches to
-  `PREV_GIT_DIR` in `/prev` or with `-C /prev` (tested on real worktrees; in-container check is in
-  `make test-spike`, not yet rerun)
+  `PREV_GIT_DIR` in `/prev` or with `-C /prev` (tested on real worktrees and in the container,
+  `make test-spike`)
 - [x] `condense_traces.py` keeps the shop's real attribute names (`user.id`, every `demo.*`)
 - [x] Characterization tests for `condense_traces.py` on saved Jaeger responses
 - [x] Codebox container with read-only worktrees and no network; writes and network refused (`make test-spike`)
@@ -124,11 +124,14 @@ Last updated Sep 26, 2026, during phase 5 (code index, helper commands). Suite i
   (service, commit), exported as TSV; `python -m app.indexer`, `make index-code v=...`,
   `deploy.sh` step 4. All five services indexed at both tags, pinned in `make test-sandbox`
   and round-tripped through Postgres (`make test-db`)
-- [ ] Service cards against a real model (`card.py` is tested with a fake; indexing so far ran
-  with `INDEX_CARDS=0`, no key in that environment)
-- [ ] Rerun `make test-spike` with the index mounted at `/index` and `PREV_GIT_DIR`
-- [ ] `evals/phase4.py` fails `ruff format --check` (`make lint` only runs `ruff check`)
-- [ ] **Done when:** each toolset and helper command returns condensed real data, a write attempt
+- [x] Service cards from a real model (`indexer` role, DeepSeek V4 Pro): `make index-code` at
+  both tags wrote all five; the payment card states Visa and Mastercard only, pinned in `make test-llm`
+- [x] `make test-spike` rerun with the index mounted at `/index` and `PREV_GIT_DIR` (6/6). It found
+  two bugs, fixed test first: the export was unreadable by the codebox's `analyst` user (mkdtemp is
+  0700), and `host.docker.internal` only exists on Docker Desktop (HolmesGPT runs now add
+  `--add-host host.docker.internal:host-gateway`)
+- [x] `make lint` also runs `ruff format --check`; `evals/phase4.py` formatted
+- [x] **Done when:** each toolset and helper command returns condensed real data, a write attempt
   is refused, both versions are indexed, and those results are pinned by tests
 
 ## Phase 6: Layer 2 nodes (days 10–11)
@@ -137,7 +140,8 @@ Last updated Sep 26, 2026, during phase 5 (code index, helper commands). Suite i
 - [ ] Duplicate check: exact signature, retrieval over open tickets, structured LLM confirmation
 - [ ] Brief
 - [ ] Data analyst node: runs HolmesGPT's container, enforces the 90 s timeout and tool-call budget
-  itself (its step limit counts model turns: the spike made 36 calls in 15 turns), streams its tool calls
+  itself (its step limit counts model turns: the spike made 36 calls in 15 turns), streams its tool calls;
+  maps `host.docker.internal` to the host gateway as `tests/test_spike.py` does
 - [ ] Codebase analyst node (mini-swe-agent) with timeout, streaming its commands; it exports
   the deployed commit's index (`app.indexer.__main__.export_index`) to mount at `/index`, sets
   `PREV_GIT_DIR`, and puts the service card and change summary in the task prompt

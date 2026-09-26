@@ -122,7 +122,8 @@ async def evaluate(limit: int = 20, ids: set[str] | None = None) -> dict:
         "help_citations": {
             "hits": sum(
                 d["expected_help_section"] in d.get("cited_ids", [])
-                for d in details if d.get("expected_help_section")
+                for d in details
+                if d.get("expected_help_section")
             ),
             "total": sum(bool(d.get("expected_help_section")) for d in details),
         },

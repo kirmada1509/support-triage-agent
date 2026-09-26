@@ -3,7 +3,7 @@
 Context and rules for coding agents working in this repo. Read it before changing anything, and
 keep it true (see "Keeping this file current" at the end).
 
-Last updated: Sep 26, 2026, during phase 5 (code index and codebox helpers).
+Last updated: Sep 26, 2026, phase 5 done (code index, service cards, codebox helpers).
 
 ## What this is
 
@@ -183,7 +183,7 @@ make index-help index-tickets      # fill retrieval_docs, re-embed only changed 
 make index-code v=v1.4.0           # code index + service cards for every service at a tag
 make retrieval-hits               # isolated retrieval benchmark on triage_retrieval_test
 make front-eval                    # 20 live front pipeline cases (indexed DB + model key)
-make lint fmt                      # ruff, line length 100
+make lint fmt                      # ruff check + format check / fix, line length 100
 ```
 
 ## Testing
@@ -268,6 +268,9 @@ make lint fmt                      # ruff, line length 100
 - In the codebox, mount the fork's `.git` at `/git` and set `GIT_DIR=/git/worktrees/shop@<tag>`,
   `GIT_WORK_TREE=/repo`: mounting it at its host path silently fails under Docker Desktop. Set
   `PREV_GIT_DIR` too, or git in `/prev` silently shows the deployed tag (`codebox/bin/git`).
+  The codebox runs as `analyst`, so `/index` must be world-readable (`export.write` sees to it).
+- `host.docker.internal` exists only on Docker Desktop. A container that reaches the agent's
+  Postgres (HolmesGPT's `history`) needs `--add-host host.docker.internal:host-gateway` on Linux.
 - The codebox's awk is mawk: the index's error patterns are POSIX ERE, not `re.escape` output
   (it escapes spaces), and helpers pass arguments via `ENVIRON`, never `awk -v`.
 - Whole-graph tests need `front_stage_fakes` (`tests/conftest.py`), or `enrich` calls a model.

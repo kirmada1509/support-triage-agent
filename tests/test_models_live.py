@@ -57,3 +57,20 @@ async def test_same_call_on_each_provider(profile, name, provider, model):
     # the plumbing, not the judgment (that's the evals' job): a typed answer, from this model
     assert isinstance(result.output, Triage) and result.output.ticket_type == "tech_issue"
     assert model in result.response.model_name
+
+
+async def test_payment_service_card_names_only_the_accepted_cards():
+    """A real service card for payment at v1.4.0 (needs make sandbox): it states the card-type
+    rule as the code does, Visa and Mastercard only, which tickets 1 and 3 depend on."""
+    from app.indexer import build, card
+    from app.indexer.__main__ import sandbox_dir
+    from app.nodes._config import ownership
+
+    if missing := set(models_config.key_envs("indexer")) & models_config.missing_keys():
+        pytest.skip(f"no {', '.join(missing)}")
+    if not (sandbox_dir() / ".git").exists():
+        pytest.skip("no fork; run make sandbox")
+    index = build.index_at(sandbox_dir(), "payment", "src/payment", "v1.4.0")
+    text = (await card.write_card(index, ownership()["payment"]["description"])).lower()
+    assert "visa" in text and "mastercard" in text
+    assert not any(other in text for other in ("amex", "american express", "discover"))
