@@ -9,16 +9,20 @@ run are in planning/Phase_2_Spike.md.
 
 import json
 import os
+import shlex
 import subprocess
 import sys
 import time
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
+import psycopg
 import pytest
+import yaml
 from sqlalchemy.engine import make_url
 
 from app import models_config
+from app.history_access import history_url_for_database
 from app.settings import ROOT, settings
 
 pytestmark = pytest.mark.spike
@@ -28,10 +32,14 @@ WORKTREES = SANDBOX.parent
 
 
 @pytest.fixture(scope="module", autouse=True)
-def ticket_4_data():
-    """Scenario 4's orders and deploy, recorded in the throwaway database."""
+def spike_database():
     if not (make_url(settings.database_url).database or "").endswith("_test"):
         pytest.fail("DATABASE_URL must name a database ending in _test (make test-spike)")
+
+
+@pytest.fixture(scope="module")
+def ticket_4_data():
+    """Scenario 4's orders and deploy, recorded in the throwaway database."""
     if missing := models_config.missing_keys() & {
         *models_config.key_envs("data_analyst"),
         *models_config.key_envs("codebase_analyst"),
@@ -83,14 +91,16 @@ Answer: what happened, since when, which service and version, how many shoppers 
 the evidence (trace IDs, queries). Stop once two independent sources agree."""
 
 
-def test_data_analyst_finds_the_deploy_and_the_failures(tmp_path):
+def test_data_analyst_finds_the_deploy_and_the_failures(tmp_path, ticket_4_data):
     now = datetime.now(UTC)
     start = now - timedelta(minutes=30)
     iso = "%Y-%m-%dT%H:%M:%SZ"
     (tmp_path / "prompt.md").write_text(
         HOLMES_PROMPT.format(start=f"{start:{iso}}", now=f"{now:{iso}}")
     )
-    history = settings.database_url.replace("localhost", "host.docker.internal")
+    history = history_url_for_database(settings.database_url).replace(
+        "localhost", "host.docker.internal"
+    )
     t0 = time.monotonic()
     r = subprocess.run(
         [
@@ -138,6 +148,94 @@ def test_data_analyst_finds_the_deploy_and_the_failures(tmp_path):
     assert used & {"find_error_traces", "find_traces_for_user", "get_trace"}, used
     assert used <= ALLOWED_TOOLS | {"TodoWrite"}, used - ALLOWED_TOOLS
     assert "v1.4.0" in r.stdout
+
+
+@pytest.mark.parametrize("name", ["deploys", "flag_changes"])
+def test_history_rejects_model_sql_input(name):
+    """Run the actual Holmes command with hostile tool values; no row may change."""
+    history = history_url_for_database(settings.database_url).replace(
+        "localhost", "host.docker.internal"
+    )
+    toolset = yaml.safe_load((ROOT / "holmes" / "toolsets.yaml").read_text())
+    command = next(
+        t["command"] for t in toolset["toolsets"]["history"]["tools"] if t["name"] == name
+    )
+    harmful = "2026-01-01'; UPDATE deploys SET version = 'pwned'; --"
+    with psycopg.connect(settings.database_url) as conn:
+        row = conn.execute(
+            "INSERT INTO deploys (service, version) VALUES ('injection-test', 'safe') RETURNING id"
+        ).fetchone()[0]
+        flag_row = conn.execute(
+            "INSERT INTO flag_changes (flag, new_variant) VALUES ('history-injection-test', 'off') "
+            "RETURNING id"
+        ).fetchone()[0]
+    try:
+        command = command.replace("{{ since }}", shlex.quote(harmful))
+        command = command.replace("{{ service }}", shlex.quote("payment' OR true --"))
+        r = subprocess.run(
+            [
+                "docker",
+                "run",
+                "--rm",
+                "--network",
+                "opentelemetry-demo",
+                "-e",
+                f"HISTORY_DB_URL={history}",
+                "sandbox/holmes:0.42.0",
+                "sh",
+                "-c",
+                command,
+            ],
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+        assert r.returncode != 0, r.stdout + r.stderr
+        assert "invalid input syntax for type timestamp with time zone" in r.stderr
+        with psycopg.connect(settings.database_url) as conn:
+            assert conn.execute("SELECT version FROM deploys WHERE id = %s", (row,)).fetchone() == (
+                "safe",
+            )
+        valid_since = command.replace(shlex.quote(harmful), shlex.quote("2026-01-01"))
+
+        def run_tool(script):
+            return subprocess.run(
+                [
+                    "docker",
+                    "run",
+                    "--rm",
+                    "--network",
+                    "opentelemetry-demo",
+                    "-e",
+                    f"HISTORY_DB_URL={history}",
+                    "sandbox/holmes:0.42.0",
+                    "sh",
+                    "-c",
+                    script,
+                ],
+                capture_output=True,
+                text=True,
+                timeout=30,
+            )
+
+        if name == "deploys":
+            r = run_tool(valid_since)
+            assert r.returncode == 0, r.stdout + r.stderr
+            assert "injection-test" not in r.stdout
+            exact_service = valid_since.replace(
+                shlex.quote("payment' OR true --"), shlex.quote("injection-test")
+            )
+            r = run_tool(exact_service)
+            assert r.returncode == 0, r.stdout + r.stderr
+            assert "injection-test" in r.stdout
+        else:
+            r = run_tool(valid_since)
+            assert r.returncode == 0, r.stdout + r.stderr
+            assert "history-injection-test" in r.stdout
+    finally:
+        with psycopg.connect(settings.database_url) as conn:
+            conn.execute("DELETE FROM deploys WHERE id = %s", (row,))
+            conn.execute("DELETE FROM flag_changes WHERE id = %s", (flag_row,))
 
 
 # Every tool the enabled toolsets offer: nothing that runs a shell or reaches the internet.

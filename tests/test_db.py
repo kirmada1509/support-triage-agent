@@ -16,6 +16,7 @@ from sqlalchemy.engine import make_url
 from app import db, tasks
 from app.alembic_config import alembic_config
 from app.events import JevEvent, StageEvent, ToolCallEvent
+from app.history_access import history_url_for_database, setup_history_reader
 from app.migrate import setup_libraries
 from app.models import Ticket
 from app.settings import settings
@@ -35,6 +36,7 @@ def migrated():
     command.upgrade(cfg, "head")
     command.downgrade(cfg, "base")  # the downgrade works too...
     command.upgrade(cfg, "head")  # ...and upgrading again from nothing
+    asyncio.run(setup_history_reader())
     asyncio.run(setup_libraries())  # queue and checkpoint tables
 
 
@@ -54,6 +56,25 @@ def ticket(n: str, id: str | None = None) -> Ticket:
 
 def test_models_match_migrations():
     command.check(alembic_config())  # raises if app/tables.py has changes with no migration
+
+
+async def test_history_reader_can_only_select_history():
+    await db.insert_deploy("payment", "v1.4.0", "v1.3.0", None, [])
+    url = history_url_for_database(settings.database_url)
+    async with await psycopg.AsyncConnection.connect(url) as conn:
+        service = await (await conn.execute("SELECT service FROM deploys")).fetchone()
+        assert service == ("payment",)
+        assert (await (await conn.execute("SELECT count(*) FROM flag_changes")).fetchone()) == (0,)
+    for statement in ("SELECT id FROM tickets", "UPDATE deploys SET version = 'pwned'"):
+        with pytest.raises(psycopg.Error):
+            async with await psycopg.AsyncConnection.connect(url) as conn:
+                await conn.execute(statement)
+    async with await psycopg.AsyncConnection.connect(url, autocommit=True) as conn:
+        await conn.execute("SET default_transaction_read_only = off")
+        with pytest.raises(psycopg.errors.InsufficientPrivilege):
+            await conn.execute("UPDATE deploys SET version = 'pwned'")
+    async with db.Session() as session:
+        assert (await session.scalar(text("SELECT version FROM deploys LIMIT 1"))) == "v1.4.0"
 
 
 async def test_ticket_row_lifecycle():

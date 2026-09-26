@@ -3,7 +3,7 @@
 Context and rules for coding agents working in this repo. Read it before changing anything, and
 keep it true (see "Keeping this file current" at the end).
 
-Last updated: Sep 26, 2026, end of phase 2 (graph, model layer, open-source spike).
+Last updated: Sep 26, 2026, after the history tool read-only fix.
 
 ## What this is
 
@@ -67,13 +67,15 @@ app/
   models_config.py  roles.yaml -> Pydantic AI model / LiteLLM string, fallbacks, UsageLimits, cost
   tasks.py          Procrastinate: run_ticket, resume_ticket; the checkpointer's psycopg pool
   tables.py, db.py  SQLAlchemy 2.0 tables (source of the migrations) and every query
-  migrate.py        make migrate: Alembic, Procrastinate schema, checkpoint tables, demo tenant
+  migrate.py        make migrate: Alembic, history_ro, Procrastinate schema, checkpoint tables,
+                    demo tenant
+  history_access.py provisions the history_ro login for the analyst's deploy/flag queries
   tracing.py        the agent's own OpenTelemetry export (off unless OTEL_EXPORTER_OTLP_ENDPOINT)
   retrieval/, indexer/   empty until phases 3 and 5
 config/             models.yaml (names, prices), roles.yaml (model per role), ownership.yaml
 db/migrations/      Alembic; 0001 also creates the events NOTIFY trigger by hand
 holmes/             HolmesGPT's image (Dockerfile), config.yaml, toolsets.yaml, condense_traces.py,
-                    search_logs.py (the `logs` toolset's OpenSearch search)
+                    search_logs.py (the `logs` toolset's OpenSearch search), history_*.sql
 codebox/            the codebase analyst's read-only container and helper commands (the helpers
                     fall back to ctags and rg until phase 5's code index exists)
 sandbox/            builds the shop fork: pin, overlay, patches, setup, images, compose wrapper
@@ -104,7 +106,9 @@ knowledge/ seed/ evals/ web/   placeholders with a README each (phases 3, 3, 3 a
   LISTENs on a plain psycopg connection. Stored events replay a run with no model calls.
 - **Database.** One Postgres 16 + pgvector (`make db`, localhost:5433, user/password/db
   `triage`). Our tables are SQLAlchemy models migrated by Alembic; Procrastinate and the LangGraph
-  checkpointer own their tables, which Alembic ignores.
+  checkpointer own their tables, which Alembic ignores. `make migrate` also provisions
+  `history_ro` from `HISTORY_DB_URL`, with SELECT on `deploys` and `flag_changes` only. HolmesGPT's
+  history tool passes model values to `psql` variables in `holmes/history_*.sql`.
 - **Models: provider-agnostic.** No code names a provider. `config/roles.yaml` has one profile
   per provider (`deepseek`, the default; `gemini`; `openai`; `openrouter`), each role with a
   model and a fallback on the same provider, so a profile needs one key. `ROLE_PROFILE` switches
@@ -202,11 +206,11 @@ make lint fmt                      # ruff, line length 100
 | Suite | Command | Needs | What it covers |
 | --- | --- | --- | --- |
 | default | `make test` | nothing | units, the whole graph in memory, scenario logic against a simulated shop, the sandbox kit's files |
-| `db` | `make test-db` | `make db` | migrations up/down, queries, NOTIFY, the worker pausing and resuming |
+| `db` | `make test-db` | `make db` | migrations up/down, queries, history role, NOTIFY, the worker pausing and resuming |
 | `sandbox` | `make test-sandbox` | `make sandbox` | the fork's tags, each planted diff, `git blame` to the planted commits, images |
 | `shop` | `make test-shop` | `make shop-up` | every scenario live (~3 min), recorded deploys, metrics, logs, `agent_ro` |
 | `llm` | `make test-llm` | keys in `.env.agent` | one real typed call per provider profile, skipped without its key (a fraction of a cent) |
-| `spike` | `make test-spike` | shop, `make analyst-images`, keys | both analysts on demo tickets (~3 min, a few cents), codebox guardrails |
+| `spike` | `make test-spike` | shop, `make analyst-images`, keys | both analysts on demo tickets (~3 min, a few cents), codebox and history guardrails |
 
 - Markers are excluded by default (`pyproject.toml` addopts). `db`, `shop` and `spike` refuse to run unless
   `DATABASE_URL` names a database ending in `_test`; the make targets set it.

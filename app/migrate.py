@@ -13,6 +13,7 @@ from langgraph.checkpoint.postgres.aio import AsyncPostgresSaver
 
 from app import db
 from app.alembic_config import alembic_config
+from app.history_access import history_url_for_database, setup_history_reader
 from app.settings import settings
 from app.tasks import app as procrastinate_app
 
@@ -39,11 +40,15 @@ async def seed() -> None:
 
 
 async def setup_rest() -> None:
+    await setup_history_reader()
     await setup_libraries()
     await seed()
 
 
 def main() -> None:
+    history_url_for_database(
+        settings.database_url
+    )  # fail before migrating if credentials are unset
     command.upgrade(alembic_config(), "head")  # runs its own event loop, so before ours
     asyncio.run(setup_rest())
 

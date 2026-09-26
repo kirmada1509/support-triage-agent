@@ -4,16 +4,16 @@ What's built and what isn't, phase by phase, against `Agent_Architecture_And_Bui
 Tick an item when it works and is tested the way the plan's "How it's tested" says; tick a
 phase's "Done when" only when that whole criterion has been seen working.
 
-Last updated Sep 26, 2026, after phase 2. Tests, all passing:
+Last updated Sep 26, 2026, after the history tool read-only fix. Tests, all passing:
 
 | Suite | Command | Needs | Tests |
 | --- | --- | --- | --- |
 | Units, graph in memory, scenario logic, sandbox kit, tracing, model config | `make test` | nothing | 86 |
-| Database | `make test-db` | `make db` | 6 |
+| Database | `make test-db` | `make db` | 7 |
 | The fork: tags, planted bugs, overlay, images | `make test-sandbox` | `make sandbox` | 18 |
 | The running shop: every scenario, read-only role, metrics, logs | `make test-shop` | `make shop-up` | 15 |
 | Real model calls on each provider profile | `make test-llm` | keys in `.env.agent` | 4 |
-| Both analysts on demo tickets, codebox guardrails | `make test-spike` | shop, `make analyst-images`, keys | 4 |
+| Both analysts on demo tickets, codebox and history guardrails | `make test-spike` | shop, `make analyst-images`, keys | 6 |
 
 ## Phase 0: Sandbox (days 1–2)
 
@@ -97,6 +97,9 @@ Last updated Sep 26, 2026, after phase 2. Tests, all passing:
 
 - [x] HolmesGPT toolsets load and connect: `prometheus/metrics`, `database/sql`, `jaeger`, `history`,
   `logs` (ours, replacing `elasticsearch/data`); its default shell, internet and kubectl toolsets are off (spike)
+- [x] `history` uses a dedicated `history_ro` login with SELECT only on deploys and flag changes;
+  model values are passed to `psql` as quoted variables, with hostile-input checks (`make test-db`,
+  `make test-spike`)
 - [x] `search_logs.py`: only `_search` on `otel-logs-*`, at most 50 hits, one line each, tested on a
   saved OpenSearch response
 - [ ] Give `/prev` in the codebox its own git environment (`GIT_DIR` currently points at the deployed tag)

@@ -70,8 +70,10 @@ toolsets:
       - name: deploys
         description: "Deploys since a time (ISO 8601), optionally for one service; with versions, git sha and commit titles"
         command: |
-          psql "$HISTORY_DB_URL" -A -F ' | ' -c "SELECT service, previous_version, version, git_sha, deployed_at, array_to_string(commit_titles, '; ') AS commits FROM deploys WHERE deployed_at >= '{{ since }}' AND ('{{ service }}' = '' OR service = '{{ service }}') ORDER BY deployed_at"
+          psql "$HISTORY_DB_URL" -X -v ON_ERROR_STOP=1 -A -F ' | ' \
+            -v since={{ since }} -v service={{ service }} -f /tools/history_deploys.sql
       - name: flag_changes
         description: "Feature-flag changes since a time (ISO 8601)"
         command: |
-          psql "$HISTORY_DB_URL" -A -F ' | ' -c "SELECT flag, old_variant, new_variant, changed_at FROM flag_changes WHERE changed_at >= '{{ since }}' ORDER BY changed_at"
+          psql "$HISTORY_DB_URL" -X -v ON_ERROR_STOP=1 -A -F ' | ' \
+            -v since={{ since }} -f /tools/history_flag_changes.sql

@@ -23,7 +23,7 @@ built and what isn't, phase by phase.
 Needs Docker, Python 3.12 and [uv](https://docs.astral.sh/uv/).
 
 ```bash
-cp .env.agent.example .env.agent   # add your LLM, TypeSafe and Linear keys later
+cp .env.agent.example .env.agent   # set HISTORY_DB_URL's random password; add API keys later
 make install                       # uv sync
 make db                            # Postgres 16 + pgvector on localhost:5433
 make migrate                       # Alembic migrations, queue and checkpoint tables, demo tenant
@@ -82,6 +82,9 @@ One Postgres 16 with pgvector holds everything, but only our tables go through t
 - **Procrastinate** (the job queue) and **LangGraph's checkpointer** create and manage their own
   tables. Alembic ignores them.
 - **The live stream** LISTENs on a plain psycopg connection, because the ORM has no LISTEN.
+- **Analyst history access** uses `history_ro`, provisioned by `make migrate` from the password
+  in `HISTORY_DB_URL`. It can select only `deploys` and `flag_changes`; Holmes runs the history
+  queries with separately quoted values in `holmes/history_*.sql`.
 
 Changing a table:
 

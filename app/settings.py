@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=ROOT / ".env.agent", extra="ignore")
 
     database_url: str = "postgresql://triage:triage@localhost:5433/triage"
+    history_db_url: str = ""
     pylon_webhook_secret: str = "dev-secret"
     api_base_url: str = "http://localhost:8000"
     role_profile: str | None = None  # ROLE_PROFILE: a profile in config/roles.yaml
