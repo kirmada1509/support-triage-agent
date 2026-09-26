@@ -1,0 +1,65 @@
+# The seven demo tickets, all from Figma Merch Store. The console's simulator and
+# scenarios/send_ticket.py both read this file. `setup` is what must be true in the sandbox first.
+tickets:
+  - id: "1"
+    title: Accepted cards
+    subject: Which cards can our shoppers pay with?
+    body: >-
+      Hi team, a few of our shoppers asked which cards they can use at checkout on our merch
+      store. Which card types do you accept?
+    expected_route: layer1
+    setup: none
+
+  - id: "2"
+    title: Apple Pay request
+    subject: Can you add Apple Pay to checkout?
+    body: >-
+      Our shoppers keep asking for Apple Pay. Can you add it to checkout? It would help a lot
+      with mobile orders.
+    expected_route: request
+    setup: none
+
+  - id: "3"
+    title: Amex false positive
+    subject: A shopper's checkout keeps failing, card ending 0005
+    body: >-
+      One of our shoppers (figma-shopper-07) says checkout keeps failing with their card ending
+      0005. They tried three times this morning. Is something broken on your side?
+    expected_route: layer2 -> false_positive
+    setup: orders placed with an Amex test card
+
+  - id: "4"
+    title: Expiry bug
+    subject: Shoppers say their card is rejected as expired, but it's valid until the end of this month
+    body: >-
+      Since this morning several of our shoppers are told their card has expired at checkout,
+      but their cards are valid until the end of this month. figma-shopper-03 and
+      figma-shopper-11 both failed around 10:15. This is costing us orders.
+    expected_route: layer2 -> confirmed_bug -> Payments
+    setup: payment v1.4.0 deployed; orders with cards expiring this month
+
+  - id: "5"
+    title: Bulk shipping quote bug
+    subject: Shipping cost roughly doubled on bulk orders since yesterday
+    body: >-
+      Our team orders merch in bulk (20+ items at a time) and the shipping quote has roughly
+      doubled since yesterday. Small orders look normal.
+    expected_route: layer2 -> confirmed_bug -> Shipping
+    setup: quote v1.4.0 deployed; orders with quantity above 10
+
+  - id: "6"
+    title: paymentFailure flag incident
+    subject: About 1 in 4 checkouts have failed since 11:05
+    body: >-
+      Since about 11:05 today roughly one in four of our shoppers' checkouts fail with a payment
+      error. Nothing changed on our side.
+    expected_route: layer2 -> config_incident -> Payments on-call
+    setup: ./scenarios/flag.sh paymentFailure 25%
+
+  - id: "7"
+    title: Vague repeat of ticket 4
+    subject: Shoppers told their card has expired
+    body: >-
+      Our shoppers keep getting told their card has expired at checkout, but it hasn't.
+    expected_route: duplicate of ticket 4's open issue
+    setup: send after ticket 4's verdict is recorded

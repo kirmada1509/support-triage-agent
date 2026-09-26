@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# find-symbol <name>: where a function or type is defined, and where it's called.
+set -euo pipefail
+name=${1:?usage: find-symbol <name>}
+out=$(_index -v n="$name" -c "SELECT file, line, service, kind, coalesce(signature, name) FROM code_symbols WHERE git_sha = :'sha' AND name = :'n'" || true)
+if [ -n "$out" ]; then echo "definitions:"; echo "$out"; else echo "definitions (ctags):"; ctags -R -x src/ 2>/dev/null | awk -v n="$name" '$1 == n {print $4":"$3" "$2}'; fi
+echo "references:"
+rg -n -w --max-count 20 -- "$name" src/ | head -40

@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# Shared helper: run a query on the code index if it's reachable, else return non-zero so the
+# caller falls back to plain search. Summaries point, code proves: these only say where to look.
+[ -n "${INDEX_URL:-}" ] && [ -n "${GIT_SHA:-}" ] || exit 1
+psql "$INDEX_URL" -X -A -t -F ':' -v sha="$GIT_SHA" "$@" 2>/dev/null

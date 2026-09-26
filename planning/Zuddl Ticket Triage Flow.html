@@ -1,0 +1,368 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Zuddl Ticket Triage Flow</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Schibsted+Grotesk:wght@600;700&display=swap">
+<style>
+:root{
+  --bg:#F4F5F8; --surface:#FFFFFF; --sunk:#ECEEF3; --ink:#15181E; --muted:#5A6272; --line:#C8CDD8;
+  --accent:#3445D6; --accent-tint:#E6E9FC;
+  --l1:#0E8074; --l1-tint:#E3F4F1;
+  --l2:#A86A12; --l2-tint:#FBF0DC;
+  --l3:#BE3A33; --l3-tint:#FBE6E4;
+  --ok:#1D7F47; --ok-tint:#E2F3E8;
+  --req:#6B5BB5; --req-tint:#EEEBF9;
+  --sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --display:"Schibsted Grotesk","IBM Plex Sans",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#0E1015; --surface:#171A21; --sunk:#1D2029; --ink:#E7E9EF; --muted:#9AA1B0; --line:#343A47;
+    --accent:#8D99FF; --accent-tint:#23284A;
+    --l1:#4CCFBF; --l1-tint:#12302C;
+    --l2:#EFB04A; --l2-tint:#33270F;
+    --l3:#F2786E; --l3-tint:#3A1C1A;
+    --ok:#5BCB8B; --ok-tint:#15301F;
+    --req:#B3A6F2; --req-tint:#26213F;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0E1015; --surface:#171A21; --sunk:#1D2029; --ink:#E7E9EF; --muted:#9AA1B0; --line:#343A47;
+  --accent:#8D99FF; --accent-tint:#23284A;
+  --l1:#4CCFBF; --l1-tint:#12302C;
+  --l2:#EFB04A; --l2-tint:#33270F;
+  --l3:#F2786E; --l3-tint:#3A1C1A;
+  --ok:#5BCB8B; --ok-tint:#15301F;
+  --req:#B3A6F2; --req-tint:#26213F;
+}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55;}
+.wrap{max-width:1180px;margin:0 auto;padding:40px 20px 64px;display:flex;flex-direction:column;gap:32px}
+header{display:flex;flex-direction:column;gap:10px;max-width:760px}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+h1{font-family:var(--display);font-size:clamp(28px,4.4vw,42px);line-height:1.08;margin:0;letter-spacing:-.01em;text-wrap:balance}
+h2{font-family:var(--display);font-size:22px;margin:0;text-wrap:balance}
+.lede{color:var(--muted);margin:0;max-width:66ch}
+.legend{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:13px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:8px}
+.sw{width:14px;height:14px;border-radius:4px;border:1.5px solid;display:inline-block}
+.diagram{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow-x:auto;padding:12px}
+.diagram svg{display:block;width:100%;min-width:900px;height:auto}
+svg text{font-family:var(--sans)}
+.t{font-size:15px;font-weight:600;fill:var(--ink)}
+.ts{font-size:13px;font-weight:600;fill:var(--ink)}
+.s{font-size:12px;fill:var(--muted)}
+.xs{font-size:11px;fill:var(--muted)}
+.mono{font-family:var(--mono)!important;font-size:11.5px;fill:var(--ink)}
+.monom{font-family:var(--mono)!important;font-size:11.5px;fill:var(--muted)}
+.hdr{font-family:var(--mono)!important;font-size:11px;letter-spacing:.08em;font-weight:500}
+.n{fill:var(--surface);stroke:var(--line);stroke-width:1.2}
+.n-a{fill:var(--accent-tint);stroke:var(--accent);stroke-width:1.6}
+.n-l1{fill:var(--surface);stroke:var(--l1);stroke-width:1.3}
+.n-l2{fill:var(--surface);stroke:var(--l2);stroke-width:1.3}
+.n-l3{fill:var(--surface);stroke:var(--l3);stroke-width:1.3}
+.n-req{fill:var(--surface);stroke:var(--req);stroke-width:1.3}
+.n-ok{fill:var(--ok-tint);stroke:var(--ok);stroke-width:1.6}
+.n-h{fill:var(--surface);stroke:var(--muted);stroke-width:1.2;stroke-dasharray:5 4}
+.dec{fill:var(--sunk);stroke:var(--ink);stroke-width:1.2}
+.lane1{fill:var(--l1-tint);stroke:none}
+.lane2{fill:var(--l2-tint);stroke:none}
+.lane3{fill:var(--l3-tint);stroke:none}
+.laner{fill:var(--req-tint);stroke:none}
+.grp{fill:none;stroke:var(--l2);stroke-width:1;stroke-dasharray:4 4}
+.card{fill:var(--sunk);stroke:var(--line);stroke-width:1}
+.e{fill:none;stroke:var(--muted);stroke-width:1.5}
+.ed{fill:none;stroke:var(--muted);stroke-width:1.3;stroke-dasharray:4 4}
+.ah{fill:var(--muted)}
+.pill{fill:var(--surface);stroke:var(--line);stroke-width:1}
+.c-l1{fill:var(--l1)} .c-l2{fill:var(--l2)} .c-l3{fill:var(--l3)} .c-req{fill:var(--req)} .c-ok{fill:var(--ok)} .c-a{fill:var(--accent)}
+
+.traces{display:flex;flex-direction:column;gap:16px}
+.traces .intro{color:var(--muted);margin:0;max-width:66ch}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
+.tk{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:12px}
+.tk-top{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.chip{font-family:var(--mono);font-size:11px;letter-spacing:.05em;text-transform:uppercase;padding:3px 8px;border-radius:999px;border:1px solid}
+.chip.l1{color:var(--l1);border-color:var(--l1);background:var(--l1-tint)}
+.chip.l2{color:var(--l2);border-color:var(--l2);background:var(--l2-tint)}
+.chip.l3{color:var(--l3);border-color:var(--l3);background:var(--l3-tint)}
+.chip.ok{color:var(--ok);border-color:var(--ok);background:var(--ok-tint)}
+.id{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.q{margin:0;font-weight:500;font-size:15.5px}
+.steps{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px;font-size:13.5px;color:var(--muted)}
+.steps li{display:grid;grid-template-columns:92px 1fr;gap:10px}
+.steps b{font-family:var(--mono);font-weight:500;font-size:11.5px;color:var(--ink);text-transform:uppercase;letter-spacing:.04em;padding-top:2px}
+.steps code{font-family:var(--mono);font-size:12.5px;color:var(--ink)}
+.out{margin-top:auto;border-top:1px solid var(--line);padding-top:12px;font-size:13.5px}
+.out strong{font-weight:600}
+.note{font-size:12.5px;color:var(--muted);margin:0}
+@media (max-width:480px){.steps li{grid-template-columns:1fr;gap:2px}}
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Zuddl · internal support harness</div>
+    <h1>Ticket triage flow, traced with Figma as the customer</h1>
+    <p class="lede">Figma runs its Config events on Zuddl. When their events team opens a ticket in Pylon, a webhook hands it to the agent, which categorizes it with Jev (TypeSafe AI's typed decision model) and either answers on its own or sends it to the right layer: product support, tech support, or engineering.</p>
+  </header>
+
+  <div class="legend" aria-label="Legend">
+    <span><i class="sw" style="border-color:var(--l1);background:var(--l1-tint)"></i>Layer 1 · Product support</span>
+    <span><i class="sw" style="border-color:var(--l2);background:var(--l2-tint)"></i>Layer 2 · Tech support</span>
+    <span><i class="sw" style="border-color:var(--l3);background:var(--l3-tint)"></i>Layer 3 · Engineering</span>
+    <span><i class="sw" style="border-color:var(--ok);background:var(--ok-tint)"></i>Closes the loop with Figma</span>
+    <span><i class="sw" style="border-color:var(--muted);border-style:dashed"></i>Human review</span>
+  </div>
+
+  <div class="diagram" role="img" aria-label="Flowchart: Figma ticket goes through Pylon webhook, enrichment and smart categorization, then branches to product support, tech support investigation with subagents, request triage, or engineering.">
+<svg viewBox="0 0 1120 1380" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" class="ah"/>
+    </marker>
+  </defs>
+
+  <!-- ===== Intake ===== -->
+  <rect x="370" y="20" width="380" height="64" rx="10" class="n"/>
+  <text x="560" y="46" text-anchor="middle" class="t">Figma opens a ticket</text>
+  <text x="560" y="67" text-anchor="middle" class="s">Config events team · Slack Connect, email or in-app</text>
+
+  <line x1="560" y1="84" x2="560" y2="122" class="e" marker-end="url(#ar)"/>
+
+  <rect x="370" y="124" width="380" height="64" rx="10" class="n"/>
+  <text x="560" y="150" text-anchor="middle" class="t">Pylon</text>
+  <text x="560" y="171" text-anchor="middle" class="s">issue.created → webhook → support harness</text>
+
+  <line x1="560" y1="188" x2="560" y2="226" class="e" marker-end="url(#ar)"/>
+
+  <rect x="370" y="228" width="380" height="64" rx="10" class="n"/>
+  <text x="560" y="254" text-anchor="middle" class="t">Enrich with account context</text>
+  <text x="560" y="275" text-anchor="middle" class="s">Figma · Enterprise · org_id · live events · CSM</text>
+
+  <line x1="560" y1="292" x2="560" y2="330" class="e" marker-end="url(#ar)"/>
+
+  <rect x="370" y="332" width="380" height="166" rx="10" class="n-a"/>
+  <text x="390" y="358" class="t">Smart categorization · Jev</text>
+  <rect x="646" y="344" width="88" height="20" rx="10" class="pill"/>
+  <text x="690" y="358" text-anchor="middle" class="xs">typesafe_ai</text>
+  <text x="390" y="378" class="xs">Typed questions over the enriched ticket, one parallel call</text>
+  <text x="390" y="402" class="mono c-a">choice</text><text x="448" y="402" class="mono">type</text><text x="530" y="402" class="monom">how_to · tech · request</text>
+  <text x="390" y="422" class="mono c-a">choice</text><text x="448" y="422" class="mono">service</text><text x="530" y="422" class="monom">registration · checkin · …</text>
+  <text x="390" y="442" class="mono c-a">score</text><text x="448" y="442" class="mono">severity</text><text x="530" y="442" class="monom">1 – 4</text>
+  <text x="390" y="462" class="mono c-a">noul</text><text x="448" y="462" class="mono">live_soon</text><text x="530" y="462" class="monom">"event starts within 48h"</text>
+  <text x="390" y="486" class="xs">~70–500 ms · each answer returns probabilities + confidence</text>
+
+  <!-- confidence gate -->
+  <rect x="40" y="332" width="290" height="124" rx="10" class="card"/>
+  <text x="56" y="356" class="hdr c-a">CONFIDENCE GATE</text>
+  <text x="56" y="382" class="s">≥ 0.7 → route on Jev's choice</text>
+  <text x="56" y="404" class="s">&lt; 0.7 → LLM re-reads the thread,</text>
+  <text x="56" y="422" class="s">then human triage if still unsure</text>
+  <text x="56" y="444" class="xs">Thresholds tuned per question on eval set</text>
+  <line x1="370" y1="394" x2="332" y2="394" class="ed" marker-end="url(#ar)"/>
+
+  <!-- payload card -->
+  <rect x="40" y="112" width="290" height="176" rx="10" class="card"/>
+  <text x="56" y="136" class="hdr c-a">WEBHOOK PAYLOAD</text>
+  <text x="56" y="162" class="monom">{</text>
+  <text x="68" y="182" class="mono">"event": "issue.created",</text>
+  <text x="68" y="202" class="mono">"account": "Figma",</text>
+  <text x="68" y="222" class="mono">"channel": "slack_connect",</text>
+  <text x="68" y="242" class="mono">"title": "SFDC sync missing regs",</text>
+  <text x="68" y="262" class="mono">"priority": "high"</text>
+  <text x="56" y="280" class="monom">}</text>
+  <line x1="330" y1="156" x2="368" y2="156" class="ed" marker-end="url(#ar)"/>
+
+  <!-- context store -->
+  <rect x="800" y="292" width="280" height="128" rx="10" class="card"/>
+  <text x="816" y="316" class="hdr c-a">AGENT CONTEXT</text>
+  <text x="816" y="342" class="s">Service catalog + owning teams</text>
+  <text x="816" y="362" class="s">Team ownership &amp; on-call map</text>
+  <text x="816" y="382" class="s">Help center, runbooks, past tickets</text>
+  <text x="816" y="402" class="s">Open incidents &amp; recent deploys</text>
+  <line x1="800" y1="370" x2="752" y2="370" class="ed" marker-end="url(#ar)"/>
+
+  <g transform="translate(0,90)">
+  <!-- ===== Branch ===== -->
+  <line x1="560" y1="408" x2="560" y2="436" class="e"/>
+  <line x1="190" y1="436" x2="930" y2="436" class="e"/>
+
+  <!-- lanes -->
+  <rect x="24" y="484" width="332" height="440" rx="12" class="lane1"/>
+  <rect x="374" y="484" width="372" height="652" rx="12" class="lane2"/>
+  <rect x="764" y="484" width="332" height="224" rx="12" class="laner"/>
+  <rect x="764" y="860" width="332" height="324" rx="12" class="lane3"/>
+
+  <text x="38" y="508" class="hdr c-l1">LAYER 1</text>
+  <text x="342" y="508" text-anchor="end" class="hdr c-l1">PRODUCT SUPPORT</text>
+  <text x="388" y="508" class="hdr c-l2">LAYER 2</text>
+  <text x="732" y="508" text-anchor="end" class="hdr c-l2">TECH SUPPORT</text>
+  <text x="778" y="508" class="hdr c-req">ACCOUNT · PRODUCT</text>
+  <text x="778" y="884" class="hdr c-l3">LAYER 3</text>
+  <text x="1082" y="884" text-anchor="end" class="hdr c-l3">ENGINEERING</text>
+
+  <line x1="190" y1="436" x2="190" y2="518" class="e" marker-end="url(#ar)"/>
+  <line x1="560" y1="436" x2="560" y2="518" class="e" marker-end="url(#ar)"/>
+  <line x1="930" y1="436" x2="930" y2="518" class="e" marker-end="url(#ar)"/>
+
+  <rect x="128" y="449" width="124" height="22" rx="11" class="pill"/>
+  <text x="190" y="464" text-anchor="middle" class="xs">how-to / setup</text>
+  <rect x="460" y="449" width="200" height="22" rx="11" class="pill"/>
+  <text x="560" y="464" text-anchor="middle" class="xs">tech issue / suspected bug</text>
+  <rect x="860" y="449" width="140" height="22" rx="11" class="pill"/>
+  <text x="930" y="464" text-anchor="middle" class="xs">feature / account ask</text>
+
+  <!-- ===== Layer 1 ===== -->
+  <rect x="48" y="520" width="284" height="76" rx="10" class="n-l1"/>
+  <text x="190" y="545" text-anchor="middle" class="t">Product support agent</text>
+  <text x="190" y="566" text-anchor="middle" class="s">RAG over help center, past resolutions</text>
+  <text x="190" y="583" text-anchor="middle" class="s">and Figma's event setup</text>
+
+  <line x1="190" y1="596" x2="190" y2="622" class="e" marker-end="url(#ar)"/>
+  <polygon points="190,624 290,670 190,716 90,670" class="dec"/>
+  <text x="190" y="675" text-anchor="middle" class="ts">Confident?</text>
+
+  <line x1="190" y1="716" x2="190" y2="746" class="e" marker-end="url(#ar)"/>
+  <text x="200" y="736" class="xs">yes · ≥ 0.85</text>
+  <rect x="48" y="748" width="284" height="64" rx="10" class="n-ok"/>
+  <text x="190" y="774" text-anchor="middle" class="t">Reply directly in Pylon</text>
+  <text x="190" y="795" text-anchor="middle" class="s">Answer + doc links, awaiting customer</text>
+
+  <polyline points="90,670 36,670 36,874 46,874" class="e" marker-end="url(#ar)"/>
+  <text x="62" y="660" text-anchor="middle" class="xs">no</text>
+  <rect x="48" y="848" width="284" height="56" rx="10" class="n-h"/>
+  <text x="190" y="871" text-anchor="middle" class="ts">Human product support</text>
+  <text x="190" y="890" text-anchor="middle" class="s">Agent's draft pre-filled for review</text>
+
+  <!-- guardrails -->
+  <rect x="24" y="956" width="332" height="228" rx="12" class="card"/>
+  <text x="40" y="982" class="hdr" style="fill:var(--ink)">HUMAN IN THE LOOP WHEN</text>
+  <text x="40" y="1014" class="s">• Jev or verdict confidence below 0.7</text>
+  <text x="40" y="1040" class="s">• Sev1, or the event goes live within 48h</text>
+  <text x="40" y="1066" class="s">• Any write action on customer data</text>
+  <text x="40" y="1092" class="s">• Customer asks for a person</text>
+  <text x="40" y="1118" class="s">• Same account, 3+ tickets in 24h</text>
+  <text x="40" y="1156" class="xs">Agent drafts; a person approves before send.</text>
+
+  <!-- ===== Layer 2 ===== -->
+  <rect x="390" y="520" width="340" height="76" rx="10" class="n-l2"/>
+  <text x="560" y="545" text-anchor="middle" class="t">Tech support orchestrator</text>
+  <text x="560" y="566" text-anchor="middle" class="s">Extracts org_id, event_id, attendee emails,</text>
+  <text x="560" y="583" text-anchor="middle" class="s">timestamps and error text</text>
+
+  <line x1="560" y1="596" x2="560" y2="622" class="e" marker-end="url(#ar)"/>
+  <rect x="390" y="624" width="340" height="180" rx="10" class="grp"/>
+  <text x="404" y="645" class="hdr c-l2">PARALLEL SUBAGENTS</text>
+  <text x="716" y="645" text-anchor="end" class="xs">spawned per ticket</text>
+
+  <rect x="400" y="656" width="156" height="64" rx="8" class="n"/>
+  <text x="478" y="682" text-anchor="middle" class="ts">Log analyst</text>
+  <text x="478" y="702" text-anchor="middle" class="xs">Datadog, by service</text>
+  <rect x="564" y="656" width="156" height="64" rx="8" class="n"/>
+  <text x="642" y="682" text-anchor="middle" class="ts">Codebase analyst</text>
+  <text x="642" y="702" text-anchor="middle" class="xs">GitHub @ deployed SHA</text>
+  <rect x="400" y="728" width="156" height="64" rx="8" class="n"/>
+  <text x="478" y="754" text-anchor="middle" class="ts">Data inspector</text>
+  <text x="478" y="774" text-anchor="middle" class="xs">Read-only event config</text>
+  <rect x="564" y="728" width="156" height="64" rx="8" class="n"/>
+  <text x="642" y="754" text-anchor="middle" class="ts">Change tracker</text>
+  <text x="642" y="774" text-anchor="middle" class="xs">Deploys, flags, incidents</text>
+
+  <line x1="560" y1="804" x2="560" y2="830" class="e" marker-end="url(#ar)"/>
+  <rect x="390" y="832" width="340" height="56" rx="10" class="n-l2"/>
+  <text x="560" y="855" text-anchor="middle" class="t">Synthesize verdict</text>
+  <text x="560" y="875" text-anchor="middle" class="s">Evidence chain + confidence score</text>
+
+  <line x1="560" y1="888" x2="560" y2="910" class="e" marker-end="url(#ar)"/>
+  <polygon points="560,912 670,958 560,1004 450,958" class="dec"/>
+  <text x="560" y="963" text-anchor="middle" class="ts">Real product bug?</text>
+
+  <line x1="560" y1="1004" x2="560" y2="1038" class="e" marker-end="url(#ar)"/>
+  <text x="570" y="1026" class="xs">no · false positive</text>
+  <rect x="390" y="1040" width="340" height="76" rx="10" class="n-ok"/>
+  <text x="560" y="1065" text-anchor="middle" class="t">Respond directly to Figma</text>
+  <text x="560" y="1086" text-anchor="middle" class="s">Root cause (config, user error, expected),</text>
+  <text x="560" y="1103" text-anchor="middle" class="s">fix steps and the log evidence</text>
+
+  <line x1="670" y1="958" x2="778" y2="958" class="e" marker-end="url(#ar)"/>
+  <text x="724" y="949" text-anchor="middle" class="xs">yes · confirmed</text>
+
+  <!-- ===== Requests lane ===== -->
+  <rect x="780" y="520" width="300" height="76" rx="10" class="n-req"/>
+  <text x="930" y="545" text-anchor="middle" class="t">Request triage</text>
+  <text x="930" y="566" text-anchor="middle" class="s">Feature ask → product board</text>
+  <text x="930" y="583" text-anchor="middle" class="s">Billing or contract → CSM</text>
+  <line x1="930" y1="596" x2="930" y2="622" class="e" marker-end="url(#ar)"/>
+  <rect x="780" y="624" width="300" height="64" rx="10" class="n-ok"/>
+  <text x="930" y="650" text-anchor="middle" class="t">Acknowledge &amp; tag</text>
+  <text x="930" y="671" text-anchor="middle" class="s">Linked to roadmap item, CSM looped in</text>
+
+  <!-- ===== Layer 3 ===== -->
+  <rect x="780" y="904" width="300" height="76" rx="10" class="n-l3"/>
+  <text x="930" y="929" text-anchor="middle" class="t">Route via ownership map</text>
+  <text x="930" y="950" text-anchor="middle" class="s">integrations-svc → Integrations on-call</text>
+  <text x="930" y="967" text-anchor="middle" class="s">priority from ARR + event date</text>
+  <line x1="930" y1="980" x2="930" y2="1002" class="e" marker-end="url(#ar)"/>
+  <rect x="780" y="1004" width="300" height="76" rx="10" class="n-l3"/>
+  <text x="930" y="1029" text-anchor="middle" class="t">Linear issue with RCA</text>
+  <text x="930" y="1050" text-anchor="middle" class="s">Logs, suspect file:line, repro steps,</text>
+  <text x="930" y="1067" text-anchor="middle" class="s">affected attendee count</text>
+  <line x1="930" y1="1080" x2="930" y2="1102" class="e" marker-end="url(#ar)"/>
+  <rect x="780" y="1104" width="300" height="64" rx="10" class="n-ok"/>
+  <text x="930" y="1130" text-anchor="middle" class="t">Acknowledge Figma with ETA</text>
+  <text x="930" y="1151" text-anchor="middle" class="s">Internal note in Pylon · CSM notified</text>
+
+  <!-- ===== Learning loop ===== -->
+  <rect x="24" y="1210" width="1072" height="56" rx="12" class="n-a"/>
+  <text x="44" y="1243" class="hdr c-a">LEARNING LOOP</text>
+  <text x="170" y="1243" class="s">Every closed ticket feeds resolution tags, help-center gaps and the classifier eval set back into agent context.</text>
+  </g>
+</svg>
+  </div>
+
+  <section class="traces">
+    <h2>Three Figma tickets, traced</h2>
+    <p class="intro">Illustrative tickets showing each exit from the flow. Service names, IDs, Jev outputs and numbers are examples.</p>
+    <div class="grid">
+      <article class="tk">
+        <div class="tk-top"><span class="chip l1">Layer 1</span><span class="id">PYL-20841</span></div>
+        <p class="q">"Can attendees switch breakout sessions after they've registered for Config?"</p>
+        <ul class="steps">
+          <li><b>Jev</b><span><code>type=how_to 0.94</code> · <code>service=registration</code> · <code>severity=1</code></span></li>
+          <li><b>Agent</b><span>Matches help-center article on session selection and checks Figma's Config event has it enabled</span></li>
+          <li><b>Confidence</b><span><code>0.93</code> — above threshold</span></li>
+        </ul>
+        <div class="out"><span class="chip ok">Resolved</span> <strong>Answered directly</strong> with the setting path and doc link. No human touched it.</div>
+      </article>
+
+      <article class="tk">
+        <div class="tk-top"><span class="chip l2">Layer 2</span><span class="id">PYL-20857</span></div>
+        <p class="q">"QR check-in is rejecting badges at the Config London door."</p>
+        <ul class="steps">
+          <li><b>Jev</b><span><code>type=tech 0.91</code> · <code>service=checkin</code> · <code>live_soon=0.98</code> → Sev2</span></li>
+          <li><b>Logs</b><span><code>checkin-svc</code> returns <code>EVENT_MISMATCH</code> on 214 scans</span></li>
+          <li><b>Data</b><span>Badges were printed from the San Francisco event, not London</span></li>
+          <li><b>Code</b><span>Mismatch check behaves as designed</span></li>
+          <li><b>Changes</b><span>No deploys to check-in in 9 days</span></li>
+        </ul>
+        <div class="out"><span class="chip ok">False positive</span> <strong>Responded directly</strong> with the cause and two fixes: reissue badges from the London event, or enable cross-event check-in.</div>
+      </article>
+
+      <article class="tk">
+        <div class="tk-top"><span class="chip l3">Layer 3</span><span class="id">PYL-20862</span></div>
+        <p class="q">"Registrations have been missing from Salesforce since Tuesday."</p>
+        <ul class="steps">
+          <li><b>Jev</b><span><code>type=tech 0.88</code> · <code>service=sfdc</code> · <code>severity=3</code></span></li>
+          <li><b>Logs</b><span><code>integrations-svc</code> gets 400s from Salesforce on names with non-Latin characters</span></li>
+          <li><b>Code</b><span>Lead mapper truncates multibyte strings in <code>sfdc/leadMapper.ts</code></span></li>
+          <li><b>Changes</b><span>Introduced by Tuesday's deploy; 312 records affected</span></li>
+        </ul>
+        <div class="out"><span class="chip l3">Confirmed bug</span> <strong>Routed to Integrations on-call</strong> with a Linear issue and RCA. Figma gets an ETA and a backfill plan.</div>
+      </article>
+    </div>
+    <p class="note">Every tool the subagents use is read-only. Anything that changes customer data goes through a person.</p>
+  </section>
+</div>
+
+</body></html>

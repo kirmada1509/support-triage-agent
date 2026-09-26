@@ -1,0 +1,152 @@
+"""Domain models shared by the graph nodes. Each LLM call returns one (Pydantic AI output_type)."""
+
+from datetime import datetime
+from typing import Literal
+
+from pydantic import BaseModel, Field
+
+Lane = Literal["how_to", "request", "tech_issue"]
+
+
+class Ticket(BaseModel):
+    id: str
+    tenant_id: str | None = None
+    subject: str
+    body: str
+    requester: str | None = None
+    received_at: datetime | None = None
+
+
+# --- context (code, no LLM) -------------------------------------------------------------------
+
+
+class Deploy(BaseModel):
+    id: int
+    service: str
+    version: str
+    previous_version: str | None = None
+    git_sha: str | None = None
+    commit_titles: list[str] = []
+    deployed_at: datetime
+
+
+class FlagChange(BaseModel):
+    id: int
+    flag: str
+    old_variant: str | None = None
+    new_variant: str | None = None
+    changed_at: datetime
+
+
+class ContextBundle(BaseModel):
+    tenant: dict = {}
+    recent_tickets: list[dict] = []
+    deploys: list[Deploy] = []  # last 24 h
+    flag_changes: list[FlagChange] = []  # last 24 h
+    incidents: list[dict] = []
+    services: dict[str, str] = {}  # service -> one-line description (ownership.yaml keys)
+
+
+# --- enrichment (one LLM call, then validation) -----------------------------------------------
+
+
+class Enrichment(BaseModel):
+    identifiers: dict[str, list[str]] = {}  # order_ids, session_ids, card_last4, emails
+    window_start: datetime
+    window_end: datetime
+    window_basis: str  # the phrase it came from, e.g. "since this morning"
+    symptom: str
+    likely_services: list[str] = []  # names from ownership.yaml, most likely first
+    relevant_changes: list[str] = []  # "deploy:<id>" or "flag:<id>" from the context bundle
+    missing: list[str] = []  # what to ask the customer if nothing is identifiable
+
+
+# --- retrieval --------------------------------------------------------------------------------
+
+
+class Retrieved(BaseModel):
+    kind: Literal["help_section", "ticket"]
+    id: str  # section slug or ticket ID
+    title: str
+    text: str
+    status: Literal["open", "resolved"] | None = None  # tickets only
+    score: float
+
+
+# --- categorization (Jev) ---------------------------------------------------------------------
+
+
+class JevAnswer(BaseModel):
+    question: str  # ticket_type | service | severity | revenue_blocking
+    answer: str | int | bool
+    confidence: float
+
+
+class Classification(BaseModel):
+    ticket_type: Lane
+    ticket_type_confidence: float
+    service: str  # ownership.yaml key or "other"
+    severity: int = Field(ge=1, le=4)
+    revenue_blocking: bool
+    revenue_blocking_confidence: float
+    source: Literal["jev", "llm_fallback", "stub"] = "jev"
+    needs_human: bool = False
+    answers: list[JevAnswer] = []
+
+
+# --- Layer 1 and request triage (one LLM call each) -------------------------------------------
+
+
+class Layer1Answer(BaseModel):
+    answer: str
+    cited_ids: list[str]  # must be IDs from the Retrieved list
+    confident: bool
+
+
+class RequestTriage(BaseModel):
+    kind: Literal["feature", "billing", "account"]
+    summary: str
+    roadmap_tag: str | None = None
+    acknowledgement: str
+
+
+# --- Layer 2 ----------------------------------------------------------------------------------
+
+
+class Brief(BaseModel):
+    text: str  # identifiers, window, suspected service, customer words
+    suspected_service: str
+    past_investigations: list[str] = []  # hypotheses to check, never facts
+
+
+class Evidence(BaseModel):
+    source: Literal["trace", "metric", "log", "sql", "code", "git", "flag"]
+    ref: str  # trace id, PromQL, file:line, commit sha
+    observation: str
+    call_id: str | None = None  # the tool call it came from (checked in findings.py)
+
+
+class Findings(BaseModel):
+    agent: Literal["data_analyst", "codebase_analyst"]
+    hypothesis: str
+    evidence: list[Evidence]
+    confidence: float
+    round: int = 1
+
+
+class Verdict(BaseModel):
+    kind: Literal["false_positive", "confirmed_bug", "config_incident", "inconclusive"]
+    root_cause: str
+    owning_service: str
+    confidence: float
+    customer_reply: str
+    engineering_summary: str | None = None
+
+
+# --- approval ---------------------------------------------------------------------------------
+
+
+class ApprovalDecision(BaseModel):
+    approved: bool = True
+    edited_reply: str | None = None
+    reviewer: str | None = None

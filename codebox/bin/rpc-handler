@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# rpc-handler <Service/Method>: the function that handles a gRPC method, in whichever service.
+set -euo pipefail
+rpc=${1:?usage: rpc-handler <Service/Method>}
+method=${rpc##*/}
+out=$(_index -v m="$rpc" -c "SELECT handler_file, handler_line, service FROM rpc_map WHERE git_sha = :'sha' AND method = :'m'" || true)
+if [ -n "$out" ]; then echo "$out"; exit 0; fi
+# Fallback: handler definitions named after the method (Go, JS, Python, PHP, C#, Rust, ...).
+rg -n -i -e "func \(.*\) ${method}\(" -e "\b${method}\s*[:=]\s*(async\s*)?(function|\()" \
+   -e "def ${method}\(" -e "function ${method}\(" -e "\b${method}\s*\(" --max-count 3 src/ \
+  | grep -v -i "test" | head -20

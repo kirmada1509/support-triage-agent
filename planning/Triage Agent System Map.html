@@ -1,0 +1,462 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Triage Agent System Map</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Schibsted+Grotesk:wght@600;700&display=swap">
+<style>
+:root{
+  --bg:#F4F5F8; --surface:#FFFFFF; --sunk:#ECEEF3; --ink:#15181E; --muted:#5A6272; --line:#C3C9D5;
+  --accent:#3445D6; --accent-tint:#E8EBFC;
+  --amber:#A86A12; --amber-tint:#FBF2E1;
+  --teal:#0E8074; --teal-tint:#E3F4F1;
+  --violet:#6B5BB5; --violet-tint:#EFECFA;
+  --coral:#BE3A33; --coral-tint:#FBEAE8;
+  --sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --display:"Schibsted Grotesk","IBM Plex Sans",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#0E1015; --surface:#171A21; --sunk:#1F232C; --ink:#E7E9EF; --muted:#9AA1B0; --line:#3A404D;
+    --accent:#8D99FF; --accent-tint:#1E2340;
+    --amber:#EFB04A; --amber-tint:#2B220F;
+    --teal:#4CCFBF; --teal-tint:#10292A;
+    --violet:#B3A6F2; --violet-tint:#221E38;
+    --coral:#F2786E; --coral-tint:#321A19;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0E1015; --surface:#171A21; --sunk:#1F232C; --ink:#E7E9EF; --muted:#9AA1B0; --line:#3A404D;
+  --accent:#8D99FF; --accent-tint:#1E2340;
+  --amber:#EFB04A; --amber-tint:#2B220F;
+  --teal:#4CCFBF; --teal-tint:#10292A;
+  --violet:#B3A6F2; --violet-tint:#221E38;
+  --coral:#F2786E; --coral-tint:#321A19;
+}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
+.wrap{max-width:1560px;margin:0 auto;padding:40px 20px 64px;display:flex;flex-direction:column;gap:28px}
+header{display:flex;flex-direction:column;gap:10px;max-width:780px}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+h1{font-family:var(--display);font-size:clamp(28px,4vw,40px);line-height:1.08;margin:0;letter-spacing:-.01em;text-wrap:balance}
+h2{font-family:var(--display);font-size:21px;margin:0}
+.lede{color:var(--muted);margin:0;max-width:70ch}
+.legend{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:13px;color:var(--muted);align-items:center}
+.legend span{display:inline-flex;align-items:center;gap:8px}
+.sw{width:14px;height:14px;border-radius:4px;border:1.5px solid;display:inline-block}
+.bdg{display:inline-grid;place-items:center;min-width:20px;height:20px;padding:0 5px;border-radius:10px;background:var(--accent);color:var(--surface);font:600 11px var(--mono)}
+.bdg.l{background:var(--violet)}
+.diagram{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow-x:auto;padding:12px}
+.diagram svg{display:block;width:100%;min-width:1150px;height:auto}
+svg text{font-family:var(--sans)}
+.t{font-size:13px;font-weight:600;fill:var(--ink)}
+.s{font-size:11px;fill:var(--muted)}
+.m{font-family:var(--mono)!important;font-size:10.5px;fill:var(--ink)}
+.zl{font-family:var(--mono)!important;font-size:11px;letter-spacing:.07em;font-weight:500}
+.box{fill:var(--surface);stroke:var(--line);stroke-width:1.1}
+.z1{fill:var(--sunk)} .z2{fill:var(--accent-tint)} .z3{fill:var(--amber-tint)} .z4{fill:var(--teal-tint)} .z5{fill:var(--violet-tint)} .z6{fill:var(--coral-tint)}
+.c1{fill:var(--muted)} .c2{fill:var(--accent)} .c3{fill:var(--amber)} .c4{fill:var(--teal)} .c5{fill:var(--violet)} .c6{fill:var(--coral)}
+.b2{stroke:var(--accent)} .b3{stroke:var(--amber)} .b4{stroke:var(--teal)} .b5{stroke:var(--violet)} .b6{stroke:var(--coral)}
+.frame{fill:none;stroke:var(--amber);stroke-width:1;stroke-dasharray:4 4}
+.grp{fill:none;stroke:var(--coral);stroke-width:1;stroke-dasharray:4 4}
+.e{fill:none;stroke:var(--muted);stroke-width:1.4}
+.ea{fill:none;stroke:var(--accent);stroke-width:1.6}
+.eh{fill:none;stroke:var(--teal);stroke-width:1.6;stroke-dasharray:6 4}
+.ev{fill:none;stroke:var(--violet);stroke-width:1.6;stroke-dasharray:6 4}
+.spine{stroke:var(--amber);stroke-width:2;opacity:.5}
+.ah{fill:var(--muted)} .aha{fill:var(--accent)} .ahh{fill:var(--teal)} .ahv{fill:var(--violet)}
+.badge{fill:var(--accent)} .badgel{fill:var(--violet)}
+.bt{font-family:var(--mono)!important;font-size:10.5px;font-weight:600;fill:var(--surface)}
+
+section{display:flex;flex-direction:column;gap:12px}
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14px;min-width:720px}
+th,td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-family:var(--mono);font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:500}
+tr:last-child td{border-bottom:none}
+td code{font-family:var(--mono);font-size:12.5px}
+td:first-child{width:44px}
+.two{display:flex;flex-direction:column;gap:28px}
+.note{font-size:13px;color:var(--muted);margin:0}
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Support Triage Agent · system map</div>
+    <h1>Everything the triage agent touches, and how a ticket moves through it</h1>
+    <p class="lede">Frontend, backend, the LangGraph pipeline, the open-source agents, databases, external services, the codebases and the sandbox shop, with every connection between them. Numbers follow one ticket from start to finish; letters are the setup flows that prepare the sandbox.</p>
+  </header>
+
+  <div class="legend" aria-label="Legend">
+    <span><i class="sw" style="border-color:var(--muted);background:var(--sunk)"></i>People and entry</span>
+    <span><i class="sw" style="border-color:var(--accent);background:var(--accent-tint)"></i>Triage Console (Next.js)</span>
+    <span><i class="sw" style="border-color:var(--amber);background:var(--amber-tint)"></i>Backend and agents (Python)</span>
+    <span><i class="sw" style="border-color:var(--teal);background:var(--teal-tint)"></i>Data and external services</span>
+    <span><i class="sw" style="border-color:var(--violet);background:var(--violet-tint)"></i>Codebases and scripts</span>
+    <span><i class="sw" style="border-color:var(--coral);background:var(--coral-tint)"></i>Sandbox shop</span>
+    <span><i class="bdg">1</i>ticket step</span>
+    <span><i class="bdg l">A</i>setup flow</span>
+  </div>
+
+  <div class="diagram" role="img" aria-label="System map: people and Pylon feed the FastAPI backend; the Next.js Triage Console reads it over REST and Server-Sent Events; a Procrastinate worker runs the pipeline with Pydantic AI, HolmesGPT and mini-swe-agent; it uses the agent Postgres with pgvector, LLM providers, local embeddings, TypeSafe Jev and Linear; HolmesGPT reads the sandbox shop's Prometheus, Jaeger, OpenSearch and database; mini-swe-agent reads the sandbox fork's worktrees in a read-only container.">
+<svg viewBox="0 0 1500 1200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="ah"/></marker>
+    <marker id="aa" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="aha"/></marker>
+    <marker id="ahh" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="ahh"/></marker>
+    <marker id="ahv" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="ahv"/></marker>
+  </defs>
+
+  <!-- ================= ZONES ================= -->
+  <rect x="20" y="20" width="280" height="480" rx="14" class="z1"/>
+  <text x="36" y="44" class="zl c1">PEOPLE &amp; ENTRY</text>
+  <rect x="320" y="20" width="330" height="480" rx="14" class="z2"/>
+  <text x="336" y="44" class="zl c2">TRIAGE CONSOLE · web/</text>
+  <rect x="670" y="20" width="400" height="760" rx="14" class="z3"/>
+  <text x="686" y="44" class="zl c3">BACKEND · support-agent/app</text>
+  <rect x="1090" y="20" width="390" height="760" rx="14" class="z4"/>
+  <text x="1106" y="44" class="zl c4">DATA &amp; EXTERNAL SERVICES</text>
+  <rect x="20" y="520" width="630" height="260" rx="14" class="z5"/>
+  <text x="36" y="544" class="zl c5">CODEBASES &amp; SCRIPTS</text>
+  <rect x="20" y="800" width="1460" height="380" rx="14" class="z6"/>
+  <text x="330" y="824" class="zl c6">SANDBOX · ASTRONOMY SHOP (MINIMAL MODE)</text>
+
+  <!-- ================= PEOPLE ================= -->
+  <rect x="40" y="56" width="240" height="56" rx="9" class="box"/>
+  <text x="54" y="79" class="t">Figma Merch Store</text>
+  <text x="54" y="98" class="s">shoppers hit a bug; the team files a ticket</text>
+  <rect x="40" y="148" width="240" height="56" rx="9" class="box"/>
+  <text x="54" y="171" class="t">Pylon</text>
+  <text x="54" y="190" class="s">support inbox · sends a signed webhook</text>
+  <rect x="40" y="236" width="240" height="56" rx="9" class="box"/>
+  <text x="54" y="259" class="t">Support admin (browser)</text>
+  <text x="54" y="278" class="s">watches every run, approves replies</text>
+  <rect x="40" y="324" width="240" height="72" rx="9" class="box"/>
+  <text x="54" y="347" class="t">Engineering teams</text>
+  <text x="54" y="366" class="s">Payments · Shipping · Checkout · Catalog</text>
+  <text x="54" y="383" class="s">work the issues in Linear</text>
+  <rect x="40" y="412" width="240" height="72" rx="9" class="box"/>
+  <text x="54" y="435" class="t">Customer replies</text>
+  <text x="54" y="454" class="s">answers, acks and ETAs go back</text>
+  <text x="54" y="471" class="s">to the customer through Pylon</text>
+
+  <line x1="160" y1="112" x2="160" y2="146" class="ea" marker-end="url(#aa)"/>
+
+  <!-- ================= FRONTEND ================= -->
+  <rect x="340" y="56" width="290" height="52" rx="9" class="box b2"/>
+  <text x="354" y="78" class="t">/tickets</text>
+  <text x="354" y="96" class="s">the queue · shadcn Data Table, refetch every 2 s</text>
+  <rect x="340" y="116" width="290" height="52" rx="9" class="box b2"/>
+  <text x="354" y="138" class="t">/simulator · /scorecard</text>
+  <text x="354" y="156" class="s">send tickets · eval results (Form, Table, Chart)</text>
+  <rect x="340" y="184" width="290" height="96" rx="9" class="box b2"/>
+  <text x="354" y="206" class="t">/ticket/[id]</text>
+  <text x="354" y="225" class="s">pipeline: React Flow UI nodes with live status</text>
+  <text x="354" y="242" class="s">inspector: Tool · Code Block · Terminal · Commit</text>
+  <text x="354" y="259" class="s">logviewer · Chart · JSON · Confirmation</text>
+  <rect x="340" y="296" width="290" height="80" rx="9" class="box b2"/>
+  <text x="354" y="318" class="t">Data layer</text>
+  <text x="354" y="337" class="s">TanStack Query + openapi-react-query</text>
+  <text x="354" y="353" class="s">streamedQuery ← EventSource (SSE)</text>
+  <text x="354" y="369" class="s">types generated from FastAPI's OpenAPI</text>
+  <rect x="340" y="392" width="290" height="92" rx="9" class="box"/>
+  <text x="354" y="414" class="t">Only custom code: 4 files</text>
+  <text x="354" y="433" class="m">api.ts · use-ticket-events.ts</text>
+  <text x="354" y="450" class="m">output-view.tsx · stage-node.tsx</text>
+  <text x="354" y="470" class="s">everything else: shadcn, AI Elements, React Flow UI</text>
+
+  <!-- admin to console -->
+  <line x1="280" y1="264" x2="338" y2="264" class="ea" marker-end="url(#aa)"/>
+
+  <!-- ================= BACKEND ================= -->
+  <rect x="690" y="56" width="150" height="364" rx="9" class="box b3"/>
+  <text x="704" y="80" class="t">FastAPI</text>
+  <text x="704" y="106" class="m" style="font-size:10px">POST /webhooks/pylon</text>
+  <text x="704" y="122" class="s">HMAC, store, enqueue</text>
+  <text x="704" y="150" class="m">GET /tickets</text>
+  <text x="704" y="166" class="m">GET /tickets/{id}</text>
+  <text x="704" y="182" class="m">GET /pipeline</text>
+  <text x="704" y="198" class="m">GET …/events</text>
+  <text x="704" y="226" class="m" style="font-size:10px">GET …/events/stream</text>
+  <text x="704" y="242" class="s">SSE, LISTEN</text>
+  <text x="704" y="258" class="s">?replay=1 replays</text>
+  <text x="704" y="286" class="m">POST …/approve</text>
+  <text x="704" y="302" class="s">resumes the graph</text>
+  <text x="704" y="330" class="m">POST /simulator</text>
+  <text x="704" y="358" class="m" style="font-size:10px">GET /evals/scorecard</text>
+  <text x="704" y="380" class="s">sse-starlette</text>
+  <text x="704" y="396" class="s">Procrastinate tasks</text>
+
+  <!-- worker frame -->
+  <rect x="860" y="56" width="190" height="544" rx="10" class="frame"/>
+  <text x="872" y="76" class="zl c3">LANGGRAPH PIPELINE</text>
+  <line x1="955" y1="100" x2="955" y2="560" class="spine"/>
+
+  <rect x="872" y="88" width="166" height="34" rx="7" class="box b3"/>
+  <text x="882" y="103" class="t" style="font-size:12px">4 · Context fetch</text>
+  <text x="882" y="117" class="s" style="font-size:10.5px">tenant · deploys · flags</text>
+  <rect x="872" y="132" width="166" height="34" rx="7" class="box b3"/>
+  <text x="882" y="147" class="t" style="font-size:12px">5 · Enrichment</text>
+  <text x="882" y="161" class="s" style="font-size:10.5px">Pydantic AI + ID checks</text>
+  <rect x="872" y="176" width="166" height="34" rx="7" class="box b3"/>
+  <text x="882" y="191" class="t" style="font-size:12px">6 · Retrieval ‖ Jev</text>
+  <text x="882" y="205" class="s" style="font-size:10.5px">hybrid search · Jev</text>
+  <rect x="872" y="220" width="166" height="34" rx="7" class="box b3"/>
+  <text x="882" y="235" class="t" style="font-size:12px">7 · Lane router</text>
+  <text x="882" y="249" class="s" style="font-size:10.5px">how_to · request · tech</text>
+  <rect x="872" y="264" width="166" height="34" rx="7" class="box b3"/>
+  <text x="882" y="279" class="t" style="font-size:12px">7 · L1 · requests</text>
+  <text x="882" y="293" class="s" style="font-size:10.5px">or the duplicate check</text>
+  <rect x="872" y="308" width="166" height="34" rx="7" class="box b3"/>
+  <text x="882" y="323" class="t" style="font-size:12px">8 · Brief node</text>
+  <text x="882" y="337" class="s" style="font-size:10.5px">fans out to both analysts</text>
+  <rect x="872" y="352" width="80" height="52" rx="7" class="box b5"/>
+  <text x="880" y="370" class="t" style="font-size:11px">mini-swe-</text>
+  <text x="880" y="383" class="t" style="font-size:11px">agent</text>
+  <text x="880" y="397" class="s" style="font-size:10px">codebase</text>
+  <rect x="958" y="352" width="80" height="52" rx="7" class="box b4"/>
+  <text x="966" y="370" class="t" style="font-size:11px">HolmesGPT</text>
+  <text x="966" y="384" class="s" style="font-size:10px">data</text>
+  <text x="966" y="397" class="s" style="font-size:10px">analyst</text>
+  <rect x="872" y="414" width="166" height="34" rx="7" class="box b3"/>
+  <text x="882" y="429" class="t" style="font-size:12px">9 · Findings + verdict</text>
+  <text x="882" y="443" class="s" style="font-size:10.5px">evidence checks</text>
+  <rect x="872" y="458" width="166" height="34" rx="7" class="box b3"/>
+  <text x="882" y="473" class="t" style="font-size:12px">10 · Layer 3</text>
+  <text x="882" y="487" class="s" style="font-size:10.5px">Linear · reply · approval</text>
+  <rect x="872" y="502" width="166" height="34" rx="7" class="box b3"/>
+  <text x="882" y="517" class="t" style="font-size:12px">11 · Memory write-back</text>
+  <text x="882" y="531" class="s" style="font-size:10.5px">ticket memory</text>
+  <rect x="872" y="546" width="166" height="40" rx="7" class="box b3"/>
+  <text x="882" y="562" class="t" style="font-size:12px">12 · Events</text>
+  <text x="882" y="577" class="s" style="font-size:10.5px">graph stream → events</text>
+
+  <!-- lower backend boxes -->
+  <rect x="690" y="620" width="340" height="52" rx="9" class="box b3"/>
+  <text x="704" y="642" class="t">Indexer (runs on every deploy)</text>
+  <text x="704" y="661" class="s">ctags · ast-grep · protoc · service cards → code index</text>
+  <rect x="690" y="682" width="340" height="40" rx="9" class="box b3"/>
+  <text x="704" y="699" class="t" style="font-size:12px">Config</text>
+  <text x="760" y="699" class="m">roles.yaml · models.yaml · ownership.yaml</text>
+  <rect x="690" y="732" width="340" height="40" rx="9" class="box b3"/>
+  <text x="704" y="749" class="t" style="font-size:12px">13 · Tracing</text>
+  <text x="704" y="764" class="s" style="font-size:10.5px">Pydantic AI spans + one per analyst run → Collector</text>
+
+  <!-- ================= DATA & EXTERNAL ================= -->
+  <rect x="1110" y="56" width="350" height="290" rx="9" class="box b4"/>
+  <text x="1124" y="80" class="t">Agent Postgres 16 + pgvector</text>
+  <text x="1124" y="104" class="m">tickets · runs · verdicts · investigations</text>
+  <text x="1124" y="124" class="m">events  → NOTIFY → console stream</text>
+  <text x="1124" y="144" class="m">procrastinate jobs (the queue)</text>
+  <text x="1124" y="164" class="m">deploys · flag_changes · tenants</text>
+  <text x="1124" y="184" class="m">retrieval_docs: help sections + tickets</text>
+  <text x="1124" y="200" class="s">HNSW vectors + full-text, hybrid search</text>
+  <text x="1124" y="222" class="m">code_symbols · error_strings · rpc_map</text>
+  <text x="1124" y="240" class="m">flag_reads · service_cards (per git sha)</text>
+  <text x="1124" y="262" class="m">eval results</text>
+  <text x="1124" y="294" class="s">read by the API, the worker, HolmesGPT's history</text>
+  <text x="1124" y="311" class="s">toolset and the codebox helper commands; one</text>
+  <text x="1124" y="328" class="s">database for queue, state, memory and index</text>
+
+  <rect x="1110" y="362" width="350" height="64" rx="9" class="box b4"/>
+  <text x="1124" y="384" class="t">LLM providers</text>
+  <text x="1124" y="402" class="s">DeepSeek V4.1 Flash · V4 Pro · OpenRouter · Gemini</text>
+  <text x="1124" y="418" class="s">through Pydantic AI and LiteLLM, set in roles.yaml</text>
+  <rect x="1110" y="442" width="350" height="48" rx="9" class="box b4"/>
+  <text x="1124" y="463" class="t">Embeddings (local)</text>
+  <text x="1124" y="481" class="s">bge-small-en-v1.5 · sentence-transformers, in-process</text>
+  <rect x="1110" y="506" width="350" height="48" rx="9" class="box b4"/>
+  <text x="1124" y="527" class="t">TypeSafe Jev API</text>
+  <text x="1124" y="545" class="s">jev-latest · typed categorization with confidence</text>
+  <rect x="1110" y="570" width="350" height="48" rx="9" class="box b4"/>
+  <text x="1124" y="591" class="t">Linear API</text>
+  <text x="1124" y="609" class="s">GraphQL · issues for the owning team</text>
+  <rect x="1110" y="634" width="350" height="48" rx="9" class="box b4"/>
+  <text x="1124" y="655" class="t">Pylon API (optional)</text>
+  <text x="1124" y="673" class="s">customer replies and internal notes</text>
+  <rect x="1110" y="698" width="350" height="64" rx="9" class="box"/>
+  <text x="1124" y="720" class="t">Secrets</text>
+  <text x="1124" y="738" class="s">.env.agent: LLM key, TypeSafe key, Linear key,</text>
+  <text x="1124" y="754" class="s">Pylon webhook secret · never in the repo</text>
+
+  <!-- worker to data/external -->
+  <line x1="1050" y1="160" x2="1108" y2="160" class="e" marker-end="url(#a)" marker-start="url(#a)"/>
+  <line x1="1050" y1="394" x2="1108" y2="394" class="e" marker-end="url(#a)"/>
+  <line x1="1050" y1="466" x2="1108" y2="466" class="e" marker-end="url(#a)"/>
+  <line x1="1050" y1="530" x2="1108" y2="530" class="e" marker-end="url(#a)"/>
+  <line x1="1050" y1="594" x2="1108" y2="594" class="e" marker-end="url(#a)"/>
+
+  <!-- API to Postgres over the top -->
+  <polyline points="765,56 765,30 1400,30 1400,54" class="e" marker-end="url(#a)"/>
+
+  <!-- pylon to API -->
+  <line x1="280" y1="176" x2="688" y2="176" class="ea" marker-end="url(#aa)"/>
+  <!-- simulator to API -->
+  <line x1="630" y1="142" x2="688" y2="142" class="ea" marker-end="url(#aa)"/>
+  <!-- console data layer <-> API -->
+  <line x1="630" y1="318" x2="688" y2="318" class="ea" marker-end="url(#aa)"/>
+  <line x1="688" y1="352" x2="632" y2="352" class="ea" marker-end="url(#aa)"/>
+  <text x="640" y="312" class="s" style="font-size:10px">REST</text>
+  <text x="640" y="366" class="s" style="font-size:10px">SSE</text>
+
+  <!-- ================= CODEBASES ================= -->
+  <rect x="40" y="556" width="280" height="68" rx="9" class="box b5"/>
+  <text x="54" y="576" class="t">support-agent repo</text>
+  <text x="54" y="592" class="m">app/ · web/ · holmes/ · codebox/</text>
+  <text x="54" y="606" class="m">config/ · knowledge/ · evals/</text>
+  <text x="54" y="619" class="m">scenarios/ · seed/</text>
+  <rect x="40" y="632" width="280" height="136" rx="9" class="box b5"/>
+  <text x="54" y="652" class="t">Scripts (scenarios/)</text>
+  <text x="54" y="670" class="s" style="font-size:10.5px">B · deploy.sh svc tag: build from worktree,</text>
+  <text x="54" y="685" class="s" style="font-size:10.5px">     compose up, deploys row, run indexer</text>
+  <text x="54" y="703" class="s" style="font-size:10.5px">C · flag.sh: edit flag file, log the change</text>
+  <text x="54" y="721" class="s" style="font-size:10.5px">D · scenarios: orders via /api/checkout</text>
+  <text x="54" y="739" class="s" style="font-size:10.5px">send_ticket.py: webhook, before the console</text>
+  <text x="54" y="757" class="s" style="font-size:10.5px">make scenario-*: set up, order, send ticket</text>
+
+  <rect x="340" y="556" width="290" height="56" rx="9" class="box b5"/>
+  <text x="354" y="577" class="t">Sandbox fork: opentelemetry-demo</text>
+  <text x="354" y="596" class="s">tags v1.3.0 (good) · v1.4.0 (4 planted bugs)</text>
+  <line x1="485" y1="612" x2="485" y2="624" class="e"/>
+  <rect x="340" y="624" width="290" height="44" rx="9" class="box b5"/>
+  <text x="354" y="643" class="t">Worktrees</text>
+  <text x="354" y="660" class="m">../shop@v1.3.0 · ../shop@v1.4.0</text>
+  <line x1="485" y1="668" x2="485" y2="680" class="e"/>
+  <rect x="340" y="680" width="290" height="88" rx="9" class="box b5"/>
+  <text x="354" y="700" class="t">codebox container</text>
+  <text x="354" y="716" class="s">mini-swe-agent's workspace, read-only</text>
+  <text x="354" y="731" class="s">git · rg · no network but the code index</text>
+  <text x="354" y="747" class="m">repo-map · lookup-error</text>
+  <text x="354" y="762" class="m">find-symbol · rpc-handler</text>
+
+  <!-- mini-swe to codebox -->
+  <polyline points="872,380 850,380 850,606 660,606 660,724 632,724" class="ev" marker-end="url(#ahv)"/>
+  <!-- worktrees to indexer -->
+  <line x1="632" y1="646" x2="688" y2="646" class="ev" marker-end="url(#ahv)"/>
+
+  <!-- ================= SANDBOX ================= -->
+  <rect x="40" y="840" width="220" height="56" rx="9" class="box b6"/>
+  <text x="54" y="862" class="t">frontend-proxy :8080</text>
+  <text x="54" y="881" class="s">frontend · /api/cart · /api/checkout</text>
+  <rect x="40" y="912" width="220" height="48" rx="9" class="box b6"/>
+  <text x="54" y="933" class="t">Load generator (k6)</text>
+  <text x="54" y="951" class="s">steady background traffic</text>
+  <rect x="40" y="976" width="220" height="56" rx="9" class="box b6"/>
+  <text x="54" y="998" class="t">flagd</text>
+  <text x="54" y="1017" class="s">demo.flagd.json · flag.sh edits it</text>
+  <line x1="150" y1="912" x2="150" y2="898" class="e" marker-end="url(#a)"/>
+  <line x1="260" y1="868" x2="288" y2="868" class="e" marker-end="url(#a)"/>
+  <polyline points="260,1004 275,1004 275,950 288,950" class="e" marker-end="url(#a)"/>
+
+  <rect x="290" y="840" width="420" height="128" rx="9" class="box b6"/>
+  <text x="304" y="862" class="t">Services in scope · versioned images</text>
+  <text x="304" y="883" class="s">payment (JS) · checkout (Go) · quote (PHP)</text>
+  <text x="304" y="900" class="s">cart (.NET) · product-catalog (Go)</text>
+  <text x="304" y="917" class="s">+ shipping, currency, email, ad, recommendation</text>
+  <text x="304" y="936" class="s">v1.4.0 images carry the 4 planted bugs</text>
+  <text x="304" y="953" class="s">all read feature flags from flagd</text>
+  <rect x="290" y="984" width="200" height="56" rx="9" class="box b6"/>
+  <text x="304" y="1006" class="t">astronomy-db (Postgres)</text>
+  <text x="304" y="1025" class="s">catalog.products · agent_ro</text>
+  <line x1="390" y1="968" x2="390" y2="982" class="e" marker-end="url(#a)"/>
+
+  <rect x="740" y="840" width="200" height="72" rx="9" class="box b6"/>
+  <text x="754" y="862" class="t">OTel Collector</text>
+  <text x="754" y="881" class="s">traces · metrics · logs</text>
+  <text x="754" y="898" class="s">redacts card numbers, emails</text>
+  <line x1="710" y1="876" x2="738" y2="876" class="e" marker-end="url(#a)"/>
+
+  <rect x="970" y="836" width="250" height="198" rx="10" class="grp"/>
+  <text x="986" y="852" class="zl c6">OBSERVABILITY</text>
+  <rect x="990" y="862" width="215" height="48" rx="9" class="box b6"/>
+  <text x="1004" y="883" class="t">Jaeger</text>
+  <text x="1004" y="901" class="s">traces, in memory (25k cap)</text>
+  <rect x="990" y="918" width="215" height="48" rx="9" class="box b6"/>
+  <text x="1004" y="939" class="t">Prometheus</text>
+  <text x="1004" y="957" class="s">metrics + span metrics, 7 days</text>
+  <rect x="990" y="974" width="215" height="48" rx="9" class="box b6"/>
+  <text x="1004" y="995" class="t">OpenSearch</text>
+  <text x="1004" y="1013" class="s">logs · otel-logs-* indices</text>
+  <line x1="940" y1="876" x2="988" y2="886" class="e" marker-end="url(#a)"/>
+  <line x1="940" y1="876" x2="988" y2="942" class="e" marker-end="url(#a)"/>
+  <line x1="940" y1="876" x2="988" y2="998" class="e" marker-end="url(#a)"/>
+
+  <rect x="1240" y="918" width="220" height="48" rx="9" class="box b6"/>
+  <text x="1254" y="939" class="t">Grafana</text>
+  <text x="1254" y="957" class="s">dashboards · deploy annotations</text>
+  <line x1="1220" y1="942" x2="1238" y2="942" class="e" marker-end="url(#a)"/>
+
+  <text x="740" y="1070" class="t" style="font-size:12px">What HolmesGPT reads here</text>
+  <text x="740" y="1090" class="s">Prometheus (PromQL, built-in toolset) · OpenSearch (logs, built-in) · astronomy-db (SQL as agent_ro, built-in)</text>
+  <text x="740" y="1108" class="s">Jaeger (custom toolset: curl + condense_traces.py) · deploy and flag history (custom toolset on the agent Postgres)</text>
+  <text x="740" y="1134" class="t" style="font-size:12px">What the agent never does here</text>
+  <text x="740" y="1154" class="s">write anything: every connection is read-only. Everything here runs on the Docker network opentelemetry-demo, which the agent joins.</text>
+
+  <!-- HolmesGPT to observability -->
+  <polyline points="1038,378 1044,378 1044,818 1100,818 1100,834" class="eh" marker-end="url(#ahh)"/>
+  <!-- tracing to collector -->
+  <line x1="860" y1="772" x2="860" y2="838" class="e" marker-end="url(#a)"/>
+  <!-- scripts into sandbox -->
+  <line x1="180" y1="768" x2="180" y2="838" class="ev" marker-end="url(#ahv)"/>
+  <line x1="300" y1="768" x2="300" y2="838" class="ev" marker-end="url(#ahv)"/>
+
+  <!-- ================= BADGES ================= -->
+  <g>
+    <circle cx="160" cy="129" r="10" class="badge"/><text x="160" y="133" text-anchor="middle" class="bt">1</text>
+    <circle cx="310" cy="176" r="10" class="badge"/><text x="310" y="180" text-anchor="middle" class="bt">2</text>
+    <circle cx="1000" cy="30" r="10" class="badge"/><text x="1000" y="34" text-anchor="middle" class="bt">3</text>
+    <rect x="1054" y="150" width="50" height="20" rx="10" class="badge"/><text x="1079" y="164" text-anchor="middle" class="bt">4·11·12</text>
+    <circle cx="1079" cy="394" r="10" class="badge"/><text x="1079" y="398" text-anchor="middle" class="bt">5</text>
+    <circle cx="1079" cy="466" r="10" class="badge"/><text x="1079" y="470" text-anchor="middle" class="bt">6</text>
+    <circle cx="1079" cy="530" r="10" class="badge"/><text x="1079" y="534" text-anchor="middle" class="bt">6</text>
+    <circle cx="1079" cy="594" r="10" class="badge"/><text x="1079" y="598" text-anchor="middle" class="bt">10</text>
+    <circle cx="660" cy="352" r="10" class="badge"/><text x="660" y="356" text-anchor="middle" class="bt">12</text>
+    <circle cx="850" cy="500" r="10" class="badge"/><text x="850" y="504" text-anchor="middle" class="bt">8</text>
+    <circle cx="1044" cy="700" r="10" class="badge"/><text x="1044" y="704" text-anchor="middle" class="bt">8</text>
+    <circle cx="860" cy="800" r="10" class="badge"/><text x="860" y="804" text-anchor="middle" class="bt">13</text>
+    <circle cx="646" cy="646" r="10" class="badgel"/><text x="646" y="650" text-anchor="middle" class="bt">A</text>
+    <circle cx="300" cy="800" r="10" class="badgel"/><text x="300" y="804" text-anchor="middle" class="bt">B</text>
+    <circle cx="180" cy="800" r="10" class="badgel"/><text x="180" y="804" text-anchor="middle" class="bt">D</text>
+  </g>
+</svg>
+  </div>
+
+  <div class="two">
+    <section>
+      <h2>Life of a ticket</h2>
+      <div class="tbl"><table>
+        <thead><tr><th>#</th><th>What happens</th><th>Parts involved</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>A shopper hits the expiry bug; Figma Merch Store files a ticket</td><td>Pylon</td></tr>
+          <tr><td>2</td><td>Pylon sends a signed webhook, or the <code>/simulator</code> page sends the same payload</td><td>FastAPI <code>POST /webhooks/pylon</code>, HMAC check</td></tr>
+          <tr><td>3</td><td>FastAPI stores the ticket and enqueues a job</td><td>Procrastinate on the agent Postgres</td></tr>
+          <tr><td>4</td><td>A Procrastinate task starts the ticket's LangGraph run (thread ID = ticket ID, checkpointed in Postgres); the context node fetches tenant, recent deploys, flag changes and incidents</td><td>LangGraph · <code>tenants</code>, <code>deploys</code>, <code>flag_changes</code></td></tr>
+          <tr><td>5</td><td>Enrichment: one LLM call returns identifiers, time window, symptom and likely services; code checks every ID</td><td>Pydantic AI → LLM provider</td></tr>
+          <tr><td>6</td><td>Retrieval and Jev run side by side: hybrid search over help sections and past or open tickets; Jev returns type, service, severity and revenue-blocking</td><td>Local embeddings + pgvector · TypeSafe Jev API</td></tr>
+          <tr><td>7</td><td>A conditional edge sends how-to tickets to Layer 1 and requests to request triage (single LLM calls). Tech issues go to the duplicate check, then the brief node</td><td>LangGraph routing, Pydantic AI</td></tr>
+          <tr><td>8</td><td>The brief node fans out to both analyst nodes, which run as parallel branches. HolmesGPT queries Prometheus, Jaeger, OpenSearch, astronomy-db and the history toolset. mini-swe-agent runs read-only commands in the codebox against the deployed worktree and the code index</td><td>HolmesGPT · mini-swe-agent · sandbox observability · codebox</td></tr>
+          <tr><td>9</td><td>Their answers become <code>Findings</code>, with evidence checked against their tool logs; the verdict call decides false positive, bug, config incident or inconclusive</td><td>Pydantic AI → LLM provider</td></tr>
+          <tr><td>10</td><td>Layer 3 creates the Linear issue for the owning team. When a person must approve the reply, the graph pauses with interrupt(); the Approve button resumes it from its checkpoint and the reply goes back through Pylon</td><td>Linear API · console · Pylon</td></tr>
+          <tr><td>11</td><td>The ticket is written to ticket memory as open, so a differently worded repeat can find it</td><td><code>retrieval_docs</code>, <code>investigations</code></td></tr>
+          <tr><td>12</td><td>The worker streams the graph (node updates, plus tool calls, commands and model text from inside nodes) into the events table. Postgres NOTIFY wakes the SSE stream, and the console's pipeline and inspector update live; the admin approves replies there</td><td>events → FastAPI SSE → TanStack Query → React Flow UI + AI Elements</td></tr>
+          <tr><td>13</td><td>Every model call and analyst run is a span sent to the shop's Collector, so the agent's trace sits in Jaeger next to the shop's</td><td>Pydantic AI OTel → Collector → Jaeger</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+    <section>
+      <h2>Setup flows</h2>
+      <div class="tbl"><table>
+        <thead><tr><th>#</th><th>What happens</th><th>Parts involved</th></tr></thead>
+        <tbody>
+          <tr><td>A</td><td>On each deploy, the indexer reads the changed services from their worktree: ctags for symbols, ast-grep for error messages and flag reads, protoc for the gRPC map, and one LLM call per service card</td><td>deploy.sh → indexer → code index tables</td></tr>
+          <tr><td>B</td><td><code>deploy.sh payment v1.4.0</code> builds the image from its worktree, restarts that service with <code>compose.versions.yaml</code>, and records the deploy</td><td>Docker Compose · <code>deploys</code> · indexer</td></tr>
+          <tr><td>C</td><td><code>flag.sh paymentFailure 25%</code> edits <code>demo.flagd.json</code>, which flagd reloads, and records the change</td><td>flagd · <code>flag_changes</code></td></tr>
+          <tr><td>D</td><td>Scenario scripts place orders through the frontend proxy, before and after a deploy; the load generator keeps background traffic flowing</td><td>frontend-proxy → services → Collector</td></tr>
+        </tbody>
+      </table></div>
+      <p class="note">Every connection from the agent into the sandbox and the codebases is read-only. The only writes are to the agent's own Postgres, Linear, and replies to Pylon.</p>
+    </section>
+  </div>
+</div>
+
+</body></html>

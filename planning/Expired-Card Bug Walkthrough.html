@@ -1,0 +1,325 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Expired-Card Bug Walkthrough</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=Schibsted+Grotesk:wght@600;700&display=swap">
+<style>
+:root{
+  --bg:#F4F5F8; --surface:#FFFFFF; --sunk:#ECEEF3; --ink:#15181E; --muted:#5A6272; --line:#C8CDD8;
+  --accent:#3445D6; --accent-tint:#E6E9FC;
+  --llm:#A86A12; --llm-tint:#FBF0DC;
+  --ok:#1D7F47; --ok-tint:#E2F3E8;
+  --del:#BE3A33; --del-tint:#FBE6E4;
+  --sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --display:"Schibsted Grotesk","IBM Plex Sans",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#0E1015; --surface:#171A21; --sunk:#1F232C; --ink:#E7E9EF; --muted:#9AA1B0; --line:#343A47;
+    --accent:#8D99FF; --accent-tint:#23284A;
+    --llm:#EFB04A; --llm-tint:#33270F;
+    --ok:#5BCB8B; --ok-tint:#15301F;
+    --del:#F2786E; --del-tint:#3A1C1A;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0E1015; --surface:#171A21; --sunk:#1F232C; --ink:#E7E9EF; --muted:#9AA1B0; --line:#343A47;
+  --accent:#8D99FF; --accent-tint:#23284A;
+  --llm:#EFB04A; --llm-tint:#33270F;
+  --ok:#5BCB8B; --ok-tint:#15301F;
+  --del:#F2786E; --del-tint:#3A1C1A;
+}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
+.wrap{max-width:1080px;margin:0 auto;padding:40px 20px 64px;display:flex;flex-direction:column;gap:28px}
+header{display:flex;flex-direction:column;gap:10px;max-width:760px}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+h1{font-family:var(--display);font-size:clamp(28px,4.4vw,40px);line-height:1.08;margin:0;letter-spacing:-.01em;text-wrap:balance}
+h2{font-family:var(--display);font-size:21px;margin:0;text-wrap:balance}
+.lede{color:var(--muted);margin:0;max-width:66ch}
+.legend{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:13px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:8px}
+.sw{width:14px;height:14px;border-radius:4px;border:1.5px solid;display:inline-block}
+.diagram{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow-x:auto;padding:12px}
+.diagram svg{display:block;width:100%;min-width:900px;height:auto}
+svg text{font-family:var(--sans)}
+.t{font-size:15px;font-weight:600;fill:var(--ink)}
+.ts{font-size:13.5px;font-weight:600;fill:var(--ink)}
+.s{font-size:12.5px;fill:var(--muted)}
+.si{font-size:12.5px;fill:var(--ink);font-style:italic}
+.xs{font-size:11.5px;fill:var(--muted)}
+.m{font-family:var(--mono)!important;font-size:12px;fill:var(--ink)}
+.mm{font-family:var(--mono)!important;font-size:12px;fill:var(--muted)}
+.mn{font-family:var(--mono)!important;font-size:11px;fill:var(--muted)}
+.chipt{font-family:var(--mono)!important;font-size:10.5px;letter-spacing:.04em}
+.rail{font-family:var(--mono)!important;font-size:11px;fill:var(--muted)}
+.n-code{fill:var(--surface);stroke:var(--line);stroke-width:1.3}
+.n-jev{fill:var(--accent-tint);stroke:var(--accent);stroke-width:1.6}
+.n-llm{fill:var(--surface);stroke:var(--llm);stroke-width:1.5}
+.n-call{fill:var(--llm-tint);stroke:var(--llm);stroke-width:1.2}
+.n-h{fill:var(--surface);stroke:var(--muted);stroke-width:1.3;stroke-dasharray:5 4}
+.n-ok{fill:var(--ok-tint);stroke:var(--ok);stroke-width:1.6}
+.dec{fill:var(--sunk);stroke:var(--ink);stroke-width:1.2}
+.inset{fill:var(--sunk);stroke:none}
+.sep{stroke:var(--line);stroke-width:1}
+.e{fill:none;stroke:var(--muted);stroke-width:1.5}
+.ed{fill:none;stroke:var(--muted);stroke-width:1.3;stroke-dasharray:4 4}
+.ah{fill:var(--muted)}
+.railline{stroke:var(--line);stroke-width:2}
+.dot{fill:var(--surface);stroke:var(--muted);stroke-width:1.5}
+.c-code{fill:var(--sunk);stroke:var(--line)} .ct-code{fill:var(--muted)}
+.c-jev{fill:var(--surface);stroke:var(--accent)} .ct-jev{fill:var(--accent)}
+.c-llm{fill:var(--llm-tint);stroke:var(--llm)} .ct-llm{fill:var(--llm)}
+.c-h{fill:var(--surface);stroke:var(--muted);stroke-dasharray:3 3} .ct-h{fill:var(--muted)}
+.a{fill:var(--accent)} .l{fill:var(--llm)} .okc{fill:var(--ok)} .del{fill:var(--del)}
+.num{font-family:var(--mono)!important;font-size:11px;fill:var(--llm);font-weight:500}
+
+.where{display:flex;flex-direction:column;gap:12px}
+.where p{margin:0;color:var(--muted);max-width:70ch}
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14px;min-width:560px}
+th,td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-family:var(--mono);font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:500}
+tr:last-child td{border-bottom:none}
+td code{font-family:var(--mono);font-size:12.5px}
+.pill{display:inline-block;font-family:var(--mono);font-size:11px;letter-spacing:.04em;padding:2px 8px;border-radius:999px;border:1px solid;white-space:nowrap}
+.p-no{color:var(--muted);border-color:var(--line);background:var(--sunk)}
+.p-jev{color:var(--accent);border-color:var(--accent);background:var(--accent-tint)}
+.p-llm{color:var(--llm);border-color:var(--llm);background:var(--llm-tint)}
+.note{font-size:13px;color:var(--muted);margin:0}
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Worked example · bug ticket</div>
+    <h1>A card-expiry bug, from ticket to Linear issue</h1>
+    <p class="lede">Figma Merch Store reports that shoppers' cards are rejected as expired. The real cause is a bug planted in payment deploy v1.4.0, where the expiry check changed from &gt; to &gt;=. IDs, times and counts are illustrative.</p>
+  </header>
+
+  <div class="legend" aria-label="Legend: what runs at each step">
+    <span><i class="sw" style="border-color:var(--line);background:var(--surface)"></i>Plain code, no model</span>
+    <span><i class="sw" style="border-color:var(--accent);background:var(--accent-tint)"></i>Jev typed call</span>
+    <span><i class="sw" style="border-color:var(--llm);background:var(--llm-tint)"></i>Single LLM call</span>
+    <span><i class="sw" style="border-color:var(--llm);background:var(--surface)"></i>LLM agent with tools (any model)</span>
+    <span><i class="sw" style="border-color:var(--muted);border-style:dashed"></i>A person</span>
+    <span><i class="sw" style="border-color:var(--ok);background:var(--ok-tint)"></i>Outcome</span>
+  </div>
+
+  <div class="diagram" role="img" aria-label="Flowchart of the expired-card bug ticket: Pylon ticket, intake, enrichment by one LLM call, Jev categorization, Layer 2 orchestrator brief, data analyst and codebase analyst in parallel, agreement check, verdict, then a Linear issue for the Payments team and a customer reply approved by a person.">
+<svg viewBox="0 0 1000 1710" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" class="ah"/>
+    </marker>
+  </defs>
+
+  <!-- time rail -->
+  <line x1="94" y1="40" x2="94" y2="1660" class="railline"/>
+  <circle cx="94" cy="74" r="4.5" class="dot"/><text x="82" y="78" text-anchor="end" class="rail">0 s</text>
+  <circle cx="94" cy="184" r="4.5" class="dot"/><text x="82" y="188" text-anchor="end" class="rail">0.1 s</text>
+  <circle cx="94" cy="304" r="4.5" class="dot"/><text x="82" y="308" text-anchor="end" class="rail">~1.5 s</text>
+  <circle cx="94" cy="467" r="4.5" class="dot"/><text x="82" y="471" text-anchor="end" class="rail">~2 s</text>
+  <circle cx="94" cy="608" r="4.5" class="dot"/><text x="82" y="612" text-anchor="end" class="rail">~6 s</text>
+  <circle cx="94" cy="878" r="4.5" class="dot"/><text x="82" y="882" text-anchor="end" class="rail">6–66 s</text>
+  <circle cx="94" cy="1152" r="4.5" class="dot"/><text x="82" y="1156" text-anchor="end" class="rail">~66 s</text>
+  <circle cx="94" cy="1276" r="4.5" class="dot"/><text x="82" y="1280" text-anchor="end" class="rail">~70 s</text>
+  <circle cx="94" cy="1490" r="4.5" class="dot"/><text x="82" y="1494" text-anchor="end" class="rail">~72 s</text>
+
+  <!-- 1 ticket -->
+  <rect x="120" y="24" width="840" height="100" rx="10" class="n-code"/>
+  <text x="144" y="52" class="t">Figma Merch Store opens a ticket in Pylon</text>
+  <rect x="874" y="38" width="66" height="20" rx="10" class="c-code"/><text x="907" y="52" text-anchor="middle" class="chipt ct-code">external</text>
+  <text x="144" y="80" class="si">“Since this morning, several shoppers say their card is rejected as expired, but it's valid until the end of this month.</text>
+  <text x="144" y="100" class="si">One attempt was at 10:12, card ending 4242.”</text>
+
+  <line x1="540" y1="124" x2="540" y2="150" class="e" marker-end="url(#ar)"/>
+
+  <!-- 2 intake -->
+  <rect x="120" y="152" width="840" height="64" rx="10" class="n-code"/>
+  <text x="144" y="180" class="t">Intake</text>
+  <rect x="894" y="166" width="46" height="20" rx="10" class="c-code"/><text x="917" y="180" text-anchor="middle" class="chipt ct-code">code</text>
+  <text x="144" y="202" class="s">Verify Pylon's HMAC signature → store → queue → return 200 in about 100 ms; the worker then fetches the context bundle</text>
+
+  <line x1="540" y1="216" x2="540" y2="242" class="e" marker-end="url(#ar)"/>
+
+  <!-- 3 enrichment -->
+  <rect x="120" y="244" width="840" height="120" rx="10" class="n-call"/>
+  <text x="144" y="272" class="t">Enrichment</text>
+  <rect x="848" y="258" width="92" height="20" rx="10" class="c-llm"/><text x="894" y="272" text-anchor="middle" class="chipt ct-llm">one LLM call</text>
+  <text x="144" y="294" class="s">The fast model reads the ticket plus fetched context: tenant record, 24 h of deploys and flag changes, open incidents</text>
+  <text x="144" y="318" class="m">card_last4: "4242"   symptom: "card rejected as expired in its final month"</text>
+  <text x="144" y="336" class="m">window: 09:00–10:40 IST   <tspan class="mm">(from "since this morning")</tspan></text>
+  <text x="144" y="354" class="m">relevant_changes: payment v1.4.0 at 09:30   <tspan class="m okc">✓ checked against fetched data</tspan></text>
+
+  <line x1="540" y1="364" x2="540" y2="390" class="e" marker-end="url(#ar)"/>
+
+  <!-- 4 Jev -->
+  <rect x="120" y="392" width="840" height="150" rx="10" class="n-jev"/>
+  <text x="144" y="420" class="t">Jev categorization</text>
+  <rect x="826" y="406" width="114" height="20" rx="10" class="c-jev"/><text x="883" y="420" text-anchor="middle" class="chipt ct-jev">Jev · typed call</text>
+  <text x="144" y="440" class="s">Four typed questions in one call, each with its own confidence</text>
+  <text x="144" y="468" class="m">ticket_type</text><text x="320" y="468" class="xs">choice</text><text x="420" y="468" class="m">tech_issue</text><text x="580" y="468" class="m a">0.93</text>
+  <text x="144" y="490" class="m">service</text><text x="320" y="490" class="xs">choice</text><text x="420" y="490" class="m">payment</text><text x="580" y="490" class="m a">0.88</text>
+  <text x="144" y="512" class="m">severity</text><text x="320" y="512" class="xs">score</text><text x="420" y="512" class="m">3 of 4</text><text x="580" y="512" class="m a">0.74</text>
+  <text x="144" y="534" class="m">revenue_blocking</text><text x="320" y="534" class="xs">yes/no</text><text x="420" y="534" class="m">yes</text><text x="580" y="534" class="m a">0.81</text>
+  <rect x="690" y="452" width="250" height="78" rx="8" class="inset"/>
+  <text x="706" y="476" class="m a">revenue_blocking 0.81 &gt; 0.8</text>
+  <text x="706" y="496" class="xs">so a person must approve the</text>
+  <text x="706" y="514" class="xs">customer reply before it's sent</text>
+
+  <line x1="540" y1="542" x2="540" y2="568" class="e" marker-end="url(#ar)"/>
+  <text x="552" y="560" class="xs">tech_issue, confidence ≥ 0.7 → Layer 2</text>
+
+  <!-- 5 orchestrator brief -->
+  <rect x="120" y="570" width="840" height="76" rx="10" class="n-llm"/>
+  <text x="144" y="598" class="t">Layer 2 orchestrator writes one brief</text>
+  <rect x="866" y="584" width="74" height="20" rx="10" class="c-llm"/><text x="903" y="598" text-anchor="middle" class="chipt ct-llm">LLM agent</text>
+  <text x="144" y="620" class="s">Service: payment · Window: 09:00–10:40 · Card ending 4242 · Claim: cards expiring this month are rejected</text>
+  <text x="144" y="638" class="xs">Starts both analysts at once, each capped at 90 s and 15 tool calls, each with its own context</text>
+
+  <!-- split -->
+  <line x1="540" y1="646" x2="540" y2="664" class="e"/>
+  <line x1="320" y1="664" x2="760" y2="664" class="e"/>
+  <line x1="320" y1="664" x2="320" y2="690" class="e" marker-end="url(#ar)"/>
+  <line x1="760" y1="664" x2="760" y2="690" class="e" marker-end="url(#ar)"/>
+
+  <!-- 6a data analyst -->
+  <rect x="120" y="692" width="400" height="372" rx="10" class="n-llm"/>
+  <text x="144" y="720" class="t">Data analyst</text>
+  <rect x="426" y="706" width="74" height="20" rx="10" class="c-llm"/><text x="463" y="720" text-anchor="middle" class="chipt ct-llm">LLM agent</text>
+  <text x="144" y="742" class="si">What happened in production?</text>
+
+  <text x="144" y="774" class="num">1</text><text x="162" y="774" class="m">promql_query</text><text x="266" y="774" class="mn">payment errors</text>
+  <text x="162" y="793" class="s">0 before 09:30, 14 after</text>
+  <text x="144" y="824" class="num">2</text><text x="162" y="824" class="m">jaeger_find_traces</text><text x="310" y="824" class="mn">errors only</text>
+  <text x="162" y="843" class="s">14 failed traces, the first at 09:32</text>
+  <text x="144" y="874" class="num">3</text><text x="162" y="874" class="m">jaeger_get_trace</text><text x="296" y="874" class="mn">10:12 attempt</text>
+  <text x="162" y="893" class="s">“The credit card (ending 4242) expired on 9/2026.”</text>
+  <text x="144" y="924" class="num">4</text><text x="162" y="924" class="m">opensearch_logs</text><text x="288" y="924" class="mn">by expiry date</text>
+  <text x="162" y="943" class="s">All 14 expire 9/2026; other dates succeed</text>
+  <text x="144" y="974" class="num">5</text><text x="162" y="974" class="m">flagd_state · deploy_events</text>
+  <text x="162" y="993" class="s">No flag changes; payment v1.4.0 at 09:30</text>
+
+  <line x1="140" y1="1010" x2="500" y2="1010" class="sep"/>
+  <text x="144" y="1032" class="ts">Findings · confidence 0.86</text>
+  <text x="144" y="1051" class="s">Cards expiring this month rejected since the 09:30 deploy</text>
+
+  <!-- 6b codebase analyst -->
+  <rect x="560" y="692" width="400" height="372" rx="10" class="n-llm"/>
+  <text x="584" y="720" class="t">Codebase analyst</text>
+  <rect x="866" y="706" width="74" height="20" rx="10" class="c-llm"/><text x="903" y="720" text-anchor="middle" class="chipt ct-llm">LLM agent</text>
+  <text x="584" y="742" class="si">Is the code meant to do this? Did a deploy change it?</text>
+
+  <text x="584" y="774" class="num">1</text><text x="602" y="774" class="m">git_log</text><text x="666" y="774" class="mn">v1.3.0..v1.4.0 -- src/payment/</text>
+  <text x="602" y="793" class="s">3 commits; one is “simplify card expiry comparison”</text>
+  <text x="584" y="824" class="num">2</text><text x="602" y="824" class="m">search_code</text><text x="696" y="824" class="mn">"expired"</text>
+  <text x="602" y="843" class="s">Thrown at src/payment/charge.js:73</text>
+  <text x="584" y="874" class="num">3</text><text x="602" y="874" class="m">git_diff</text><text x="672" y="874" class="mn">charge.js</text>
+  <text x="602" y="893" class="s">The expiry check changed from &gt; to &gt;=</text>
+  <text x="584" y="924" class="num">4</text><text x="602" y="924" class="m">read_file</text><text x="680" y="924" class="mn">charge.js 55–80</text>
+  <text x="602" y="943" class="s">Valid through the expiry month, so a regression</text>
+  <text x="584" y="974" class="num">5</text><text x="602" y="974" class="m">git_blame</text><text x="680" y="974" class="mn">charge.js:73</text>
+  <text x="602" y="993" class="s">Commit a1b2c3d, in this morning's deploy</text>
+
+  <line x1="580" y1="1010" x2="940" y2="1010" class="sep"/>
+  <text x="584" y="1032" class="ts">Findings · confidence 0.90</text>
+  <text x="584" y="1051" class="s">Regression at charge.js:73 from commit a1b2c3d</text>
+
+  <!-- merge -->
+  <line x1="320" y1="1064" x2="320" y2="1084" class="e"/>
+  <line x1="760" y1="1064" x2="760" y2="1084" class="e"/>
+  <line x1="320" y1="1084" x2="760" y2="1084" class="e"/>
+  <line x1="540" y1="1084" x2="540" y2="1106" class="e" marker-end="url(#ar)"/>
+
+  <!-- decision -->
+  <polygon points="540,1108 690,1152 540,1196 390,1152" class="dec"/>
+  <text x="540" y="1157" text-anchor="middle" class="ts">Both point to the same code?</text>
+
+  <text x="130" y="1140" class="xs">Here: yes. The exact error text the data</text>
+  <text x="130" y="1157" class="xs">analyst found is thrown at charge.js:73,</text>
+  <text x="130" y="1174" class="xs">so round 2 is skipped.</text>
+
+  <line x1="690" y1="1152" x2="768" y2="1152" class="e" marker-end="url(#ar)"/>
+  <text x="728" y="1143" text-anchor="middle" class="xs">no</text>
+  <rect x="770" y="1110" width="190" height="84" rx="10" class="n-llm"/>
+  <text x="786" y="1134" class="ts">Round 2</text>
+  <text x="786" y="1154" class="xs">Codebase analyst checks the</text>
+  <text x="786" y="1170" class="xs">exact error; still split →</text>
+  <text x="786" y="1186" class="xs">inconclusive, to a person</text>
+
+  <line x1="540" y1="1196" x2="540" y2="1226" class="e" marker-end="url(#ar)"/>
+  <text x="552" y="1216" class="xs">yes</text>
+
+  <!-- verdict -->
+  <rect x="120" y="1228" width="840" height="96" rx="10" class="n-llm"/>
+  <text x="144" y="1256" class="t">Verdict</text>
+  <rect x="866" y="1242" width="74" height="20" rx="10" class="c-llm"/><text x="903" y="1256" text-anchor="middle" class="chipt ct-llm">LLM agent</text>
+  <text x="144" y="1282" class="m">kind: <tspan class="m del">confirmed_bug</tspan>    owning_service: payment    confidence: 0.88</text>
+  <text x="144" y="1304" class="m">root_cause: v1.4.0 changed charge.js:73 from &gt; to &gt;=, rejecting cards in their last valid month</text>
+
+  <!-- split 2 -->
+  <line x1="540" y1="1324" x2="540" y2="1344" class="e"/>
+  <line x1="320" y1="1344" x2="760" y2="1344" class="e"/>
+  <line x1="320" y1="1344" x2="320" y2="1370" class="e" marker-end="url(#ar)"/>
+  <line x1="760" y1="1344" x2="760" y2="1370" class="e" marker-end="url(#ar)"/>
+
+  <!-- 8 Linear issue -->
+  <rect x="120" y="1372" width="400" height="238" rx="10" class="n-ok"/>
+  <text x="144" y="1400" class="t">Layer 3 · Linear issue</text>
+  <rect x="454" y="1386" width="46" height="20" rx="10" class="c-code"/><text x="477" y="1400" text-anchor="middle" class="chipt ct-code">code</text>
+  <text x="144" y="1428" class="s">Team: Payments (from ownership.yaml) · Priority: High</text>
+  <text x="144" y="1448" class="s">Title: Cards rejected in their expiry month since v1.4.0</text>
+  <text x="144" y="1468" class="s">Evidence: 14 Jaeger traces · Grafana panel · log query</text>
+  <text x="144" y="1488" class="s">Fix: revert to &gt;, add a test for this-month expiry</text>
+  <rect x="140" y="1504" width="360" height="88" rx="8" class="inset"/>
+  <text x="154" y="1526" class="mn">charge.js:73 · commit a1b2c3d</text>
+  <text x="154" y="1548" class="m del">- …currentMonth) &gt; (year * 12 + month)) {</text>
+  <text x="154" y="1570" class="m okc">+ …currentMonth) &gt;= (year * 12 + month)) {</text>
+
+  <!-- 9 human gate + reply -->
+  <rect x="560" y="1372" width="400" height="64" rx="10" class="n-h"/>
+  <text x="584" y="1400" class="t">A person approves the reply</text>
+  <rect x="884" y="1386" width="56" height="20" rx="10" class="c-h"/><text x="912" y="1400" text-anchor="middle" class="chipt ct-h">person</text>
+  <text x="584" y="1422" class="xs">Required because revenue_blocking was 0.81</text>
+  <line x1="760" y1="1436" x2="760" y2="1458" class="e" marker-end="url(#ar)"/>
+
+  <rect x="560" y="1460" width="400" height="150" rx="10" class="n-ok"/>
+  <text x="584" y="1488" class="t">Reply posted in Pylon</text>
+  <text x="584" y="1514" class="si">“A change deployed this morning at 09:30 is wrongly</text>
+  <text x="584" y="1532" class="si">rejecting cards in their final valid month. Our payments</text>
+  <text x="584" y="1550" class="si">team is on it at high priority. Until it's fixed, shoppers</text>
+  <text x="584" y="1568" class="si">can use a card with a later expiry date.”</text>
+  <text x="584" y="1594" class="xs">Internal note with the Linear link · account manager notified</text>
+
+  <!-- total -->
+  <rect x="120" y="1636" width="840" height="48" rx="10" class="n-jev"/>
+  <text x="144" y="1665" class="ts">About 70–90 s from ticket to Linear issue <tspan class="s" font-weight="400">· every step above is a span in one Jaeger trace</tspan></text>
+</svg>
+  </div>
+
+  <section class="where">
+    <h2>Where the models are called</h2>
+    <p>Agents with tools run only in the tech-issue lane: the orchestrator and its two analysts. Every other model step is a single call with structured output, and plain lookups stay in code.</p>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>Step</th><th>What runs</th><th>Model call</th></tr></thead>
+        <tbody>
+          <tr><td>Intake</td><td>FastAPI: signature check, store, queue</td><td><span class="pill p-no">none</span></td></tr>
+          <tr><td>Context fetch</td><td>Tenant record, deploys and flag changes from the last 24 h, open incidents, service catalog</td><td><span class="pill p-no">none</span></td></tr>
+          <tr><td>Enrichment</td><td>Reads the ticket and the context; returns identifiers, time window, symptom, likely services and relevant deploys. Code then checks every ID against the ticket and the fetched data.</td><td><span class="pill p-llm">fast model, one call</span></td></tr>
+          <tr><td>Categorization</td><td>Jev: four typed questions</td><td><span class="pill p-jev">Jev</span></td></tr>
+          <tr><td>Layer 1 answers <span style="color:var(--muted)">(how-to tickets)</span></td><td>Help center cached in the prompt; returns answer and cited articles</td><td><span class="pill p-llm">fast model, one call</span></td></tr>
+          <tr><td>Request triage <span style="color:var(--muted)">(feature, billing)</span></td><td>Returns kind, summary, roadmap tag and acknowledgement</td><td><span class="pill p-llm">fast model, one call</span></td></tr>
+          <tr><td>Brief and verdict</td><td>Layer 2 orchestrator</td><td><span class="pill p-llm">strongest model</span></td></tr>
+          <tr><td>Data and codebase analysts</td><td>Agent loop with read-only tools</td><td><span class="pill p-llm">agent model</span></td></tr>
+          <tr><td>Linear issue</td><td>Template filled from the verdict and ownership map</td><td><span class="pill p-no">none</span></td></tr>
+          <tr><td>Customer reply</td><td>Written as part of the verdict, then approved by a person</td><td><span class="pill p-no">no extra call</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">Models are set per role in config and can be swapped; the starting set is DeepSeek V4.1 Flash for the fast and agent roles and DeepSeek V4 Pro for the strongest. Illustrative run: tool names match the plan; times, counts and commit IDs are examples.</p>
+  </section>
+</div>
+
+</body></html>

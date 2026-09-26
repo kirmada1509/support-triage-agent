@@ -1,0 +1,20 @@
+# Positions for the console's flowchart (React Flow coordinates). Nodes come from graph.get_graph().
+__start__:        {x: 0,    y: 0}
+context:          {x: 0,    y: 100}
+enrich:           {x: 0,    y: 200}
+retrieve:         {x: -140, y: 300}
+jev:              {x: 140,  y: 300}
+route:            {x: 0,    y: 400}
+layer1:           {x: -420, y: 520}
+requests:         {x: -210, y: 520}
+duplicates:       {x: 140,  y: 520}
+brief:            {x: 140,  y: 640}
+data_analyst:     {x: 0,    y: 760}
+codebase_analyst: {x: 280,  y: 760}
+round2:           {x: 140,  y: 880}
+verdict:          {x: 140,  y: 1000}
+layer3:           {x: 280,  y: 1120}
+approve:          {x: 0,    y: 1240}
+reply:            {x: 0,    y: 1360}
+remember:         {x: 0,    y: 1480}
+__end__:          {x: 0,    y: 1600}

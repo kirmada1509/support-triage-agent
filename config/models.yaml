@@ -1,0 +1,23 @@
+# Per model: how Pydantic AI and LiteLLM name it, capabilities, prices (USD per 1M tokens).
+# Prices from the providers' pages; check before quoting costs.
+deepseek-flash:
+  pydantic_ai: "deepseek:deepseek-flash"
+  litellm: "deepseek/deepseek-flash"
+  tools: true
+  json_output: true
+  context_tokens: 1000000
+  price: {input: 0.30, cached_input: 0.006, output: 1.20}
+deepseek-v4-pro:
+  pydantic_ai: "deepseek:deepseek-v4-pro"
+  litellm: "deepseek/deepseek-v4-pro"
+  tools: true
+  json_output: true
+  context_tokens: 1000000
+  price: {input: 1.32, cached_input: 0.044, output: 3.96}
+gemini-flash-lite:
+  pydantic_ai: "openrouter:google/gemini-3.1-flash-lite"
+  litellm: "openrouter/google/gemini-3.1-flash-lite"
+  tools: true
+  json_output: true
+  context_tokens: 1000000
+  price: {input: 0.25, output: 1.50}

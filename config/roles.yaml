@@ -1,0 +1,13 @@
+# Each role's model and fallback. Switch the whole set with ROLE_PROFILE=<name>.
+profile: cheap
+profiles:
+  cheap:
+    enrichment:        {model: deepseek-flash,  fallback: gemini-flash-lite}
+    jev_fallback:      {model: deepseek-flash,  fallback: gemini-flash-lite}
+    layer1:            {model: deepseek-flash,  fallback: gemini-flash-lite}
+    requests:          {model: deepseek-flash,  fallback: gemini-flash-lite}
+    data_analyst:      {model: deepseek-flash,  fallback: deepseek-v4-pro}
+    codebase_analyst:  {model: deepseek-flash,  fallback: deepseek-v4-pro}
+    findings:          {model: deepseek-flash,  fallback: deepseek-v4-pro}
+    verdict:           {model: deepseek-v4-pro, fallback: deepseek-flash}
+    indexer:           {model: deepseek-v4-pro, fallback: deepseek-flash}

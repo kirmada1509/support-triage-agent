@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# repo-map <service>: files and function signatures for one service.
+set -euo pipefail
+service=${1:?usage: repo-map <service>}
+out=$(_index -v svc="$service" -c "SELECT file, line, kind, coalesce(signature, name) FROM code_symbols WHERE service = :'svc' AND git_sha = :'sha' AND kind IN ('function','method','class','struct','interface') ORDER BY file, line" || true)
+if [ -n "$out" ]; then echo "$out"; exit 0; fi
+ctags -R -x --sort=no --kinds-all='*' --fields=+S "src/$service" 2>/dev/null \
+  | awk '$2 ~ /function|method|class|struct|interface|func/ {print $4":"$3" "$2" "$1}' | head -200

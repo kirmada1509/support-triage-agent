@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# lookup-error "<text>": where an error or log message is produced, with file and line.
+set -euo pipefail
+text=${1:?usage: lookup-error "<text>"}
+out=$(_index -v t="$text" -c "SELECT file, line, service, text FROM error_strings WHERE git_sha = :'sha' AND text ILIKE '%' || :'t' || '%' ORDER BY service, file, line" || true)
+if [ -n "$out" ]; then echo "$out"; exit 0; fi
+rg -n --fixed-strings --ignore-case --max-count 5 -- "$text" src/ || echo "not found: $text"

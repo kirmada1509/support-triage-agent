@@ -1,0 +1,6 @@
+# The one list of service names. Jev's `service` choices and Enrichment.likely_services use these keys.
+payment:         {team: Payments, linear_team: PAY,  path: src/payment/}
+quote:           {team: Shipping, linear_team: SHIP, path: src/quote/}
+checkout:        {team: Checkout, linear_team: CHK,  path: src/checkout/}
+cart:            {team: Checkout, linear_team: CHK,  path: src/cart/}
+product-catalog: {team: Catalog,  linear_team: CAT,  path: src/product-catalog/}

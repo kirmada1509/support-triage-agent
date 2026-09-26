@@ -1,0 +1,47 @@
+# Agent-side services. The sandbox shop runs from its own repo (make start-minimal).
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_USER: triage
+      POSTGRES_PASSWORD: triage
+      POSTGRES_DB: triage
+    ports:
+      - "5433:5432"
+    volumes:
+      - triage-db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U triage"]
+      interval: 3s
+      retries: 20
+
+  # From phase 5 on, the API and worker run in containers on the shop's network
+  # so they can reach jaeger, prometheus, opensearch and postgresql by name.
+  api:
+    profiles: ["agent"]
+    build: .
+    command: uv run uvicorn app.api.main:app --host 0.0.0.0 --port 8000
+    env_file: .env.agent
+    environment:
+      DATABASE_URL: postgresql://triage:triage@db:5432/triage
+    ports: ["8000:8000"]
+    depends_on: { db: { condition: service_healthy } }
+    networks: [default, shop]
+
+  worker:
+    profiles: ["agent"]
+    build: .
+    command: uv run python -m procrastinate --app=app.tasks.app worker
+    env_file: .env.agent
+    environment:
+      DATABASE_URL: postgresql://triage:triage@db:5432/triage
+    depends_on: { db: { condition: service_healthy } }
+    networks: [default, shop]
+
+volumes:
+  triage-db:
+
+networks:
+  shop:
+    name: opentelemetry-demo
+    external: true
