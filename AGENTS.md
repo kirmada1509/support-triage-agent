@@ -3,19 +3,20 @@
 Context and rules for coding agents working in this repo. Read it before changing anything, and
 keep it true (see "Keeping this file current" at the end).
 
-Last updated: Sep 26, 2026, after phase 4 front pipeline.
+Last updated: Sep 26, 2026, after phase 4 front pipeline and codebase summary.
 
 ## What this is
 
 An AI first pass for B2B support tickets (built for a Zuddl demo). A ticket arrives through a
-Pylon-style signed webhook, is enriched and categorized by a structured LLM call, and takes one of three lanes: a
-cited Layer 1 answer, request triage, or a Layer 2 investigation where a data analyst
-(HolmesGPT) and a read-only codebase analyst (mini-swe-agent) work in parallel against a real
+Pylon-style signed webhook, is enriched and categorized by a structured LLM call, and takes one
+of three lanes: a cited Layer 1 answer, request triage, or a Layer 2 investigation where a data
+analyst (HolmesGPT) and a read-only codebase analyst (mini-swe-agent) work in parallel against a real
 microservice shop. Real bugs go to the owning team as Linear issues (Layer 3). A person approves
 anything uncertain. A Next.js Triage Console shows every stage live.
 
 | To know | Read |
 | --- | --- |
+| What is implemented now | `CODEBASE_SUMMARY.md` |
 | The design, and why | `planning/Agent_Architecture_And_Build_Plan.md` |
 | What's built and what isn't | `planning/Build_Checklist.md` |
 | The sandbox shop, its bugs and scenarios | `sandbox/README.md` |
@@ -116,12 +117,11 @@ web/                phase 8 placeholder
   history tool passes model values to `psql` variables in `holmes/history_*.sql`.
 - **Retrieval.** `make index-help index-tickets` embeds 62 help sections and 200 synthetic ticket
   memories into `retrieval_docs` with local `BAAI/bge-small-en-v1.5` pinned at `5c38ec7c`.
-  Unchanged text is not
-  re-embedded. Search filters the vector and full-text candidates, then fuses their ranks. The
-  The graph's retrieve node now uses the index. `make retrieval-hits` uses a separate throwaway
-  database and records the 20-ticket result in `evals/retrieval_baseline.json` (help 7/7 top 5,
-  ticket memory 13/18 exact IDs top 3, 17/18 same synthetic issue family). Ticket 1's section is
-  first.
+  Unchanged text is not re-embedded. Search filters the vector and full-text candidates, then
+  fuses their ranks. The graph's retrieve node now uses the index. `make retrieval-hits` uses a
+  separate throwaway database and records the 20-ticket result in `evals/retrieval_baseline.json`
+  (help 7/7 top 5, ticket memory 13/18 exact IDs top 3, 17/18 same synthetic issue family).
+  Ticket 1's section is first.
 - **Models: provider-agnostic.** No code names a provider. `config/roles.yaml` has one profile
   per provider (`deepseek`, the default; `gemini`; `openai`; `openrouter`), each role with a
   model and a fallback on the same provider, so a profile needs one key. `ROLE_PROFILE` switches
@@ -152,57 +152,13 @@ web/                phase 8 placeholder
 
 ## The sandbox shop
 
-The OpenTelemetry Astronomy Shop, release 3.1.0, forked to `../opentelemetry-demo` (override with
-`SANDBOX_DIR`) and run in minimal mode (25 containers, about 2.5 GB).
-
-- **Built, not edited.** `make sandbox` rebuilds branch `sandbox` in the fork from
-  `sandbox/upstream.env` (pin), `sandbox/overlay/` (files the fork owns) and `sandbox/patches/`,
-  with fixed authors and dates, so the tags have the same SHAs on every machine
-  (`v1.3.0` = `e4243199`, `v1.4.0` = `6c877703`, also in `upstream.env`). To change a planted
-  commit, use the `planted-bugs` skill.
-- **Versions.** `v1.3.0` is upstream plus the setup (versioned images, pinned release images,
-  trace retention, the `agent_ro` role). `v1.4.0` adds 8 commits: 4 planted bugs among 4 harmless.
-- **The bugs** (lines at `v1.4.0`):
-
-  | Bug | Where | Demo ticket |
-  | --- | --- | --- |
-  | Cards rejected in their expiry month (`>` became `>=`) | `src/payment/charge.js:88` | 4 |
-  | Shipping doubled above 10 items (batches added to a total never reset) | `src/quote/app/routes.php:34-39` | 5 |
-  | Non-USD carts not emptied (early return) | `src/checkout/main.go:544-554` | spare `cart` |
-  | The Comet Book ($0.99) missing from the listing (`price_units > 0`) | `src/product-catalog/main.go:235` | spare `catalog` |
-
-  Ticket 3 (Amex) is upstream's intended card-type rule, `charge.js:82-84`; ticket 6 is the
-  `paymentFailure` flag at 25%. The plan's search bug was dropped: nothing calls `SearchProducts`.
-- **Running it.** `make sandbox-images` builds `sandbox/<service>:<tag>` for payment, quote,
-  checkout and product-catalog from worktrees `../shop@v1.3.0` and `../shop@v1.4.0`.
-  `make shop-up` starts it; `versions.env` in the fork says which tag each versioned service
-  runs. `make deploy s=payment v=v1.4.0` switches one and records the deploy (with commit titles)
-  in our Postgres; `make flag f=paymentFailure v=25%` does the same for flags.
-- **Scenarios.** `make scenario-N` (N = 1..7, `cart`, `catalog`) resets the service to `v1.3.0`
-  without recording, places baseline orders, deploys `v1.4.0`, places the same orders again,
-  checks in Jaeger that the bug reproduced, and only then sends the ticket with real times.
-  Each scenario has its own shoppers (`figma-shopper-NN`, the `figma-merch` tenant) and each order
-  its own trace ID.
-
-**Facts about the shop, confirmed against 3.1.0** (the agents' tools depend on them):
-
-- Host ports: the frontend proxy on 8080 (`/jaeger/ui`, `/grafana`, `/feature`, `/loadgen`) and
-  Prometheus on 9090. Everything else is by name on the `opentelemetry-demo` Docker network:
-  `jaeger:16686` (API under `/jaeger/ui/api`), `prometheus:9090`, `opensearch:9200`,
-  `astronomy-db:5432` database `astronomy_db`.
-- `agent_ro` / `agent_ro_password`: SELECT on schema `catalog` only, read-only transactions, 5 s
-  statement timeout. Minimal mode has no order rows in Postgres; orders live in traces and logs.
-- Traces: checkout's `PlaceOrder` span carries `user.id`; payment's `charge` span carries the
-  decline message; `calculate-quote` carries `demo.shipping.quote.cost.total` and
-  `demo.shipping.quote.items_count`; `ListProducts` carries `demo.product.count`. Card numbers are
-  masked to the last four digits by the Collector.
-- Metrics: `traces_span_metrics_calls_total` has `service_name`, `service_version`, `status_code`.
-- Logs: one OpenSearch index a day, `otel-logs-yyyy-MM-dd`; records carry `resource.service.version`
-  and `attributes.exception.message`.
-- Checkout API: `POST /api/cart` `{item: {productId, quantity}, userId}`, then
-  `POST /api/checkout?currencyCode=USD` with `{userId, userCurrency, email, address, creditCard}`
-  (dashed card numbers, as in `src/load-generator/people.json`). A declined charge returns a
-  generic 422; the reason is only in traces and logs.
+The OpenTelemetry Astronomy Shop 3.1.0 fork lives at `../opentelemetry-demo` (or
+`SANDBOX_DIR`). `make sandbox` reproducibly builds the good `v1.3.0` and the `v1.4.0`
+version with four planted bugs among four harmless commits. `make scenario-N` reproduces a
+ticket against the real shop, verifies its trace evidence, then sends it. The shop's `agent_ro`
+login can read catalog data only; orders live in traces and logs. Bug locations, service
+endpoints, trace fields and detailed operations are in [sandbox/README.md](sandbox/README.md).
+Use the `planted-bugs` skill for changes to the fork's commits or overlay.
 
 ## Commands
 
