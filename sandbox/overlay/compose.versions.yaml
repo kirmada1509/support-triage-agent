@@ -1,0 +1,40 @@
+# Support triage sandbox: run the four versioned services from images built per tag.
+#
+# sandbox/build-images.sh builds sandbox/<service>:<tag> for v1.3.0 and v1.4.0.
+# versions.env (written by scenarios/deploy.sh) says which tag each service runs:
+#   PAYMENT_VERSION=v1.4.0
+# Each OTEL_RESOURCE_ATTRIBUTES line is the service's own line from compose.yaml with only
+# service.version changed, so service.criticality survives and traces, metrics and logs carry
+# the deployed tag.
+#
+# `build: !reset null` and `pull_policy: never` make a missing image an error, instead of
+# compose building whatever is checked out and calling it a tagged version.
+
+services:
+  payment:
+    image: sandbox/payment:${PAYMENT_VERSION:-v1.3.0}
+    build: !reset null
+    pull_policy: never
+    environment:
+      - OTEL_RESOURCE_ATTRIBUTES=service.namespace=${OTEL_SERVICE_NAMESPACE},service.version=${PAYMENT_VERSION:-v1.3.0},service.criticality=critical
+
+  quote:
+    image: sandbox/quote:${QUOTE_VERSION:-v1.3.0}
+    build: !reset null
+    pull_policy: never
+    environment:
+      - OTEL_RESOURCE_ATTRIBUTES=service.namespace=${OTEL_SERVICE_NAMESPACE},service.version=${QUOTE_VERSION:-v1.3.0},service.criticality=low
+
+  checkout:
+    image: sandbox/checkout:${CHECKOUT_VERSION:-v1.3.0}
+    build: !reset null
+    pull_policy: never
+    environment:
+      - OTEL_RESOURCE_ATTRIBUTES=service.namespace=${OTEL_SERVICE_NAMESPACE},service.version=${CHECKOUT_VERSION:-v1.3.0},service.criticality=critical
+
+  product-catalog:
+    image: sandbox/product-catalog:${PRODUCT_CATALOG_VERSION:-v1.3.0}
+    build: !reset null
+    pull_policy: never
+    environment:
+      - OTEL_RESOURCE_ATTRIBUTES=service.namespace=${OTEL_SERVICE_NAMESPACE},service.version=${PRODUCT_CATALOG_VERSION:-v1.3.0},service.criticality=high

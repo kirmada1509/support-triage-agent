@@ -1,0 +1,31 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Maya Patel <maya.patel@example.com>
+Date: Tue, 22 Sep 2026 10:12:00 +0000
+Subject: [PATCH 1/8] docs(payment): describe the charge rules
+
+---
+ src/payment/README.md | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/src/payment/README.md b/src/payment/README.md
+index 62194705..e02ac931 100644
+--- a/src/payment/README.md
++++ b/src/payment/README.md
+@@ -3,6 +3,17 @@
+ This service is responsible for processing and validating payments through the
+ application.
+ 
++## Charge rules
++
++`charge.js` rejects a charge when:
++
++- the card number fails validation,
++- the card is not VISA or MasterCard (other card types are not accepted),
++- the card has expired: a card stays valid through the last day of its expiration month.
++
++A declined charge is logged and returned to checkout as a gRPC error, with the reason in
++the message.
++
+ ## Local Build
+ 
+ Copy the `demo.proto` file to this directory and run `npm ci`

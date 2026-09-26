@@ -1,5 +1,6 @@
 # The seven demo tickets, all from Figma Merch Store. The console's simulator and
-# scenarios/send_ticket.py both read this file. `setup` is what must be true in the sandbox first.
+# scenarios/send_ticket.py both read this file. `setup` is what must be true in the sandbox first;
+# `make scenario-<id>` sets it up, checks it reproduced, and sends the ticket with the real times.
 tickets:
   - id: "1"
     title: Accepted cards
@@ -26,7 +27,7 @@ tickets:
       One of our shoppers (figma-shopper-07) says checkout keeps failing with their card ending
       0005. They tried three times this morning. Is something broken on your side?
     expected_route: layer2 -> false_positive
-    setup: orders placed with an Amex test card
+    setup: orders placed with an Amex test card (make scenario-3)
 
   - id: "4"
     title: Expiry bug
@@ -36,7 +37,7 @@ tickets:
       but their cards are valid until the end of this month. figma-shopper-03 and
       figma-shopper-11 both failed around 10:15. This is costing us orders.
     expected_route: layer2 -> confirmed_bug -> Payments
-    setup: payment v1.4.0 deployed; orders with cards expiring this month
+    setup: payment v1.4.0 deployed; orders with cards expiring this month (make scenario-4)
 
   - id: "5"
     title: Bulk shipping quote bug
@@ -45,7 +46,7 @@ tickets:
       Our team orders merch in bulk (20+ items at a time) and the shipping quote has roughly
       doubled since yesterday. Small orders look normal.
     expected_route: layer2 -> confirmed_bug -> Shipping
-    setup: quote v1.4.0 deployed; orders with quantity above 10
+    setup: quote v1.4.0 deployed; orders with quantity above 10 (make scenario-5)
 
   - id: "6"
     title: paymentFailure flag incident
@@ -54,7 +55,7 @@ tickets:
       Since about 11:05 today roughly one in four of our shoppers' checkouts fail with a payment
       error. Nothing changed on our side.
     expected_route: layer2 -> config_incident -> Payments on-call
-    setup: ./scenarios/flag.sh paymentFailure 25%
+    setup: paymentFailure flag at 25% (make scenario-6; turn it off afterwards)
 
   - id: "7"
     title: Vague repeat of ticket 4

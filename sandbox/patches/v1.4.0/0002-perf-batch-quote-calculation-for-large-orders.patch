@@ -1,0 +1,36 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Jonas Weber <jonas.weber@example.com>
+Date: Tue, 22 Sep 2026 14:40:00 +0000
+Subject: [PATCH 2/8] perf: batch quote calculation for large orders
+
+---
+ src/quote/app/routes.php | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/src/quote/app/routes.php b/src/quote/app/routes.php
+index beb3fb3b..c65daba3 100644
+--- a/src/quote/app/routes.php
++++ b/src/quote/app/routes.php
+@@ -12,6 +12,9 @@ use Psr\Http\Message\ServerRequestInterface as Request;
+ use Psr\Log\LoggerInterface;
+ use Slim\App;
+ 
++// Orders above this many items are quoted in batches of this size.
++const LARGE_ORDER_BATCH_SIZE = 10;
++
+ function calculateQuote($jsonObject): float
+ {
+     $quote = 0.0;
+@@ -28,6 +31,12 @@ function calculateQuote($jsonObject): float
+         $numberOfItems = intval($jsonObject['numberOfItems']);
+         $costPerItem = 8.99;
+         $quote = round($costPerItem * $numberOfItems, 2);
++        if ($numberOfItems > LARGE_ORDER_BATCH_SIZE) {
++            $batches = array_chunk(array_fill(0, $numberOfItems, $costPerItem), LARGE_ORDER_BATCH_SIZE);
++            foreach ($batches as $batch) {
++                $quote += round(array_sum($batch), 2);
++            }
++        }
+ 
+         $childSpan->setAttribute('demo.shipping.quote.items_count', $numberOfItems);
+         $childSpan->setAttribute('demo.shipping.quote.cost.total', $quote);

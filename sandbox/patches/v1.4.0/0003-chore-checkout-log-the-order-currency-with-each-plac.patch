@@ -1,0 +1,22 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Lena Ortiz <lena.ortiz@example.com>
+Date: Wed, 23 Sep 2026 08:55:00 +0000
+Subject: [PATCH 3/8] chore(checkout): log the order currency with each placed
+ order
+
+---
+ src/checkout/main.go | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/checkout/main.go b/src/checkout/main.go
+index 90e19599..3b57d079 100644
+--- a/src/checkout/main.go
++++ b/src/checkout/main.go
+@@ -406,6 +406,7 @@ func (cs *checkout) PlaceOrder(ctx context.Context, req *pb.PlaceOrderRequest) (
+ 		slog.Float64("demo.order.amount", totalPriceFloat),
+ 		slog.Int("demo.order.items.count", len(prep.orderItems)),
+ 		slog.String("demo.shipping.tracking.id", shippingTrackingID),
++		slog.String("user_currency", req.UserCurrency),
+ 	)
+ 
+ 	if err := cs.sendOrderConfirmation(ctx, req.Email, orderResult); err != nil {

@@ -1,4 +1,5 @@
-.PHONY: install db migrate migration check-migrations api worker send deploy flag test test-db lint fmt
+.PHONY: install db migrate migration check-migrations api worker send deploy flag test test-db lint fmt \
+	sandbox sandbox-images shop-up shop-down
 
 install:            ## install Python deps (uv) and pin them in uv.lock
 	uv sync
@@ -23,6 +24,21 @@ worker:             ## Procrastinate worker that runs the LangGraph pipeline
 
 send:               ## send a demo ticket: make send t=4
 	uv run python scenarios/send_ticket.py $(t)
+
+sandbox:            ## clone the shop at the pinned commit, apply the planted bugs, tag v1.3.0 and v1.4.0
+	./sandbox/setup.sh
+
+sandbox-images:     ## build sandbox/<service>:<tag> for the four versioned services at both tags
+	./sandbox/build-images.sh
+
+shop-up:            ## start the shop (minimal mode), versioned services at the tags in versions.env
+	./sandbox/compose.sh up --detach --force-recreate --remove-orphans --no-build
+
+shop-down:          ## stop the shop and delete its volumes
+	./sandbox/compose.sh down --remove-orphans --volumes
+
+scenario-%:         ## set up a demo ticket's condition, place its orders, send it: make scenario-4
+	uv run python scenarios/scenario.py $*
 
 deploy:             ## deploy a sandbox service version: make deploy s=payment v=v1.4.0
 	./scenarios/deploy.sh $(s) $(v)

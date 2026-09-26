@@ -2,10 +2,12 @@
 
 uv run python scenarios/record.py deploy payment v1.4.0 v1.3.0 <git_sha> < commit_titles.txt
 uv run python scenarios/record.py flag <path/to/demo.flagd.json> paymentFailure 25%
+FLAG_RECORD=0 changes the flag without recording it (resetting the sandbox before a scenario).
 """
 
 import asyncio
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -38,6 +40,9 @@ def flag(flagd_file: str, name: str, variant: str) -> None:
     old = f["defaultVariant"]
     f["defaultVariant"] = variant
     path.write_text(json.dumps(data, indent=2) + "\n")  # flagd watches the file
+    if os.environ.get("FLAG_RECORD") == "0":
+        print(f"flag {name}: {old} -> {variant} (not recorded)")
+        return
     run(db.insert_flag_change(name, old, variant))
     print(f"flag {name}: {old} -> {variant}")
 

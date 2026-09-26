@@ -1,0 +1,24 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Maya Patel <maya.patel@example.com>
+Date: Wed, 23 Sep 2026 11:20:00 +0000
+Subject: [PATCH 4/8] refactor: simplify card expiry comparison
+
+---
+ src/payment/charge.js | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/src/payment/charge.js b/src/payment/charge.js
+index 9bee6387..e3ea6c3f 100644
+--- a/src/payment/charge.js
++++ b/src/payment/charge.js
+@@ -83,7 +83,9 @@ module.exports.charge = async request => {
+       throw new Error(`Sorry, we cannot process ${cardType} credit cards. Only VISA or MasterCard is accepted.`);
+     }
+ 
+-    if ((currentYear * 12 + currentMonth) > (year * 12 + month)) {
++    const currentPeriod = currentYear * 12 + currentMonth;
++    const expiryPeriod = year * 12 + month;
++    if (currentPeriod >= expiryPeriod) {
+       throw new Error(`The credit card (ending ${lastFourDigits}) expired on ${month}/${year}.`);
+     }
+ 

@@ -1,0 +1,24 @@
+# Copyright The OpenTelemetry Authors
+# SPDX-License-Identifier: Apache-2.0
+
+# Extras layer (the fork's customization seam, always loaded after the observability layer).
+#
+# Support triage sandbox: keep a scenario's "before" traces alive until the agent reads them.
+# Jaeger keeps traces in memory and drops the oldest past MEMORY_MAX_TRACES. A trace here takes
+# about 50 KB of Jaeger's heap (measured: ~48 MB for ~750 traces), which is what upstream's
+# 25000 traces in 1200M allows for. With 2 load-generator users instead of 5 the shop makes
+# about 80 traces a minute, so 25000 holds about 5 hours. To keep more, raise the cap and the
+# memory together (memory ~ 50 KB x traces, plus ~20 MB), from .env.override.
+
+services:
+  jaeger:
+    deploy:
+      resources:
+        limits:
+          memory: ${SANDBOX_JAEGER_MEMORY:-1200M}
+    environment:
+      - MEMORY_MAX_TRACES=${SANDBOX_JAEGER_MAX_TRACES:-25000}
+
+  load-generator:
+    environment:
+      - LOCUST_USERS=${SANDBOX_LOCUST_USERS:-2}

@@ -12,12 +12,13 @@ toolsets:
     enabled: true
     config:
       opensearch_url: http://opensearch:9200
-      index_pattern: otel-logs-*          # confirm the daily index name OpenSearch creates
+      index_pattern: otel-logs-*          # one index a day: otel-logs-yyyy-MM-dd
 
   database/sql:                            # the shop's catalog schema, read-only role
     enabled: true
     config:
-      connection_url: postgresql://agent_ro:change-me@postgresql:5432/otel
+      # agent_ro is created by the sandbox's src/postgresql/init.sql (sandbox/patches/v1.3.0)
+      connection_url: postgresql://agent_ro:agent_ro_password@astronomy-db:5432/astronomy_db
 
   jaeger:
     description: "Find and read traces in the shop's Jaeger. Output is condensed: trace ID, duration, root operation, user.id, service.version and the first error."

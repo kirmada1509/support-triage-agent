@@ -1,0 +1,27 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Jonas Weber <jonas.weber@example.com>
+Date: Thu, 24 Sep 2026 16:45:00 +0000
+Subject: [PATCH 8/8] feat: hide unpriced products from the catalog listing
+
+---
+ src/product-catalog/main.go | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/src/product-catalog/main.go b/src/product-catalog/main.go
+index f3bc0571..c03bd51e 100644
+--- a/src/product-catalog/main.go
++++ b/src/product-catalog/main.go
+@@ -227,11 +227,12 @@ func loadProductsFromDB(ctx context.Context) ([]*pb.Product, error) {
+ 		return nil, fmt.Errorf("database connection not initialized")
+ 	}
+ 
+-	// Query all products with categories
++	// Query all products with categories, leaving out unpriced placeholder rows
+ 	rows, err := db.QueryContext(ctx, `
+ 		SELECT p.id, p.name, p.description, p.picture, 
+ 		       p.price_currency_code, p.price_units, p.price_nanos, p.categories
+ 		FROM catalog.products p
++		WHERE p.price_units > 0
+ 		ORDER BY p.id
+ 	`)
+ 	if err != nil {

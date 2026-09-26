@@ -1,0 +1,42 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Lena Ortiz <lena.ortiz@example.com>
+Date: Thu, 24 Sep 2026 09:30:00 +0000
+Subject: [PATCH 6/8] chore: tidy up post-order cleanup
+
+---
+ src/checkout/main.go | 15 ++++++++++++++-
+ 1 file changed, 14 insertions(+), 1 deletion(-)
+
+diff --git a/src/checkout/main.go b/src/checkout/main.go
+index 3b57d079..0e54f551 100644
+--- a/src/checkout/main.go
++++ b/src/checkout/main.go
+@@ -378,7 +378,7 @@ func (cs *checkout) PlaceOrder(ctx context.Context, req *pb.PlaceOrderRequest) (
+ 	shippingTrackingAttribute := attribute.String("demo.shipping.tracking.id", shippingTrackingID)
+ 	span.AddEvent("shipped", trace.WithAttributes(shippingTrackingAttribute))
+ 
+-	_ = cs.emptyUserCart(ctx, req.UserId)
++	cs.cleanUpAfterOrder(ctx, req)
+ 
+ 	orderResult := &pb.OrderResult{
+ 		OrderId:            orderID.String(),
+@@ -540,6 +540,19 @@ func (cs *checkout) emptyUserCart(ctx context.Context, userID string) error {
+ 	return nil
+ }
+ 
++// cleanUpAfterOrder runs once the order is charged and shipped.
++func (cs *checkout) cleanUpAfterOrder(ctx context.Context, req *pb.PlaceOrderRequest) {
++	if req.UserCurrency != "USD" {
++		logger.LogAttrs(
++			ctx,
++			slog.LevelInfo, "order charged in converted currency",
++			slog.String("user_currency", req.UserCurrency),
++		)
++		return
++	}
++	_ = cs.emptyUserCart(ctx, req.UserId)
++}
++
+ func (cs *checkout) prepOrderItems(ctx context.Context, items []*pb.CartItem, userCurrency string) ([]*pb.OrderItem, error) {
+ 	out := make([]*pb.OrderItem, len(items))
+ 

@@ -3,6 +3,7 @@
 #   ./scenarios/flag.sh paymentFailure 25%
 #   ./scenarios/flag.sh paymentFailure off
 # Don't use the flagd web page during the demo: its changes aren't logged.
+# FLAG_RECORD=0 changes the flag without recording it.
 set -euo pipefail
 flag=${1:?usage: flag.sh <flag> <variant>}
 variant=${2:?usage: flag.sh <flag> <variant>}

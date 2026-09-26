@@ -1,0 +1,21 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Jonas Weber <jonas.weber@example.com>
+Date: Wed, 23 Sep 2026 15:05:00 +0000
+Subject: [PATCH 5/8] chore(quote): include the item count in the quote log
+
+---
+ src/quote/app/routes.php | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/quote/app/routes.php b/src/quote/app/routes.php
+index c65daba3..9984b8af 100644
+--- a/src/quote/app/routes.php
++++ b/src/quote/app/routes.php
+@@ -75,6 +75,7 @@ return function (App $app) {
+         //exported as an opentelemetry log (see dependencies.php)
+         $logger->info('Calculated quote', [
+             'total' => $data,
++            'items' => $jsonObject['numberOfItems'] ?? null,
+         ]);
+ 
+         return $response

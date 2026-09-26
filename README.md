@@ -14,6 +14,8 @@ The full design is in `planning/Agent_Architecture_And_Build_Plan.md`.
 Phases 1–2 scaffold: the whole LangGraph pipeline runs end to end with stub nodes, checkpointed
 in Postgres, streaming every event to the console API, pausing for approval and resuming.
 Each stub node says in its docstring what replaces it and in which phase (`TODO(phase N)`).
+Phase 0 (the sandbox) is done. [planning/Build_Checklist.md](planning/Build_Checklist.md) tracks what's
+built and what isn't, phase by phase.
 
 ## Run it
 
@@ -61,8 +63,9 @@ config/           models.yaml, roles.yaml, ownership.yaml (the one list of servi
 db/migrations/    Alembic: env.py and versions/ (0001 also creates the NOTIFY trigger)
 holmes/           HolmesGPT toolsets (jaeger, history) + condense_traces.py
 codebox/          the codebase analyst's read-only container + helper commands
-scenarios/        tickets.yaml (7 demo tickets), send_ticket.py, deploy.sh, flag.sh
-knowledge/ seed/ evals/ web/   phase 3, 3, 9 and 8 (see each README)
+sandbox/          the shop fork's kit: pin, overlay, patches, setup, image builds, compose
+scenarios/        tickets.yaml (7 demo tickets), scenario.py, send_ticket.py, deploy.sh, flag.sh
+knowledge/ seed/ evals/ web/   phase 3, 3, 3 (dataset) and 9 (runs), 8 (see each README)
 ```
 
 ## Database
@@ -92,8 +95,17 @@ migration, as `0001_initial_schema.py` does for the NOTIFY trigger.
 
 ## Sandbox
 
-The shop is a fork of the OpenTelemetry Astronomy Shop, cloned next to this repo
-(`../opentelemetry-demo`, or set `SANDBOX_DIR`), with four planted bugs tagged `v1.4.0`.
+The shop is a fork of the OpenTelemetry Astronomy Shop pinned to release 3.1.0, cloned next to
+this repo (`../opentelemetry-demo`, or set `SANDBOX_DIR`), with four planted bugs tagged `v1.4.0`
+on top of a good `v1.3.0`. `sandbox/` builds it; see [sandbox/README.md](sandbox/README.md).
+
+```bash
+make sandbox          # clone, pin, apply the planted bugs, tag v1.3.0 and v1.4.0
+make sandbox-images   # sandbox/<service>:<tag> for payment, quote, checkout, product-catalog
+make shop-up          # the shop in minimal mode on http://localhost:8080
+make scenario-4       # reproduce ticket 4 in the shop, check it in Jaeger, send the ticket
+```
+
 `make deploy s=payment v=v1.4.0` switches a service's version and records the deploy;
 `make flag f=paymentFailure v=25%` changes a flag and records it. Both write to this repo's
 Postgres, which is where the agent reads deploy and flag history.
