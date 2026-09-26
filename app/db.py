@@ -343,6 +343,28 @@ async def save_service_card(service: str, git_sha: str, card: str) -> None:
         await s.execute(stmt)
 
 
+# --- investigations (Layer 2 verdicts, for duplicate checks) ---------------------------------
+
+
+async def add_investigation(**fields: Any) -> int:
+    async with Session.begin() as s:
+        row = InvestigationRow(**fields)
+        s.add(row)
+        await s.flush()
+        return row.id
+
+
+async def open_investigations(service: str, version: str | None = None) -> list[InvestigationRow]:
+    """Open investigations of a service, at that version when one is given."""
+    query = select(InvestigationRow).where(
+        InvestigationRow.service == service, InvestigationRow.status == "open"
+    )
+    if version:
+        query = query.where(InvestigationRow.version == version)
+    async with Session() as s:
+        return list(await s.scalars(query.order_by(InvestigationRow.created_at.desc())))
+
+
 # --- evals ------------------------------------------------------------------------------------
 
 

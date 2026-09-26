@@ -53,8 +53,9 @@ def no_db(request, monkeypatch):
 
 
 @pytest.fixture
-def front_stage_fakes(monkeypatch):
-    """Fake front stages, so graph tests exercise lanes without a model or retrieval database."""
+def front_stage_fakes(monkeypatch, layer2_fakes):
+    """Fake front stages (and Layer 2's outside calls), so graph tests exercise lanes without a
+    model, container or database."""
 
     async def enriched(state):
         end = state["ticket"].received_at
@@ -102,3 +103,52 @@ def front_stage_fakes(monkeypatch):
         "requests": requested,
     }.items():
         monkeypatch.setitem(build.NODES, name, fn)
+
+
+@pytest.fixture
+def layer2_fakes(monkeypatch):
+    """Layer 2's outside calls faked: no analyst containers, models, retrieval or Postgres. Each
+    analyst makes one call and claims nothing, so the verdict is inconclusive without a model."""
+    from app.analysts import AnalystRun
+    from app.events import ToolCallEvent
+    from app.models import Findings, ToolRecord
+    from app.nodes import (
+        brief,
+        codebase_analyst,
+        data_analyst,
+        duplicates,
+        findings,
+        remember,
+        round2,
+    )
+
+    def one_call(stage: str, tool: str, on_call) -> AnalystRun:
+        on_call(ToolCallEvent(stage=stage, call_id="x1", tool=tool, status="running"))
+        return AnalystRun(answer="(fake)", calls=[ToolRecord(call_id="x1", tool=tool)])
+
+    async def ask(question, on_call):
+        return one_call("data_analyst", "deploys", on_call)
+
+    async def investigate(task, b, on_call, **budget):
+        return one_call("codebase_analyst", "bash", on_call)
+
+    async def convert(agent, answer, calls, round=1):
+        return Findings(agent=agent, hypothesis="(fake)", evidence=[], confidence=0.5, round=round)
+
+    async def empty(*args, **kwargs):
+        return []
+
+    async def nothing(*args, **kwargs):
+        return None
+
+    monkeypatch.setattr(data_analyst, "ask", ask)
+    for module in (codebase_analyst, round2):
+        monkeypatch.setattr(module, "investigate", investigate)
+    monkeypatch.setattr(codebase_analyst, "service_card", nothing)
+    monkeypatch.setattr(codebase_analyst, "change_summary", lambda *a: "")
+    monkeypatch.setattr(findings, "convert", convert)
+    monkeypatch.setattr(brief, "running_version", lambda service: "v1.4.0")
+    monkeypatch.setattr(duplicates, "open_investigations", empty)
+    monkeypatch.setattr(duplicates, "open_tickets", empty)
+    monkeypatch.setattr(remember, "write_doc", nothing)
+    monkeypatch.setattr(remember, "add_investigation", nothing)

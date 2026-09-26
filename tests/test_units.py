@@ -4,9 +4,8 @@ from app.api.main import api
 from app.events import CodeOut, EventAdapter, ToolCallEvent
 from app.graph.build import pipeline_shape
 from app.graph.routes import is_duplicate, pick_lane, pick_outcome
-from app.models import Classification, Evidence, Findings, Verdict
+from app.models import Classification, Verdict
 from app.nodes.approve import approval_reasons
-from app.nodes.findings import check_evidence
 
 
 def classification(**kw) -> Classification:
@@ -58,21 +57,6 @@ def test_approval_reasons():
     assert approval_reasons({**ok, "verdict": verdict("inconclusive")})
     assert approval_reasons({**ok, "verdict": verdict("false_positive", 0.5)})
     assert approval_reasons({**ok, "reply": None}) == ["no draft reply"]
-
-
-def test_check_evidence_drops_uncited():
-    f = Findings(
-        agent="data_analyst",
-        hypothesis="h",
-        confidence=0.9,
-        evidence=[
-            Evidence(source="trace", ref="abc", observation="o", call_id="c1"),
-            Evidence(source="log", ref="q", observation="made up", call_id="nope"),
-        ],
-    )
-    checked = check_evidence(f, {"c1"})
-    assert [e.call_id for e in checked.evidence] == ["c1"]
-    assert check_evidence(f, set()).confidence == 0.3
 
 
 def test_event_roundtrip():

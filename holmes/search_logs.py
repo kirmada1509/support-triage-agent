@@ -93,7 +93,7 @@ def main() -> int:
     except urllib.error.HTTPError as e:
         response = json.load(e)
     print(condense(response))
-    return 0
+    return 1 if "error" in response else 0  # HolmesGPT marks the call failed
 
 
 if __name__ == "__main__":

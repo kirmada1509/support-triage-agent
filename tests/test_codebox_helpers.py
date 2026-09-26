@@ -44,6 +44,14 @@ def test_lookup_error_finds_the_template_from_a_message_it_produced(box):
     assert "Credit card info is invalid" not in out
 
 
+def test_lookup_error_finds_the_template_from_the_start_of_a_message(box):
+    """Customers and analysts often quote only the start of a message the code produced."""
+    out = run(*box, "lookup-error", "The credit card (ending 4242) expired").stdout
+    assert f"src/payment/charge.js:{line_of(CHARGE_JS, 'expired on')} payment:" in out
+    assert "not in the error index" not in out
+    assert "not in the error index" in run(*box, "lookup-error", "The cart is empty").stdout
+
+
 def test_lookup_error_treats_its_argument_as_text_not_a_pattern(box):
     result = run(*box, "lookup-error", "(ending")
     assert result.returncode == 0 and "expired on" in result.stdout, result.stderr

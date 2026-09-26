@@ -14,7 +14,7 @@ from psycopg.rows import dict_row
 from psycopg_pool import AsyncConnectionPool
 
 from app import db
-from app.events import ErrorEvent, Event, JevEvent
+from app.events import ErrorEvent, Event, JevEvent, ModelOutputEvent
 from app.graph.build import build_graph, checkpoint_serde
 from app.graph.stream import run_graph
 from app.models import Ticket
@@ -53,6 +53,8 @@ async def close_checkpointer() -> None:
 def _sink(ticket_id: str):
     async def sink(event: Event) -> None:
         await db.record_event(ticket_id, event)
+        if isinstance(event, ModelOutputEvent) and event.cost_usd:
+            await db.add_cost(ticket_id, event.cost_usd)
         if isinstance(event, JevEvent):  # legacy event name; show lane and severity immediately
             answers = {a.question: a.answer for a in event.answers}
             await db.update_ticket(

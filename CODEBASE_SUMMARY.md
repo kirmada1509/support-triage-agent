@@ -12,7 +12,9 @@ Pylon-style webhook accepts tickets, a Postgres worker runs a checkpointed LangG
 and an API exposes the ticket queue, stage events, replay, approval, and simulator endpoints.
 The working front pipeline enriches a ticket, searches help content and past tickets, classifies
 its lane, and either prepares a cited product answer or triages a request. Technical tickets
-enter a wired investigation lane whose graph nodes still use placeholder findings and verdicts.
+get a duplicate check, then a Layer 2 investigation: HolmesGPT reads the shop's telemetry and
+mini-swe-agent reads its code, in parallel, and a checked verdict says false positive, bug (with
+file and commit), config incident, or inconclusive.
 
 The graph currently runs:
 
@@ -20,9 +22,10 @@ The graph currently runs:
 webhook → context → enrichment → retrieval + classification → route
                                                 ├─ how-to → Layer 1 answer
                                                 ├─ request → request triage
-                                                ├─ tech issue → duplicate/analyst/verdict stubs
+                                                ├─ tech issue → duplicates → brief → analysts
+                                                │     → round 2 → verdict
                                                 └─ uncertain → approval
-all lanes → approval → reply stub → memory stub
+all lanes → approval → reply stub → ticket memory
 ```
 
 `jev` remains the graph stage and event name for compatibility. Jev is unavailable, so that
@@ -63,8 +66,9 @@ including investigations, code index and eval results, exist ahead of their work
   The codebox mounts read-only shop worktrees and has no network access.
 - `holmes/` holds the pinned HolmesGPT container and its restricted metrics, logs, traces,
   catalog and history tools. `codebox/` holds the offline mini-swe-agent environment and code
-  helper commands. Both analysts produced useful answers in the Phase 2 spike, but the graph
-  does not invoke them yet. See [planning/Phase_2_Spike.md](planning/Phase_2_Spike.md).
+  helper commands. The graph runs both (`app/analysts/`), each with a time and call budget;
+  every piece of evidence must point at a tool call that showed it. See
+  [planning/Phase_2_Spike.md](planning/Phase_2_Spike.md) for the spike that chose them.
 - `knowledge/` contains 31 source-checked articles split into 62 indexed sections. `seed/`
   contains 200 labelled synthetic past tickets. `evals/tickets.yaml` fixes 20 ticket labels.
   The stored retrieval baseline found the answering section in the top five for 7/7 labelled
@@ -75,13 +79,8 @@ including investigations, code index and eval results, exist ahead of their work
 
 ## Still incomplete
 
-- The Phase 5 code index is built (all five services at both tags, stored per commit, with
-  service cards written by the `indexer` role, exported to the codebox's helper commands), and the
-  spike passes with the index mounted at `/index`. The restricted analyst environments work as
-  standalone spikes, not graph investigations.
-- `duplicates`, `brief`, both analyst nodes, `round2`, `verdict` and `remember` are Phase 6
-  placeholders. A technical ticket cannot yet get a trustworthy root cause, duplicate link or
-  memory write-back from the graph.
+- Layer 2 is model behaviour on a small demo: `make test-layer2` checks the five demo tickets
+  live, but one run is not a reliability measure (phase 9 evaluates it).
 - `layer3` returns a fake Linear issue ID. `reply` does not send a Pylon message. The approval
   API works, but downstream engineering/customer delivery is Phase 7 work.
 - `web/` is a placeholder; the Next.js Triage Console is Phase 8 work. The API and event types

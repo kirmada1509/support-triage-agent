@@ -95,3 +95,20 @@ def test_the_helpers_find_a_customer_quote_in_the_real_index(indexes, tmp_path):
         "src/payment/charge.js:89 payment: "
         "The credit card (ending ${lastFourDigits}) expired on ${month}/${year}."
     ]
+
+
+def test_the_start_of_the_amex_decline_finds_the_card_type_rule(indexes, tmp_path):
+    """Round 2's query on ticket 3: the start of payment's decline, as a trace shows it."""
+    import subprocess
+
+    export.write(tmp_path, list(indexes["v1.4.0"].values()), {})
+    env = {**os.environ, "PATH": f"{BIN}:{os.environ['PATH']}", "INDEX_DIR": str(tmp_path)}
+    out = subprocess.run(
+        ["lookup-error", "Sorry, we cannot process amex credit cards"],
+        cwd=tmp_path,
+        env=env,
+        capture_output=True,
+        text=True,
+        check=True,
+    ).stdout
+    assert [line.split(" ")[0] for line in out.strip().splitlines()] == ["src/payment/charge.js:83"]

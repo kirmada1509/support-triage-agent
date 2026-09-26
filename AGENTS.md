@@ -76,6 +76,8 @@ app/
                     hybrid search and hit-rate CLI
   indexer/          phase 5 code index: extract.py (ast-grep), build.py (from git), card.py
                     (service cards), export.py (TSV for the codebox), __main__.py (CLI)
+  analysts/         Layer 2's outside calls: holmes.py (HolmesGPT's container, budget enforced
+                    from its stdout), codebox.py (mini-swe-agent in the codebox, in a thread)
 config/             models.yaml (names, prices), roles.yaml (model per role), ownership.yaml
 db/migrations/      Alembic; 0001 also creates the events NOTIFY trigger by hand
 holmes/             HolmesGPT's image (Dockerfile), config.yaml, toolsets.yaml, condense_traces.py,
@@ -117,44 +119,43 @@ web/                phase 8 placeholder
   `history_ro` from `HISTORY_DB_URL`, with SELECT on `deploys` and `flag_changes` only. HolmesGPT's
   history tool passes model values to `psql` variables in `holmes/history_*.sql`.
 - **Retrieval.** `make index-help index-tickets` embeds 62 help sections and 200 synthetic ticket
-  memories into `retrieval_docs` with local `BAAI/bge-small-en-v1.5` pinned at `5c38ec7c`.
-  Unchanged text is not re-embedded. Search filters the vector and full-text candidates, then
-  fuses their ranks. The graph's retrieve node now uses the index. `make retrieval-hits` uses a
-  separate throwaway database and records the 20-ticket result in `evals/retrieval_baseline.json`
-  (help 7/7 top 5, ticket memory 13/18 exact IDs top 3, 17/18 same synthetic issue family).
-  Ticket 1's section is first.
+  memories into `retrieval_docs` with local `BAAI/bge-small-en-v1.5` pinned at `5c38ec7c`;
+  unchanged text is not re-embedded. Search filters the vector and full-text candidates, then
+  fuses their ranks. `make retrieval-hits` scores it on a throwaway database
+  (`evals/retrieval_baseline.json`).
 - **Models: provider-agnostic.** No code names a provider. `config/roles.yaml` has one profile
-  per provider (`deepseek`, the default; `gemini`; `openai`; `openrouter`), each role with a
-  model and a fallback on the same provider, so a profile needs one key. `ROLE_PROFILE` switches
-  every role; `ROLE_MODELS="role=model,..."` moves single roles to any model in
-  `config/models.yaml` (no fallback). A model's provider is the prefix of its `pydantic_ai` name
-  and decides its key (`PROVIDER_KEYS`). `pydantic_ai_model(role)` builds it with its own
-  `settings` (a `max_tokens` cap, thinking off for direct DeepSeek); the analysts get
-  `litellm_model(role)`, `litellm_kwargs(role)` (the same settings for LiteLLM) and
-  `key_envs(role)` (the keys to pass into a container). `make models` prints what each role gets
-  and which keys are missing. `LIMITS` caps each single call. To add a model: an entry in
-  `models.yaml`, then use its key; a new provider also needs `PROVIDER_KEYS` and `build_model`.
-- **Tracing.** The worker calls `setup_tracing()` on its first run; with
-  `OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:8080/otlp-http` each ticket run is one trace in the
-  shop's Jaeger (service `support-triage-agent`): a `ticket <id>` span, a `node <name>` span per
-  node, and Pydantic AI's spans per model call.
+  per provider (`deepseek` default, `gemini`, `openai`, `openrouter`), each role with a model and
+  a same-provider fallback. `ROLE_PROFILE` switches every role; `ROLE_MODELS="role=model,..."`
+  moves single roles to any model in `config/models.yaml`. A model's `pydantic_ai` prefix decides
+  its key (`PROVIDER_KEYS`). `pydantic_ai_model(role)` carries the model's `settings`; the
+  analysts get `litellm_model`, `litellm_kwargs` and `key_envs`. `LIMITS` caps each single call;
+  `make models` shows roles and missing keys. A new provider needs `PROVIDER_KEYS` and `build_model`.
+- **Tracing.** With `OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:8080/otlp-http` each ticket run
+  is one trace in the shop's Jaeger (`support-triage-agent`): a span per ticket, node and model call.
 - **Code index.** `deploy.sh` step 4 runs `python -m app.indexer index <service> <tag>`: ast-grep
   extracts symbols, error messages, flag reads and gRPC handlers from git at that commit, stored
   once per (service, commit), plus a service card (`indexer` role; `INDEX_CARDS=0` skips it).
   `export` writes the TSV files the offline codebox reads at `/index`. Usage in `__main__.py`.
-- **Analysts.** HolmesGPT runs in its own image on the shop's network (it can't share this
-  environment); mini-swe-agent is a dependency and runs each command in the codebox container.
-  Both worked on the demo tickets in the phase 2 spike (`planning/Phase_2_Spike.md`); their graph
-  nodes are phase 6.
+- **Layer 2.** `duplicates` links a ticket to an open investigation with the same error
+  signature (code), or to an open ticket that retrieval finds and a yes/no model call confirms
+  by ID. `brief` is built in code (ticket as data, window, versions from the context's deploys or
+  the fork's `versions.env`, past tickets as hypotheses). `data_analyst` runs HolmesGPT's
+  container (`app/analysts/holmes.py`) and `codebase_analyst` runs mini-swe-agent in the codebox
+  with the deployed commit's index at `/index` and the service card and change summary in its
+  task (`app/analysts/codebox.py`); each streams its calls and stops at its time or call budget
+  (constants in the node) to an inconclusive finding. `findings.convert` (role `findings`) turns
+  an answer into Findings and `check_evidence` keeps only evidence a real call showed. `round2`
+  sends the data analyst's exact error to the codebox once. `verdict` (role `verdict`) is then
+  checked by `apply_rules`: two independent sources, a bug needs the file:line and commit the
+  codebase analyst saw, an incident a flag change, a false positive the code. `remember` writes
+  ticket memory and an `investigations` row. Analyst costs go to `tickets.cost_usd`.
 - **Front pipeline.** `enrich` extracts a UTC window and ticket clues, then code checks IDs,
   service names and changes. `retrieve` runs hybrid help and ticket searches. The legacy `jev`
-  stage now calls the configured `classification` LLM role; Jev is unavailable. Below 0.7 type
-  confidence or an unknown service goes to a person. `layer1` verifies every cited ID and needs
-  a relevant help section; `requests` drafts an acknowledgement. `make front-eval` runs these
-  nodes on 20 fixed tickets and records `evals/phase4_baseline.json`.
-- **Status.** Context, enrichment, retrieval, categorization, routing, Layer 1, request triage
-  and approval are real, as are Layer 2's tools and the code index. The Layer 2 nodes, Layer 3,
-  reply delivery and memory write-back remain stubs.
+  stage calls the `classification` role (Jev is unavailable); below 0.7 type confidence or an
+  unknown service goes to a person. `layer1` verifies every cited ID; `requests` drafts an
+  acknowledgement. `make front-eval` scores them on 20 fixed tickets.
+- **Status.** Everything up to the verdict and memory write-back is real. Layer 3 (Linear) and
+  reply delivery remain stubs.
 
 ## The sandbox shop
 
@@ -196,8 +197,9 @@ make lint fmt                      # ruff check + format check / fix, line lengt
 | `shop` | `make test-shop` | `make shop-up` | every scenario live (~3 min), recorded deploys, metrics, logs, `agent_ro` |
 | `llm` | `make test-llm` | keys in `.env.agent` | one real typed call per provider profile, skipped without its key (a fraction of a cent) |
 | `spike` | `make test-spike` | shop, `make analyst-images`, keys | both analysts on demo tickets (~3 min, a few cents), codebox and history guardrails |
+| `layer2` | `make test-layer2` | shop, `make sandbox-images analyst-images`, keys | tickets 3-7 reproduced and run through the whole graph (~25 min) |
 
-- Markers are excluded by default (`pyproject.toml` addopts). `db`, `shop` and `spike` refuse to run unless
+- Markers are excluded by default (`pyproject.toml` addopts). `db`, `shop`, `spike` and `layer2` refuse to run unless
   `DATABASE_URL` names a database ending in `_test`; the make targets set it.
 - **Replacing a stub node:** write its test first against `TicketState` (the state it receives,
   the keys it returns), with the model or tool faked, then implement; `tests/test_graph.py`
@@ -235,17 +237,8 @@ make lint fmt                      # ruff check + format check / fix, line lengt
 
 ## Gotchas we've hit
 
-- The shop's `.env` resolves `OTEL_RESOURCE_ATTRIBUTES` from its own `IMAGE_VERSION` before
-  `.env.override` is read; the overlay restates it. `DEMO_VERSION=latest` has moved past 3.1.0,
-  so the overlay pins it.
-- Jaeger keeps traces in memory at about 50 KB each; 25000 traces fit its 1200M limit. Raise the
-  cap and the memory together, or Jaeger restarts and every trace is gone.
-- `flag.sh` edits `src/flagd/demo.flagd.json` in the fork, which leaves the fork dirty, and
-  `make sandbox` then refuses to run: `git -C ../opentelemetry-demo checkout -- src/flagd`.
-- A trace arrives in pieces (each service exports in batches): wait for the span you need
-  (`Shop.spans(until=...)`) rather than the first response.
-- The shop's clock is UTC; ticket times are the customer's local time.
-- The frontend has no search box and nothing calls `SearchProducts`; don't build on search.
+- The shop's own gotchas (its `.env`, Jaeger's memory, `flag.sh` and the fork, traces arriving in
+  pieces, UTC, no search) are in [sandbox/README.md](sandbox/README.md#gotchas).
 - Every model in `config/models.yaml` needs `settings.max_tokens`: without it OpenRouter reserves
   65536 output tokens per request and returns 402 once the key's credit can't cover that. Direct
   DeepSeek also needs thinking off for Pydantic AI's typed output.
@@ -264,7 +257,11 @@ make lint fmt                      # ruff check + format check / fix, line lengt
   answers 429 `credit_balance_exhausted` with a valid key. Switch profile
   (`ROLE_PROFILE=... make test-spike`) rather than editing code.
 - Agents' step limits count model turns, not tool calls (HolmesGPT made up to 62 calls in 15 turns);
-  enforce time and call budgets in the node.
+  enforce time and call budgets in the node. At `--max-steps` HolmesGPT returns its last raw
+  message (DeepSeek's `DSML` tool-call markup), not an answer, so the node stops it instead.
+- An analyst's "exact error" can be its own tool's error (a bad OpenSearch query): only a
+  successful trace or log call may supply it (`ERROR_TOOLS` in `findings.py`), and a failed tool
+  must exit non-zero so HolmesGPT marks it failed.
 - In the codebox, mount the fork's `.git` at `/git` and set `GIT_DIR=/git/worktrees/shop@<tag>`,
   `GIT_WORK_TREE=/repo`: mounting it at its host path silently fails under Docker Desktop. Set
   `PREV_GIT_DIR` too, or git in `/prev` silently shows the deployed tag (`codebox/bin/git`).
@@ -273,7 +270,8 @@ make lint fmt                      # ruff check + format check / fix, line lengt
   Postgres (HolmesGPT's `history`) needs `--add-host host.docker.internal:host-gateway` on Linux.
 - The codebox's awk is mawk: the index's error patterns are POSIX ERE, not `re.escape` output
   (it escapes spaces), and helpers pass arguments via `ENVIRON`, never `awk -v`.
-- Whole-graph tests need `front_stage_fakes` (`tests/conftest.py`), or `enrich` calls a model.
+- Whole-graph tests need `front_stage_fakes` (`tests/conftest.py`, which pulls in
+  `layer2_fakes`), or `enrich` calls a model and Layer 2 starts real containers.
 
 ## Skills and plugins
 

@@ -2,7 +2,9 @@
 against a real OpenSearch response (tests/fixtures/opensearch_payment_logs.json)."""
 
 import importlib.util
+import io
 import json
+import sys
 
 import pytest
 
@@ -83,3 +85,24 @@ def test_long_multiline_messages_stay_on_one_short_line():
     }
     line = search_logs.condense({"hits": {"hits": [{"_source": src}]}}).splitlines()[1]
     assert "\n" not in line and len(line) < 400 and line.endswith("…")
+
+
+def test_an_opensearch_error_fails_the_call(monkeypatch, capsys):
+    """HolmesGPT marks a non-zero exit as a failed call, so the error can't pass for evidence."""
+
+    class Response(io.BytesIO):
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *exc):
+            return False
+
+    error = {"error": {"type": "search_phase_execution_exception", "reason": "all shards failed"}}
+    monkeypatch.setattr(
+        search_logs.urllib.request,
+        "urlopen",
+        lambda request, timeout: Response(json.dumps(error).encode()),
+    )
+    monkeypatch.setattr(sys, "argv", ["search_logs.py", "otel-logs-*", '{"size": 5}'])
+    assert search_logs.main() == 1
+    assert "OpenSearch error" in capsys.readouterr().out

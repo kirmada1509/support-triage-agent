@@ -370,7 +370,7 @@ One call to the fast model returns `{kind: feature | billing | account, summary,
 
 This is the only lane that runs agents. A single call can't read a trace, decide what to search next, then check git history based on what it found; that takes a tool loop.
 
-The brief node writes one investigation brief: identifiers, time window, the suspected service from categorization, and the customer's own words. Round 1 runs both analysts as parallel branches of the graph, each with a 90-second limit and at most 15 tool calls. If the data analyst finds an exact error message or span, round 2 sends it to the codebase analyst for a short check of that one code path.
+The brief node writes one investigation brief in code, with no model call (everything in it is already checked): identifiers, time window, the suspected service from categorization and the versions it runs, recent deploys and flag changes, similar past tickets as hypotheses, and the customer's own words. Round 1 runs both analysts as parallel branches of the graph, each with a hard time limit and tool-call budget: the data analyst 240 seconds and 40 calls, the codebase analyst 120 seconds and 20 commands. (The first plan said 90 seconds and 15 calls; in phase 6 HolmesGPT on DeepSeek Flash needed 25 calls and 50 to 180 seconds across the demo tickets, and a stopped run is inconclusive, so the budget was set from measured runs.) If the data analyst finds an exact error message, round 2 sends it to the codebase analyst for a short check of that one code path (90 seconds, 16 commands).
 
 |  | Data analyst (HolmesGPT) | Codebase analyst (mini-swe-agent) |
 | --- | --- | --- |
@@ -471,7 +471,7 @@ Neither analyst reads everything. Each starts from a short task prompt (the brie
 
 ### Data analyst under the hood (HolmesGPT)
 
-**How it's called.** HolmesGPT runs in its own image (`holmes/Dockerfile`) on the shop's network, because its dependencies conflict with Pydantic AI's; the data analyst node runs `holmes ask` there with the role's model, only the toolsets below enabled, and a JSON output file holding the answer and every tool call. It runs on OpenRouter's DeepSeek, because DeepSeek's own API rejects some of HolmesGPT's tool schemas (details in `planning/Phase_2_Spike.md`). The question contains the brief, the `Enrichment` object and a short guide to the shop's telemetry: service names, the span attributes that matter (`user.id`, `service.version`, the `demo.*` attributes), metric names and the log index. The node enforces the 90-second timeout and the tool-call budget itself: HolmesGPT's step limit counts model turns, and the spike's run made 36 tool calls in 15 turns.
+**How it's called.** HolmesGPT runs in its own image (`holmes/Dockerfile`) on the shop's network, because its dependencies conflict with Pydantic AI's; the data analyst node runs `holmes ask` there with the role's model, only the toolsets below enabled, and a JSON output file holding the answer and every tool call. It runs on DeepSeek's own API; HolmesGPT's log search, whose schema DeepSeek rejects, is replaced by our `logs` toolset (details in `planning/Phase_2_Spike.md`). The question contains the brief, the `Enrichment` object and a short guide to the shop's telemetry: service names, the span attributes that matter (`user.id`, `service.version`, the `demo.*` attributes), metric names and the log index. The node enforces the timeout and the tool-call budget itself: HolmesGPT's step limit counts model turns (the spike's run made 36 tool calls in 15 turns), so the node reads HolmesGPT's "Running tool #N" lines as they stream and stops the container at the first call over budget.
 
 **Its toolsets:**
 
@@ -1012,7 +1012,7 @@ The biggest demo risk is a slow or wrong live Layer 2 run; the biggest productio
 | An open-source part fits poorly: HolmesGPT's prompts or answers, or mini-swe-agent in a read-only container | The day-4 spike runs both against the sandbox before anything depends on them. If one doesn't fit, a Pydantic AI agent with a few of your own tools takes its place; the toolsets and helper commands carry over |
 | An upgrade of an open-source part changes its behaviour | Exact versions pinned; upgrade only on purpose and re-run the eval set afterwards |
 | The console takes longer than its three days | Library components only and four glue files; events exist from day 3, so there's real data to build against. If time runs short, cut `/scorecard` to a static table and keep the ticket page |
-| A Layer 2 run takes several minutes on stage | 90-second timeout per analyst, parallel branches, stored runs that replay as backup |
+| A Layer 2 run takes several minutes on stage | A time limit per analyst (240 s at most), parallel branches, stored runs that replay as backup |
 | A cheap model fumbles tool calls or structured output | Pydantic AI validates outputs and retries; the scorecard shows which models fail often, and that role moves to a stronger model |
 | The model provider is down or rate-limits you during the demo | A fallback model for every role, node retry policies, and stored runs that replay with no network |
 | Retrieval misses the right help section | Sections carry their article title, keyword search backs up the vectors, and Layer 1 hands off to a person when nothing scores above the threshold instead of answering from nothing |

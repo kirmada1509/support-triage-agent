@@ -4,16 +4,17 @@ What's built and what isn't, phase by phase, against `Agent_Architecture_And_Bui
 Tick an item when it works and is tested the way the plan's "How it's tested" says; tick a
 phase's "Done when" only when that whole criterion has been seen working.
 
-Last updated Sep 26, 2026: phase 5 done (every suite run on Linux Docker; `test-llm`'s `openai` case still has no credit). Suite inventory (provider calls depend on credit):
+Last updated Sep 26, 2026, during phase 6 (Layer 2 nodes built; live tickets 3, 4, 6, 7 pass, 5 is flaky). Suite inventory (provider calls depend on credit):
 
 | Suite | Command | Needs | Tests |
 | --- | --- | --- | --- |
-| Units, graph in memory, front pipeline, scenario logic, sandbox kit, tracing, model config, retrieval, indexer, codebox helpers, trace condensing | `make test` | nothing | 159 |
-| Database | `make test-db` | `make db` | 10 |
-| The fork: tags, planted bugs, overlay, images, the code index at both tags | `make test-sandbox` | `make sandbox` | 27 |
+| Units, graph in memory, front pipeline, scenario logic, sandbox kit, tracing, model config, retrieval, indexer, codebox helpers, trace condensing, Layer 2 rules and nodes | `make test` | nothing | 216 |
+| Database | `make test-db` | `make db` | 12 |
+| The fork: tags, planted bugs, overlay, images, the code index at both tags | `make test-sandbox` | `make sandbox` | 28 |
 | The running shop: every scenario, read-only role, metrics, logs | `make test-shop` | `make shop-up` | 15 |
 | Real model calls on each provider profile, a real payment service card | `make test-llm` | keys in `.env.agent` | 5 |
 | Both analysts on demo tickets, codebox and history guardrails | `make test-spike` | shop, `make analyst-images`, keys | 6 |
+| Demo tickets 3-7 through the whole graph, live | `make test-layer2` | shop, `make sandbox-images analyst-images`, keys | 5 |
 
 ## Phase 0: Sandbox (days 1–2)
 
@@ -136,22 +137,37 @@ Last updated Sep 26, 2026: phase 5 done (every suite run on Linux Docker; `test-
 
 ## Phase 6: Layer 2 nodes (days 10–11)
 
-- [ ] Tests first: evidence checks, error-signature normalization, round 2's trigger, the timeout path
-- [ ] Duplicate check: exact signature, retrieval over open tickets, structured LLM confirmation
-- [ ] Brief
-- [ ] Data analyst node: runs HolmesGPT's container, enforces the 90 s timeout and tool-call budget
-  itself (its step limit counts model turns: the spike made 36 calls in 15 turns), streams its tool calls;
-  maps `host.docker.internal` to the host gateway as `tests/test_spike.py` does
-- [ ] Codebase analyst node (mini-swe-agent) with timeout, streaming its commands; it exports
-  the deployed commit's index (`app.indexer.__main__.export_index`) to mount at `/index`, sets
-  `PREV_GIT_DIR`, and puts the service card and change summary in the task prompt
-- [ ] Findings conversion with evidence checks (HolmesGPT guesses about code it never read; drop those)
-- [ ] Cost per analyst run from tokens and `models.yaml` prices (LiteLLM has no price for deepseek-flash)
-- [ ] Round 2
-- [ ] Verdict
-- [ ] Write-back to ticket memory and `investigations`
+- [x] Tests first: evidence checks, error-signature normalization (code templates too), round 2's
+  trigger, the timeout and call-budget path, the verdict's rules (`tests/test_layer2.py`,
+  `tests/test_layer2_nodes.py`)
+- [x] Duplicate check: exact signature against open investigations, retrieval over open tickets,
+  a structured confirmation that must name a candidate (live: 7 links to 4; 6 is not linked)
+- [x] Brief, built in code with no model call (plan changed): ticket as data, window, versions,
+  recent changes, past tickets as hypotheses
+- [x] Data analyst node: HolmesGPT's container with the time and call budget enforced from its
+  streamed "Running tool" lines (240 s, 40 calls: measured runs took 50-210 s and 21-37 calls,
+  plan changed); streams its calls
+- [x] Codebase analyst node (mini-swe-agent in a thread, commands counted and streamed): exports
+  the deployed commit's index to `/index`, sets `PREV_GIT_DIR`, puts the service card and change
+  summary in the task (120 s, 20 commands)
+- [x] Findings conversion with evidence checks: a cited call must exist, have succeeded and show
+  the ref; the data analyst can't cite code, the codebase analyst can't cite telemetry; an exact
+  error must come from a trace or log (not a tool's own error)
+- [x] Cost per analyst run (HolmesGPT's own total; the codebox's from tokens and `models.yaml`),
+  added to `tickets.cost_usd` by the worker
+- [x] Round 2: the data analyst's exact error to the codebox once (90 s, 16 commands);
+  `lookup-error` now finds a template from the start of a message
+- [x] Verdict, then `apply_rules`: two sources, production must show the symptom, a bug needs the
+  file:line and commit the codebase analyst saw, an incident a flag change, a false positive the
+  code; the codebase analyst's latest judgment (round 2 over round 1) decides bug vs intended
+- [x] Write-back to ticket memory and `investigations`
+- [ ] Ticket 5 in the full `make test-layer2` run: passes alone, but after scenarios 3 and 4 the
+  data analyst sometimes follows payment's errors in its window instead of quote's doubled
+  amounts, and the verdict is (rightly) inconclusive. 2 of 3 full runs failed it
+- [ ] Layer 2 run-to-run variance (HolmesGPT repeats queries; 50-210 s): measure in phase 9
 - [ ] **Done when:** ticket 3 is a false positive, tickets 4 and 5 are bugs with the right file
   and commit, ticket 6 is a config incident, and ticket 7 links to ticket 4's open issue
+  (all seen, but not yet in one run: the last full run passed 3, 4, 6, 7)
 
 ## Phase 7: Layer 3 and console API (day 12)
 

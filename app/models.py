@@ -1,7 +1,7 @@
 """Domain models shared by the graph nodes. Each LLM call returns one (Pydantic AI output_type)."""
 
 from datetime import datetime
-from typing import Literal
+from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 
@@ -113,14 +113,34 @@ class RequestTriage(BaseModel):
 # --- Layer 2 ----------------------------------------------------------------------------------
 
 
+class DuplicateCheck(BaseModel):
+    new_problem: str = Field(description="the new ticket's symptom: what fails, how, for whom")
+    closest_problem: str = Field(description="the closest open ticket's symptom, the same way")
+    same_problem: bool
+    ticket_id: str | None = Field(None, description="the open ticket it repeats, from the list")
+    reason: str
+
+
 class Brief(BaseModel):
     text: str  # identifiers, window, suspected service, customer words
     suspected_service: str
+    deployed_version: str  # the fork tag the service runs now
+    previous_version: str | None = None  # the tag before its last deploy, if recent
     past_investigations: list[str] = []  # hypotheses to check, never facts
 
 
+class ToolRecord(BaseModel):
+    """One tool call or shell command an analyst made, as it happened: what evidence may cite."""
+
+    call_id: str
+    tool: str  # a HolmesGPT tool name, or "bash" for the codebox
+    args: dict[str, Any] = {}
+    output: str = ""
+    ok: bool = True  # False when the call failed: it shows nothing
+
+
 class Evidence(BaseModel):
-    source: Literal["trace", "metric", "log", "sql", "code", "git", "flag"]
+    source: Literal["trace", "metric", "log", "sql", "deploy", "flag", "code", "git"]
     ref: str  # trace id, PromQL, file:line, commit sha
     observation: str
     call_id: str | None = None  # the tool call it came from (checked in findings.py)
@@ -132,6 +152,11 @@ class Findings(BaseModel):
     evidence: list[Evidence]
     confidence: float
     round: int = 1
+    error_text: str | None = None  # the exact error message it saw in a tool's output
+    intended: bool | None = (
+        None  # codebase analyst: the code it cites is intended (or a regression)
+    )
+    completed: bool = True  # False when the run hit its time or call budget
 
 
 class Verdict(BaseModel):
@@ -141,6 +166,8 @@ class Verdict(BaseModel):
     confidence: float
     customer_reply: str
     engineering_summary: str | None = None
+    file_line: str | None = None  # where the behaviour comes from, from code evidence
+    commit: str | None = None  # the commit that introduced it, from git evidence
 
 
 # --- approval ---------------------------------------------------------------------------------

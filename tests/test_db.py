@@ -15,7 +15,7 @@ from sqlalchemy.engine import make_url
 
 from app import db, tasks
 from app.alembic_config import alembic_config
-from app.events import JevEvent, StageEvent, ToolCallEvent
+from app.events import JevEvent, ModelOutputEvent, StageEvent, ToolCallEvent
 from app.history_access import history_url_for_database, setup_history_reader
 from app.migrate import setup_libraries
 from app.models import Enrichment, RequestTriage, Ticket
@@ -281,7 +281,7 @@ async def test_insert_notifies_listeners():
     assert note.payload == f"{t.id}:{event_id}"
 
 
-async def test_worker_runs_pauses_and_resumes(monkeypatch):
+async def test_worker_runs_pauses_and_resumes(monkeypatch, layer2_fakes):
     def is_request_ticket(prompt):
         return '"id":"T-W2"' in prompt.split("Ticket: ", 1)[1].split("\n", 1)[0]
 
@@ -345,3 +345,32 @@ async def test_worker_runs_pauses_and_resumes(monkeypatch):
     assert (row.status, row.verdict_kind) == ("done", "inconclusive")
     stages = [e.event for e in await db.list_events(t4.id) if e.event.kind == "stage"]
     assert {e.stage for e in stages if e.status == "skipped"} == {"layer1", "requests", "layer3"}
+
+
+async def test_the_worker_adds_up_model_costs():
+    t = ticket("4")
+    await db.insert_ticket(t)
+    sink = tasks._sink(t.id)
+    await sink(ModelOutputEvent(stage="data_analyst", name="Findings", data={}, cost_usd=0.04))
+    await sink(ModelOutputEvent(stage="codebase_analyst", name="Findings", data={}, cost_usd=0.002))
+    await sink(ModelOutputEvent(stage="verdict", name="Verdict", data={}))
+    assert float((await db.get_ticket(t.id)).cost_usd) == 0.042
+
+
+async def test_open_investigations_by_service_and_version():
+    for n in ("4", "5"):
+        await db.insert_ticket(ticket(n))
+    await db.add_investigation(
+        ticket_id="T-4",
+        service="payment",
+        version="v1.4.0",
+        error_signature="expired",
+        status="open",
+    )
+    await db.add_investigation(
+        ticket_id="T-5", service="payment", version="v1.4.0", status="resolved"
+    )
+    await db.add_investigation(service="quote", version="v1.4.0", status="open")
+    assert [r.ticket_id for r in await db.open_investigations("payment", "v1.4.0")] == ["T-4"]
+    assert await db.open_investigations("payment", "v1.3.0") == []
+    assert len(await db.open_investigations("payment")) == 1

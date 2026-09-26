@@ -97,6 +97,20 @@ span, which is how the data analyst finds one tenant's orders.
 `make test-shop` records deploys into the throwaway `triage_test` database, not the dev one, and
 turns the `paymentFailure` flag back off when it's done.
 
+## Gotchas
+
+- The shop's `.env` resolves `OTEL_RESOURCE_ATTRIBUTES` from its own `IMAGE_VERSION` before
+  `.env.override` is read; the overlay restates it. `DEMO_VERSION=latest` has moved past 3.1.0,
+  so the overlay pins it.
+- Jaeger keeps traces in memory at about 50 KB each; 25000 traces fit its 1200M limit. Raise the
+  cap and the memory together, or Jaeger restarts and every trace is gone.
+- `flag.sh` edits `src/flagd/demo.flagd.json` in the fork, which leaves the fork dirty, and
+  `make sandbox` then refuses to run: `git -C ../opentelemetry-demo checkout -- src/flagd`.
+- A trace arrives in pieces (each service exports in batches): wait for the span you need
+  (`Shop.spans(until=...)`) rather than the first response.
+- The shop's clock is UTC; ticket times are the customer's local time.
+- The frontend has no search box and nothing calls `SearchProducts`; don't build on search.
+
 ## Changing the fork
 
 The fork is rebuilt from scratch on every `make sandbox`, with fixed authors, committer and dates,

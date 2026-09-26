@@ -63,12 +63,13 @@ RETRY = {
     "layer1": _CALLS_OUT,
     "requests": _CALLS_OUT,
     "duplicates": _CALLS_OUT,
-    "brief": _CALLS_OUT,
     "verdict": _CALLS_OUT,
     "layer3": _CALLS_OUT,
     "reply": _CALLS_OUT,
+    "remember": _CALLS_OUT,
     "data_analyst": _AGENT,
     "codebase_analyst": _AGENT,
+    "round2": _AGENT,
 }
 
 

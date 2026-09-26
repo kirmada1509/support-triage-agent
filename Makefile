@@ -2,7 +2,8 @@ TEST_DATABASE_URL = postgresql://triage:triage@localhost:5433/triage_test
 
 .PHONY: install db migrate migration check-migrations api worker send deploy flag test test-db lint fmt \
     index-help index-tickets index-code retrieval-hits front-eval \
-	sandbox sandbox-images shop-up shop-down test-sandbox test-shop test-llm test-spike analyst-images models
+	sandbox sandbox-images shop-up shop-down test-sandbox test-shop test-llm test-spike test-layer2 \
+	analyst-images models
 
 install:            ## install Python deps (uv) and pin them in uv.lock
 	uv sync
@@ -96,6 +97,11 @@ test-spike:         ## HolmesGPT and mini-swe-agent investigate demo tickets (ne
 	docker compose exec -T db sh -c 'dropdb -U triage --if-exists --force triage_test && createdb -U triage triage_test'
 	DATABASE_URL=$(TEST_DATABASE_URL) uv run python -m app.migrate
 	DATABASE_URL=$(TEST_DATABASE_URL) uv run pytest -q -m spike
+
+test-layer2:        ## Layer 2 demo tickets 3-7 through the whole graph, live (needs shop-up, analyst-images; ~25 min)
+	docker compose exec -T db sh -c 'dropdb -U triage --if-exists --force triage_test && createdb -U triage triage_test'
+	DATABASE_URL=$(TEST_DATABASE_URL) uv run python -m app.migrate
+	DATABASE_URL=$(TEST_DATABASE_URL) uv run pytest -q -s -m layer2
 
 lint:
 	uv run ruff check .
