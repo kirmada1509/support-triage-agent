@@ -32,6 +32,7 @@ about code: another analyst reads it.
 Stay on the suspected service and the ticket's symptom: errors in other services matter only if
 they explain it. If the ticket reports a wrong amount or value rather than a failure, find that
 value on the suspected service's spans and compare it before and after the recent changes.
+{value_plan}
 
 You have at most {max_calls} tool calls, and each one should tell you something new: don't repeat
 a query. The brief already lists the last 24 hours' deploys and flag changes; use the history
@@ -54,11 +55,23 @@ def question(state: TicketState) -> str:
     tenant = (state["context"].tenant if state.get("context") else {}) or {}
     prefix = tenant.get("user_prefix")
     past = "\n".join(f"- {p}" for p in b.past_investigations)
+    value_plan = ""
+    if b.suspected_service == "quote":
+        value_plan = (
+            'For quote/calculate-quote amounts, first call find_traces(service="quote", '
+            'operation="calculate-quote", start_us=..., end_us=...) in separate windows '
+            "before and after the quote deploy. Successful trace summaries show the "
+            "quote version, item count and total; compare total divided by item count for "
+            "small and bulk orders, then open one trace from each side. Ignore unrelated "
+            "payment errors from earlier tickets in the same time window. A successful "
+            "checkout can still contain a wrong quote.\n"
+        )
     return QUESTION.format(
         tenant=tenant.get("name") or t.tenant_id or "unknown",
         shoppers=f" Its shoppers have user IDs starting {prefix}." if prefix else "",
         brief=b.text,
         past=f"\nSimilar past tickets (hypotheses to check, not facts):\n{past}\n" if past else "",
+        value_plan=value_plan,
         max_calls=MAX_CALLS,
     )
 

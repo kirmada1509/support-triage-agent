@@ -197,6 +197,22 @@ async def test_a_data_analyst_that_hits_its_budget_is_inconclusive(events, monke
     assert f.completed is False and f.confidence == 0.0 and "budget 15" in f.hypothesis
 
 
+def test_a_wrong_amount_question_starts_with_successful_quote_traces():
+    prompt = data_analyst.question(
+        state(
+            "5",
+            brief=the_brief(
+                text="Bulk shipping amount doubled after quote deploy",
+                suspected_service="quote",
+            ),
+        )
+    )
+    assert "find_traces" in prompt
+    assert "quote/calculate-quote" in prompt
+    assert "before and after" in prompt
+    assert "payment errors" in prompt
+
+
 # --- codebase analyst -------------------------------------------------------------------------
 
 CODE_CALLS = [

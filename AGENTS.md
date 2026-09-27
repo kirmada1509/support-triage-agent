@@ -3,7 +3,7 @@
 Context and rules for coding agents working in this repo. Read it before changing anything, and
 keep it true (see "Keeping this file current" at the end).
 
-Last updated: Sep 26, 2026, phase 5 done (code index, service cards, codebox helpers).
+Last updated: Sep 27, 2026, phase 6 in progress (quote trace search added; live validation pending).
 
 ## What this is
 
@@ -149,6 +149,10 @@ web/                phase 8 placeholder
   checked by `apply_rules`: two independent sources, a bug needs the file:line and commit the
   codebase analyst saw, an incident a flag change, a false positive the code. `remember` writes
   ticket memory and an `investigations` row. Analyst costs go to `tickets.cost_usd`.
+- **Quote evidence.** The data analyst can search successful Jaeger traces by service, operation
+  and time. Condensed successful quote traces include item count and total; the quote question
+  compares these before and after the deploy. Generic trace search cannot supply the exact
+  error passed to round 2.
 - **Front pipeline.** `enrich` extracts a UTC window and ticket clues, then code checks IDs,
   service names and changes. `retrieve` runs hybrid help and ticket searches. The legacy `jev`
   stage calls the `classification` role (Jev is unavailable); below 0.7 type confidence or an

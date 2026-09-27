@@ -24,7 +24,7 @@ _METRIC_TOOLS = {
     "list_prometheus_rules",
 }
 TOOLS_FOR = {
-    "trace": {"find_error_traces", "find_traces_for_user", "get_trace"},
+    "trace": {"find_traces", "find_error_traces", "find_traces_for_user", "get_trace"},
     "metric": _METRIC_TOOLS,
     "log": {"search_logs", "log_indices"},
     "sql": {"database_sql_query", "database_sql_list_tables", "database_sql_describe_table"},
@@ -35,7 +35,7 @@ TOOLS_FOR = {
 }
 # Where an analyst's exact error message may come from: the shop's own spans and logs, or code.
 ERROR_TOOLS = {
-    "data_analyst": TOOLS_FOR["trace"] | TOOLS_FOR["log"],
+    "data_analyst": {"find_error_traces", "find_traces_for_user", "get_trace"} | TOOLS_FOR["log"],
     "codebase_analyst": {"bash"},
 }
 _SHA = re.compile(r"^[0-9a-f]{7,40}$")

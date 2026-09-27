@@ -1,6 +1,6 @@
 # Codebase summary
 
-Status: September 26, 2026, through Phase 4. This describes working code in the repository;
+Status: September 27, 2026, through most of Phase 6. This describes working code in the repository;
 the build plan and later-phase stubs are called out separately below. For implementation rules,
 read [AGENTS.md](AGENTS.md). For item-by-item progress, read
 [planning/Build_Checklist.md](planning/Build_Checklist.md).
@@ -45,12 +45,14 @@ stage calls the configured structured LLM classifier. It is not a Jev API integr
 | Requests | One model call identifies feature, billing or account requests; code builds a truthful acknowledgement without claiming a team handoff has already happened | `app/nodes/requests.py` |
 | API and events | Queue/detail/pipeline endpoints, stored events, live SSE via Postgres LISTEN/NOTIFY, timed replay, approve endpoint, simulator templates and scorecard read endpoint | `app/api/`, `app/db.py`, `db/migrations/` |
 | Model setup and tracing | Configurable DeepSeek, Gemini, OpenAI and OpenRouter profiles, per-role overrides/fallbacks/limits; optional OpenTelemetry ticket, stage and Pydantic AI spans | `config/models.yaml`, `config/roles.yaml`, `app/models_config.py`, `app/tracing.py` |
+| Code index | ast-grep extracts service symbols, error messages, flag reads and gRPC handlers at each deployed commit; service cards and exported TSV files guide the offline codebase analyst | `app/indexer/`, `codebox/bin/` |
+| Layer 2 | Duplicate linking, deterministic brief, parallel HolmesGPT and codebox analysts, checked findings, optional round 2, verdict rules, investigation memory and cost tracking | `app/nodes/duplicates.py`, `app/nodes/brief.py`, `app/nodes/findings.py`, `app/nodes/verdict.py`, `app/analysts/` |
 
 The application uses Python 3.12, FastAPI, Pydantic AI, LangGraph, Procrastinate, SQLAlchemy,
 psycopg, PostgreSQL 16 and pgvector. `app/models.py` defines the typed objects passed between
 nodes; `app/tables.py` defines application-owned tables and `db/migrations/` migrates them.
-Procrastinate and LangGraph manage their own tables in the same database. Some schema tables,
-including investigations, code index and eval results, exist ahead of their workflows.
+Procrastinate and LangGraph manage their own tables in the same database. The investigation and
+code index tables are used by Phase 6; eval results remain ahead of their workflow.
 
 ## Shop, tools, and evaluation data
 
@@ -69,6 +71,9 @@ including investigations, code index and eval results, exist ahead of their work
   helper commands. The graph runs both (`app/analysts/`), each with a time and call budget;
   every piece of evidence must point at a tool call that showed it. See
   [planning/Phase_2_Spike.md](planning/Phase_2_Spike.md) for the spike that chose them.
+- Jaeger search can list successful traces for a service and operation. Condensed successful
+  quote traces show item count and total, so the analyst can compare shipping amounts across
+  versions without chasing unrelated payment errors.
 - `knowledge/` contains 31 source-checked articles split into 62 indexed sections. `seed/`
   contains 200 labelled synthetic past tickets. `evals/tickets.yaml` fixes 20 ticket labels.
   The stored retrieval baseline found the answering section in the top five for 7/7 labelled
@@ -79,8 +84,9 @@ including investigations, code index and eval results, exist ahead of their work
 
 ## Still incomplete
 
-- Layer 2 is model behaviour on a small demo: `make test-layer2` checks the five demo tickets
-  live, but one run is not a reliability measure (phase 9 evaluates it).
+- Layer 2 is model behaviour on a small demo: the last full `make test-layer2` run passed tickets
+  3, 4, 6 and 7; ticket 5 was inconclusive amid earlier payment errors. The trace-search fix has
+  local tests but still needs a full live run on the harness. Phase 9 will measure variance.
 - `layer3` returns a fake Linear issue ID. `reply` does not send a Pylon message. The approval
   API works, but downstream engineering/customer delivery is Phase 7 work.
 - `web/` is a placeholder; the Next.js Triage Console is Phase 8 work. The API and event types
@@ -102,6 +108,8 @@ make test                        # unit and in-memory graph suite
 make test-db                     # isolated test database suite
 make retrieval-hits              # isolated retrieval benchmark
 make front-eval                  # live 20-ticket front-pipeline eval; needs model key
+make index-code v=v1.4.0        # code index and service cards at a shop tag
+make test-layer2                # live tickets 3–7; requires the running shop and analyst images
 ```
 
 For the sandbox and live shop tests, use [README.md](README.md) and

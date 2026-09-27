@@ -128,6 +128,20 @@ def test_a_trace_id_must_appear_in_that_calls_output():
     assert checked.evidence == [] and checked.confidence == 0.3
 
 
+def test_successful_trace_search_can_support_a_wrong_amount():
+    call = ToolRecord(
+        call_id="q1",
+        tool="find_traces",
+        args={"service": "quote", "operation": "calculate-quote"},
+        output=f"{TRACE} quote@v1.4.0 items=11 total=197.78; unrelated {EXPIRED}",
+    )
+    finding = data_findings(
+        Evidence(source="trace", ref=TRACE, observation="17.98/item", call_id="q1")
+    )
+    assert check_evidence(finding, [call]).evidence == finding.evidence
+    assert check_evidence(data_findings(error_text=EXPIRED), [call]).error_text is None
+
+
 def test_evidence_must_come_from_a_matching_tool():
     f = data_findings(
         Evidence(source="metric", ref="rate(x[5m])", observation="o", call_id="m1"),

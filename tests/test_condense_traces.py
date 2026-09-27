@@ -4,6 +4,8 @@ data analyst sees instead of raw trace JSON."""
 import importlib.util
 import json
 
+import yaml
+
 from app.settings import ROOT
 
 FIXTURES = ROOT / "tests" / "fixtures"
@@ -39,7 +41,7 @@ def test_the_summary_names_the_request_the_user_and_the_root_cause():
         "error=payment v1.4.0 charge: The credit card (ending 4242) expired on 9/2026." in line
     ), line
     assert "via frontend-proxy > frontend > checkout > payment" in line
-    assert "DEADLINE_EXCEEDED" not in line and "quote/" not in line
+    assert "DEADLINE_EXCEEDED" not in line and "quote/" not in line and "quote@" not in line
 
 
 def test_every_trace_in_the_search_finds_its_own_decline():
@@ -53,6 +55,7 @@ def test_a_trace_without_errors_says_so():
     line = condense.condense(QUOTE).splitlines()[1]
     assert line.startswith("e640818de4eb3da43a4075fa807f2936 ")
     assert "load-generator/user_checkout_multi" in line and line.endswith("error=-")
+    assert "quote@v1.4.0 items=11 total=197.78" in line
 
 
 def test_the_tree_keeps_the_attributes_that_matter():
@@ -85,3 +88,13 @@ def test_the_tree_marks_the_error_path_and_hides_background_streams():
 def test_no_traces():
     assert condense.condense({"data": []}) == "no traces found"
     assert condense.condense({"data": None}) == "no traces found"
+
+
+def test_jaeger_can_find_successful_service_traces_without_an_error_filter():
+    toolsets = yaml.safe_load((ROOT / "holmes" / "toolsets.yaml").read_text())["toolsets"]
+    tool = next(t for t in toolsets["jaeger"]["tools"] if t["name"] == "find_traces")
+    command = tool["command"]
+    assert "curl -s -G" in command and "service={{ service }}" in command
+    assert "operation={{ operation }}" in command
+    assert "start={{ start_us }}" in command and "end={{ end_us }}" in command
+    assert "tags=" not in command and "/tools/condense_traces.py" in command

@@ -39,8 +39,16 @@ toolsets:
         command: python3 /tools/search_logs.py {{ index }} {{ query }}
 
   jaeger:
-    description: "Find and read traces in the shop's Jaeger. Output is condensed: trace ID, duration, root operation, user.id, service.version and the first error."
+    description: "Find and read traces in the shop's Jaeger. Output is condensed: trace ID, duration, root operation, user.id, successful quote amounts and the first error."
     tools:
+      - name: find_traces
+        description: "All traces (including successful requests) for a service and operation in a time window (microsecond epoch timestamps); use for wrong amounts or values"
+        command: |
+          curl -s -G "http://jaeger:16686/jaeger/ui/api/traces" \
+            --data-urlencode "service={{ service }}" \
+            --data-urlencode "operation={{ operation }}" \
+            --data-urlencode "start={{ start_us }}" --data-urlencode "end={{ end_us }}" \
+            --data-urlencode "limit=20" | python3 /tools/condense_traces.py
       - name: find_error_traces
         description: "Failed traces for a service and operation in a time window (microsecond epoch timestamps)"
         command: |

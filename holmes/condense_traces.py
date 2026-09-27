@@ -125,6 +125,21 @@ def summary(trace: Trace) -> str:
     user = next((tags(s)["user.id"] for s in trace.spans.values() if "user.id" in tags(s)), "-")
     start = datetime.fromtimestamp(root["startTime"] / 1e6, timezone.utc).strftime("%H:%M:%S")  # noqa: UP017
     cause = trace.root_cause()
+    quote = ""
+    if not cause:
+        values = []
+        for span in trace.subtree(root):
+            if trace.service(span) != "quote" or span["operationName"] != "calculate-quote":
+                continue
+            attrs = tags(span)
+            count = attrs.get("demo.shipping.quote.items_count")
+            total = attrs.get("demo.shipping.quote.cost.total")
+            if count is not None and total is not None:
+                values.append(
+                    f"quote@{trace.version(span)} items={_value(count)} total={_value(total)}"
+                )
+        if values:
+            quote = " " + "; ".join(list(dict.fromkeys(values))[:2])
     error = "-"
     if cause:
         error = (
@@ -133,7 +148,7 @@ def summary(trace: Trace) -> str:
         )
     return (
         f"{trace.id} {start} {root['duration'] / 1000:.0f}ms "
-        f"{trace.service(root)}/{root['operationName']} user={user} error={error}"
+        f"{trace.service(root)}/{root['operationName']} user={user}{quote} error={error}"
     )
 
 

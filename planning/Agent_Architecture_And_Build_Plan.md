@@ -480,7 +480,7 @@ Neither analyst reads everything. Each starts from a short task prompt (the brie
 | Prometheus | Built in | PromQL on `http://prometheus:9090` |
 | OpenSearch | Built in | Log search on `http://opensearch:9200` |
 | PostgreSQL | Built in | The shop's `catalog` schema, as `agent_ro` |
-| `jaeger` | Custom (YAML) | Find failing traces and fetch one trace from Jaeger's API. Each pipes the response through `condense_traces.py`, a short script that keeps the ID, duration, root operation, `user.id` and first error, so the model never sees raw trace JSON |
+| `jaeger` | Custom (YAML) | Find successful or failing traces by service and operation, or fetch one trace from Jaeger's API. Each pipes the response through `condense_traces.py`, which keeps the ID, duration, root operation, `user.id`, successful quote values and first error, so the model never sees raw trace JSON |
 | `history` | Custom (YAML) | Deploys and flag changes from the agent's own Postgres, read-only |
 
 A custom tool is a few lines of YAML: a description, and a command whose `{{ }}` values the model fills in.

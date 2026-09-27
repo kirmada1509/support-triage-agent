@@ -250,6 +250,7 @@ ALLOWED_TOOLS = {
     "deploys",
     "flag_changes",
     "find_error_traces",
+    "find_traces",
     "find_traces_for_user",
     "get_trace",
     "log_indices",

@@ -4,11 +4,11 @@ What's built and what isn't, phase by phase, against `Agent_Architecture_And_Bui
 Tick an item when it works and is tested the way the plan's "How it's tested" says; tick a
 phase's "Done when" only when that whole criterion has been seen working.
 
-Last updated Sep 26, 2026, during phase 6 (Layer 2 nodes built; live tickets 3, 4, 6, 7 pass, 5 is flaky). Suite inventory (provider calls depend on credit):
+Last updated Sep 27, 2026, during phase 6 (ticket 5 trace search improved locally; full live run pending). Suite inventory (provider calls depend on credit):
 
 | Suite | Command | Needs | Tests |
 | --- | --- | --- | --- |
-| Units, graph in memory, front pipeline, scenario logic, sandbox kit, tracing, model config, retrieval, indexer, codebox helpers, trace condensing, Layer 2 rules and nodes | `make test` | nothing | 216 |
+| Units, graph in memory, front pipeline, scenario logic, sandbox kit, tracing, model config, retrieval, indexer, codebox helpers, trace condensing, Layer 2 rules and nodes | `make test` | nothing | 219 |
 | Database | `make test-db` | `make db` | 12 |
 | The fork: tags, planted bugs, overlay, images, the code index at both tags | `make test-sandbox` | `make sandbox` | 28 |
 | The running shop: every scenario, read-only role, metrics, logs | `make test-shop` | `make shop-up` | 15 |
@@ -161,9 +161,15 @@ Last updated Sep 26, 2026, during phase 6 (Layer 2 nodes built; live tickets 3, 
   file:line and commit the codebase analyst saw, an incident a flag change, a false positive the
   code; the codebase analyst's latest judgment (round 2 over round 1) decides bug vs intended
 - [x] Write-back to ticket memory and `investigations`
+- [x] Added a read-only Jaeger search for successful service/operation traces and quote totals in
+  condensed summaries; quote investigations now search before/after quote deploys first. Local
+  tests cover the tool definition, summary, prompt and evidence checks
+- [ ] Rebuild with `make analyst-images` and rerun `make test-spike` after the log-search and
+  `lookup-error` changes, and the new Jaeger tool. Requires the live test harness
 - [ ] Ticket 5 in the full `make test-layer2` run: passes alone, but after scenarios 3 and 4 the
   data analyst sometimes follows payment's errors in its window instead of quote's doubled
-  amounts, and the verdict is (rightly) inconclusive. 2 of 3 full runs failed it
+  amounts, and the verdict is (rightly) inconclusive. 2 of 3 full runs failed it. Rerun the
+  full suite after rebuilding the analyst image to check the trace-search change
 - [ ] Layer 2 run-to-run variance (HolmesGPT repeats queries; 50-210 s): measure in phase 9
 - [ ] **Done when:** ticket 3 is a false positive, tickets 4 and 5 are bugs with the right file
   and commit, ticket 6 is a config incident, and ticket 7 links to ticket 4's open issue
