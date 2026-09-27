@@ -115,7 +115,7 @@ svg text{font-family:var(--sans)}
     <span><i class="sw" style="border-color:var(--muted);border-style:dashed"></i>Human review</span>
   </div>
 
-  <div class="diagram" role="img" aria-label="Flowchart: Figma ticket goes through Pylon webhook, enrichment and smart categorization, then branches to product support, tech support investigation with subagents, request triage, or engineering.">
+  <div class="diagram" role="img" aria-label="Flowchart: Figma ticket goes through Pylon webhook, enrichment and smart categorization, then branches to product support, tech support investigation with subagents that work in parallel and then ask each other for what only the other can check, request triage, or engineering.">
 <svg viewBox="0 0 1120 1380" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
@@ -253,8 +253,8 @@ svg text{font-family:var(--sans)}
 
   <line x1="560" y1="596" x2="560" y2="622" class="e" marker-end="url(#ar)"/>
   <rect x="390" y="624" width="340" height="180" rx="10" class="grp"/>
-  <text x="404" y="645" class="hdr c-l2">PARALLEL SUBAGENTS</text>
-  <text x="716" y="645" text-anchor="end" class="xs">spawned per ticket</text>
+  <text x="404" y="645" class="hdr c-l2">SUBAGENTS</text>
+  <text x="716" y="645" text-anchor="end" class="xs">in parallel, then they ask each other</text>
 
   <rect x="400" y="656" width="156" height="64" rx="8" class="n"/>
   <text x="478" y="682" text-anchor="middle" class="ts">Log analyst</text>
@@ -272,7 +272,7 @@ svg text{font-family:var(--sans)}
   <line x1="560" y1="804" x2="560" y2="830" class="e" marker-end="url(#ar)"/>
   <rect x="390" y="832" width="340" height="56" rx="10" class="n-l2"/>
   <text x="560" y="855" text-anchor="middle" class="t">Synthesize verdict</text>
-  <text x="560" y="875" text-anchor="middle" class="s">Evidence chain + confidence score</text>
+  <text x="560" y="875" text-anchor="middle" class="s">Once no questions are left: evidence + confidence</text>
 
   <line x1="560" y1="888" x2="560" y2="910" class="e" marker-end="url(#ar)"/>
   <polygon points="560,912 670,958 560,1004 450,958" class="dec"/>

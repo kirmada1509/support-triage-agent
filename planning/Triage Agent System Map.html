@@ -219,8 +219,8 @@ td:first-child{width:44px}
   <text x="966" y="384" class="s" style="font-size:10px">data</text>
   <text x="966" y="397" class="s" style="font-size:10px">analyst</text>
   <rect x="872" y="414" width="166" height="34" rx="7" class="box b3"/>
-  <text x="882" y="429" class="t" style="font-size:12px">9 · Findings + verdict</text>
-  <text x="882" y="443" class="s" style="font-size:10.5px">evidence checks</text>
+  <text x="882" y="429" class="t" style="font-size:12px">9 · Handoff + verdict</text>
+  <text x="882" y="443" class="s" style="font-size:10.5px">analysts ask each other</text>
   <rect x="872" y="458" width="166" height="34" rx="7" class="box b3"/>
   <text x="882" y="473" class="t" style="font-size:12px">10 · Layer 3</text>
   <text x="882" y="487" class="s" style="font-size:10.5px">Linear · reply · approval</text>
@@ -435,7 +435,7 @@ td:first-child{width:44px}
           <tr><td>6</td><td>Retrieval and Jev run side by side: hybrid search over help sections and past or open tickets; Jev returns type, service, severity and revenue-blocking</td><td>Local embeddings + pgvector · TypeSafe Jev API</td></tr>
           <tr><td>7</td><td>A conditional edge sends how-to tickets to Layer 1 and requests to request triage (single LLM calls). Tech issues go to the duplicate check, then the brief node</td><td>LangGraph routing, Pydantic AI</td></tr>
           <tr><td>8</td><td>The brief node fans out to both analyst nodes, which run as parallel branches. HolmesGPT queries Prometheus, Jaeger, OpenSearch, astronomy-db and the history toolset. mini-swe-agent runs read-only commands in the codebox against the deployed worktree and the code index</td><td>HolmesGPT · mini-swe-agent · sandbox observability · codebox</td></tr>
-          <tr><td>9</td><td>Their answers become <code>Findings</code>, with evidence checked against their tool logs; the verdict call decides false positive, bug, config incident or inconclusive</td><td>Pydantic AI → LLM provider</td></tr>
+          <tr><td>9</td><td>Their answers become <code>Findings</code>, with evidence checked against their tool logs. The handoff node then decides in code whether one analyst needs the other: production's exact error goes to the codebase analyst, an analyst's own question goes to the other, and a regression the code found goes to the data analyst to confirm. A short follow-up run answers each question (at most three), and its findings come back for the next one. The verdict call then decides false positive, bug, config incident or inconclusive, and rules in code check it</td><td>LangGraph loop · HolmesGPT · mini-swe-agent · Pydantic AI → LLM provider</td></tr>
           <tr><td>10</td><td>Layer 3 creates the Linear issue for the owning team. When a person must approve the reply, the graph pauses with interrupt(); the Approve button resumes it from its checkpoint and the reply goes back through Pylon</td><td>Linear API · console · Pylon</td></tr>
           <tr><td>11</td><td>The ticket is written to ticket memory as open, so a differently worded repeat can find it</td><td><code>retrieval_docs</code>, <code>investigations</code></td></tr>
           <tr><td>12</td><td>The worker streams the graph (node updates, plus tool calls, commands and model text from inside nodes) into the events table. Postgres NOTIFY wakes the SSE stream, and the console's pipeline and inspector update live; the admin approves replies there</td><td>events → FastAPI SSE → TanStack Query → React Flow UI + AI Elements</td></tr>
