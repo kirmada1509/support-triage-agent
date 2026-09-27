@@ -5,7 +5,7 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, computed_field
 
-from app.events import ApprovalRequiredEvent, JevEvent, LinkEvent
+from app.events import ApprovalRequiredEvent, JevEvent, LinkEvent, OutcomeEvent
 from app.graph.build import stage_count
 
 
@@ -54,6 +54,7 @@ class TicketDetail(TicketSummary):
     jev: JevEvent | None = None
     links: list[LinkEvent] = []
     pending_approval: ApprovalRequiredEvent | None = None
+    outcome: OutcomeEvent | None = None
 
 
 class Position(BaseModel):

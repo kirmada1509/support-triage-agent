@@ -4,12 +4,12 @@ What's built and what isn't, phase by phase, against `Agent_Architecture_And_Bui
 Tick an item when it works and is tested the way the plan's "How it's tested" says; tick a
 phase's "Done when" only when that whole criterion has been seen working.
 
-Last updated Sep 27, 2026, Phase 7 code complete; live Linear/Pylon account verification awaits credentials. Suite inventory (provider calls depend on credit):
+Last updated Sep 27, 2026, Phase 7 complete in local-outcome mode; external delivery is optional. Suite inventory (provider calls depend on credit):
 
 | Suite | Command | Needs | Tests |
 | --- | --- | --- | --- |
-| Units, graph in memory, front pipeline, scenario logic, sandbox kit, tracing, model config, retrieval, indexer, codebox helpers, trace condensing, Layer 2 rules and nodes, Linear/Pylon adapters | `make test` | nothing | 231 |
-| Database | `make test-db` | `make db` | 15 |
+| Units, graph in memory, front pipeline, scenario logic, sandbox kit, tracing, model config, retrieval, indexer, codebox helpers, trace condensing, Layer 2 rules and nodes, Linear/Pylon adapters, final outcome | `make test` | nothing | 233 |
+| Database | `make test-db` | `make db` | 16 |
 | The fork: tags, planted bugs, overlay, images, the code index at both tags | `make test-sandbox` | `make sandbox` | 28 |
 | The running shop: every scenario, read-only role, metrics, logs | `make test-shop` | `make shop-up` | 15 |
 | Real model calls on each provider profile, a real payment service card | `make test-llm` | keys in `.env.agent` | 5 |
@@ -187,11 +187,13 @@ Last updated Sep 27, 2026, Phase 7 code complete; live Linear/Pylon account veri
 - [x] Customer acknowledgement and reply sending: Pylon reply and internal note adapters,
   feature request roadmap handoff, logged fallback without an account; approval rejection sends
   nothing, and retries check delivery receipts
+- [x] Final `outcome` event and `GET /tickets/{id}.outcome`: verdict, root cause, code location,
+  optional issue, approval and reply delivery; a no-Linear bug finishes with a visible result
 - [x] Approval resumes a paused worker run (`make test-db`)
 - [x] `curl -N` on a live API stream received a newly inserted stage event from Postgres
-- [ ] **Done when:** a bug ticket produces an issue in a real Linear workspace. `LINEAR_API_KEY`
-  is empty locally, so this external check has not run; the worker-to-adapter path passed with
-  a fake Linear response. Pylon live delivery likewise awaits an account token and issue.
+- [x] **Done when:** a bug ticket finishes with a readable local outcome (database worker test),
+  approval resumes the paused run, and `curl` receives a live SSE event. Real Linear/Pylon
+  delivery was not requested for this demo and remains unvalidated without account credentials.
 
 ## Phase 8: Triage Console (days 13–15)
 

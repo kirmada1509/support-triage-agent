@@ -3,7 +3,7 @@
 Context and rules for coding agents working in this repo. Read it before changing anything, and
 keep it true (see "Keeping this file current" at the end).
 
-Last updated: Sep 27, 2026, Phase 7 integrations built; live Linear/Pylon check awaits keys.
+Last updated: Sep 27, 2026, Phase 7 complete in local-outcome mode; external delivery optional.
 
 ## What this is
 
@@ -79,6 +79,7 @@ app/
   analysts/         Layer 2's outside calls: holmes.py (HolmesGPT's container, budget enforced
                     from its stdout), codebox.py (mini-swe-agent in the codebox, in a thread)
   integrations/     Linear GraphQL issue creation and Pylon reply/internal-note HTTP adapters
+  outcome.py        final ticket result, emitted to SSE and exposed on ticket detail
 config/             models.yaml (names, prices), roles.yaml (model per role), ownership.yaml
 db/migrations/      Alembic; 0001 also creates the events NOTIFY trigger by hand
 holmes/             HolmesGPT's image (Dockerfile), config.yaml, toolsets.yaml, condense_traces.py,
@@ -162,15 +163,14 @@ web/                phase 8 placeholder
   stage calls the `classification` role (Jev is unavailable); below 0.7 type confidence or an
   unknown service goes to a person. `layer1` verifies every cited ID; `requests` drafts an
   acknowledgement. `make front-eval` scores them on 20 fixed tickets.
-- **Layer 3 and delivery.** `layer3` maps the checked verdict service through `ownership.yaml`,
-  creates a Linear issue in that team's workspace key, emits its link and adds a priority-aware
-  reply draft. `reply` files feature requests in the configured roadmap team, posts Pylon
-  customer replies and account-manager notes, and logs the handoff/reply when no account is
-  configured. The signed intake payload can include `pylon_issue_id` and the optional top-level
-  `pylon_message_id`; Pylon message lookup verifies that the target is customer-visible and
-  supplies the email recipient. Successful `delivery` events are receipts used on graph retries.
-  Missing Linear configuration forces approval of a bug/incident draft. Live external delivery
-  still needs account credentials; the worker path and HTTP contracts are tested with fakes.
+- **Layer 3 and delivery.** `layer3` maps the checked verdict service through `ownership.yaml`.
+  With a Linear key it creates a team issue and emits its link; otherwise it records the finding
+  locally and drafts a truthful reply. `reply` optionally files feature requests, posts Pylon
+  replies and account-manager notes, or logs them when no account is configured. The intake
+  payload may include `pylon_issue_id` and top-level `pylon_message_id`; Pylon lookup verifies
+  the message is customer-visible. Successful `delivery` events are receipts for retries. The
+  worker emits a final `outcome` event, also shown on `GET /tickets/{id}`. Approval depends on
+  severity, revenue impact, confidence and draft quality, not Linear configuration.
 
 ## The sandbox shop
 

@@ -373,6 +373,13 @@ async def test_worker_runs_pauses_and_resumes(monkeypatch, layer2_fakes):
     row = await db.get_ticket(t2.id)
     assert (row.status, row.lane, row.verdict_kind) == ("done", "request", None)
     assert row.completed_at is not None
+    from app.api.main import get_ticket
+
+    detail = await get_ticket(t2.id)
+    assert detail.outcome.summary.startswith("Feature request")
+    assert detail.outcome.reply_delivery == "logged"
+    assert detail.outcome.reply.startswith("Thanks for your request about")
+    assert (await db.list_events(t2.id))[-1].event.kind == "outcome"
 
     # A tech issue pauses for approval, then resumes from its Postgres checkpoint.
     t4 = ticket("4", "T-W4")
@@ -432,6 +439,40 @@ async def test_worker_creates_linear_issue_and_keeps_receipt(monkeypatch, front_
     await tasks.resume_ticket(t.id, {"approved": True, "edited_reply": "We're on it."})
     assert (await db.get_ticket(t.id)).status == "done"
     assert len(created) == 1
+
+
+async def test_bug_without_linear_finishes_with_visible_outcome(monkeypatch, front_stage_fakes):
+    from app.api.main import get_ticket
+    from app.graph import build
+    from app.models import Verdict
+
+    async def confirmed(state):
+        return {
+            "verdict": Verdict(
+                kind="confirmed_bug",
+                root_cause="Expiry comparison rejects current month",
+                owning_service="payment",
+                confidence=0.9,
+                customer_reply="We found the issue.",
+                file_line="src/payment/charge.js:88",
+                commit="b7d87ca7",
+            ),
+            "reply": "We found the issue.",
+        }
+
+    monkeypatch.setitem(build.NODES, "verdict", confirmed)
+    t = ticket("4", "T-LOCAL-7")
+    await db.insert_ticket(t)
+    await tasks.run_ticket(t.id)
+    assert (await db.get_ticket(t.id)).status == "needs_approval"  # revenue blocking
+    await tasks.resume_ticket(t.id, {"approved": True})
+    detail = await get_ticket(t.id)
+    assert detail.status == "done"
+    assert detail.outcome.summary.startswith("Confirmed bug in payment")
+    assert detail.outcome.root_cause == "Expiry comparison rejects current month"
+    assert detail.outcome.engineering_handoff == "local_only"
+    assert detail.outcome.reply_delivery == "logged"
+    assert detail.outcome.linear_issue is None
 
 
 async def test_the_worker_adds_up_model_costs():

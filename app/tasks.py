@@ -18,6 +18,7 @@ from app.events import ErrorEvent, Event, JevEvent, ModelOutputEvent
 from app.graph.build import build_graph, checkpoint_serde
 from app.graph.stream import run_graph
 from app.models import Ticket
+from app.outcome import build_outcome
 from app.settings import settings
 from app.tracing import setup_tracing
 
@@ -79,6 +80,7 @@ async def _drive(ticket_id: str, graph_input, seen: set[str] | None = None) -> N
         return
     state = (await graph.aget_state({"configurable": {"thread_id": ticket_id}})).values
     verdict = state.get("verdict")
+    await db.record_event(ticket_id, build_outcome(state))
     await db.update_ticket(
         ticket_id,
         status="done",

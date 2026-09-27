@@ -72,18 +72,22 @@ async def run(state: TicketState) -> dict:
         draft = f"{draft.rstrip()} We've marked this as {PRIORITY_NAMES[priority]} priority."
     if not settings.linear_api_key:
         draft = (
-            "We found an issue and are escalating it for review. "
-            "We'll follow up when we have an update."
+            "We found an issue affecting your checkout. We've documented the finding "
+            "and will follow up with an update."
         )
         emit(
             DeliveryEvent(
                 stage="layer3",
                 destination="linear",
                 status="logged",
-                detail=f"{owner['team']} handoff for {ticket.id}; LINEAR_API_KEY is unset",
+                detail=f"{owner['team']} finding for {ticket.id} kept locally; no Linear key",
             )
         )
-        return {"linear_issue": None, "reply": draft, "_summary": f"{owner['team']} handoff logged"}
+        return {
+            "linear_issue": None,
+            "reply": draft,
+            "_summary": f"{owner['team']} finding recorded locally",
+        }
     prior = await db.delivery_receipt(ticket.id, "linear")
     if prior:
         return {

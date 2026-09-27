@@ -17,9 +17,10 @@ Phases 1–2 provide intake, a checkpointed graph, live events and approval. Pha
 hybrid retrieval index: 31 help articles, 200 labelled synthetic past tickets and a fixed
 20-ticket hit-rate set. Phase 4 adds real enrichment, retrieval, LLM categorization, cited Layer 1
 answers and request triage. Jev is unavailable; the `jev` stage name remains for existing events.
-Layer 2, Linear handoff and customer delivery are implemented. Without Linear and Pylon
-credentials, handoffs and replies are logged as delivery events; the Phase 7 live external
-check is still open. [planning/Build_Checklist.md](planning/Build_Checklist.md) tracks each phase.
+Layer 2 and Phase 7 are implemented. Linear and Pylon delivery are optional for the demo:
+without credentials, the ticket's finding and reply are recorded locally. Every completed
+ticket has a final outcome in its detail endpoint and event stream.
+[planning/Build_Checklist.md](planning/Build_Checklist.md) tracks each phase.
 
 ## Run it
 
@@ -39,6 +40,7 @@ Then watch it:
 
 ```bash
 curl -s localhost:8000/tickets | jq                       # the queue
+curl -s localhost:8000/tickets/<id> | jq '.outcome'        # final result after completion
 curl -N localhost:8000/tickets/<id>/events/stream         # live events (SSE)
 curl -N "localhost:8000/tickets/<id>/events/stream?replay=1"   # replay a stored run
 curl -X POST localhost:8000/tickets/<id>/approve \
@@ -57,8 +59,8 @@ in `config/ownership.yaml` must match a team key in that Linear workspace. Set
 `ROADMAP_LINEAR_TEAM` to route feature requests to a separate team. An engineering issue includes
 the checked root cause, evidence references, reported symptom, file and commit, and a measured
 lower bound on affected tickets. `GITHUB_REPO_URL` and `GRAFANA_PANEL_URL` add optional evidence
-links; `JAEGER_BASE_URL` controls trace links. Without a Linear key, the handoff is logged and a
-bug or incident requires human approval before its reply proceeds.
+links; `JAEGER_BASE_URL` controls trace links. Without a Linear key, the finding stays local and
+appears in the final outcome. Approval still follows severity, revenue impact and confidence.
 
 For customer delivery, set `PYLON_API_TOKEN` and, for an EU workspace,
 `PYLON_API_BASE_URL=https://api.eu.usepylon.com`. A live intake payload must include

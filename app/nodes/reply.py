@@ -94,7 +94,7 @@ async def _note(state: TicketState) -> None:
 
 async def run(state: TicketState) -> dict:
     if state.get("approved") is False:
-        return {"_summary": "no reply sent (approval rejected)"}
+        return {"reply_delivery": "not_sent", "_summary": "no reply sent (approval rejected)"}
     duplicate = state.get("duplicate_of")
     draft = state.get("reply")
     if duplicate:
@@ -103,7 +103,7 @@ async def run(state: TicketState) -> dict:
             "We'll update you as soon as it's fixed."
         )
     if not draft:
-        return {"_summary": "no reply sent (handed to a person)"}
+        return {"reply_delivery": "not_sent", "_summary": "no reply sent (handed to a person)"}
     ticket = state["ticket"]
     roadmap_issue = await _roadmap(state)
     update = {"reply": draft}
@@ -132,11 +132,15 @@ async def run(state: TicketState) -> dict:
             )
         )
         reason = "Pylon not configured" if not settings.pylon_api_token else "no Pylon issue ID"
-        return {**update, "_summary": f"reply logged ({reason})"}
+        return {**update, "reply_delivery": "logged", "_summary": f"reply logged ({reason})"}
     await _note(state)
     prior = await db.delivery_receipt(ticket.id, "pylon_reply")
     if prior:
-        return {**update, "_summary": f"reply already sent ({prior.external_id})"}
+        return {
+            **update,
+            "reply_delivery": "sent",
+            "_summary": f"reply already sent ({prior.external_id})",
+        }
     sent = await pylon.send_reply(
         settings.pylon_api_token,
         ticket.pylon_issue_id,
@@ -153,4 +157,4 @@ async def run(state: TicketState) -> dict:
             detail=f"Customer reply on {ticket.pylon_issue_id}",
         )
     )
-    return {**update, "_summary": f"reply sent ({sent})"}
+    return {**update, "reply_delivery": "sent", "_summary": f"reply sent ({sent})"}

@@ -33,5 +33,6 @@ class TicketState(TypedDict, total=False):
     verdict: Verdict
     linear_issue: str | None
     reply: str | None  # the draft, then the sent reply
+    reply_delivery: str  # sent | logged | not_sent
     approval_reasons: list[str]
     approved: bool | None

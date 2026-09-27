@@ -285,5 +285,34 @@ async def test_retry_uses_pylon_reply_receipt(monkeypatch):
     assert result["_summary"] == "reply already sent (msg-42)"
 
 
-def test_missing_engineering_handoff_requires_approval():
-    assert "engineering handoff not created" in approve.approval_reasons(bug_state())
+def test_missing_linear_does_not_force_approval():
+    state = bug_state()
+    state["classification"] = state["classification"].model_copy(update={"revenue_blocking": False})
+    assert approve.approval_reasons(state) == []
+
+
+def test_end_of_ticket_outcome_shows_bug_and_logged_reply():
+    from app.outcome import build_outcome
+
+    state = {**bug_state(), "reply_delivery": "logged", "approved": True}
+    outcome = build_outcome(state)
+    assert outcome.summary.startswith("Confirmed bug in payment")
+    assert outcome.root_cause == "Expiry comparison rejects current month"
+    assert outcome.file_line == "src/payment/charge.js:88"
+    assert outcome.reply_delivery == "logged"
+    assert outcome.linear_issue is None
+    assert outcome.engineering_handoff == "local_only"
+
+
+@pytest.mark.asyncio
+async def test_without_linear_records_finding_locally(monkeypatch):
+    from app.settings import settings
+
+    monkeypatch.setattr(settings, "linear_api_key", "")
+    seen = []
+    monkeypatch.setattr(layer3, "emit", seen.append)
+    result = await layer3.run(bug_state())
+    assert result["linear_issue"] is None
+    assert result["_summary"] == "Payments finding recorded locally"
+    assert "escalat" not in result["reply"].lower()
+    assert seen[0].status == "logged"

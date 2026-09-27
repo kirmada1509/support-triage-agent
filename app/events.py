@@ -194,6 +194,26 @@ class DeliveryEvent(BaseModel):
     detail: str
 
 
+class OutcomeEvent(BaseModel):
+    """Final ticket result, suitable for the ticket detail and a terminal SSE event."""
+
+    kind: Literal["outcome"] = "outcome"
+    stage: Literal["complete"] = "complete"
+    lane: str | None = None
+    summary: str
+    verdict_kind: str | None = None
+    root_cause: str | None = None
+    service: str | None = None
+    file_line: str | None = None
+    commit: str | None = None
+    duplicate_of: str | None = None
+    linear_issue: str | None = None
+    engineering_handoff: Literal["created", "local_only", "not_needed"] = "not_needed"
+    reply: str | None = None
+    reply_delivery: Literal["sent", "logged", "not_sent"] = "not_sent"
+    approved: bool | None = None
+
+
 class ErrorEvent(BaseModel):
     kind: Literal["error"] = "error"
     stage: str | None = None
@@ -211,6 +231,7 @@ Event = Annotated[
     | ApprovalRequiredEvent
     | LinkEvent
     | DeliveryEvent
+    | OutcomeEvent
     | ErrorEvent,
     Field(discriminator="kind"),
 ]

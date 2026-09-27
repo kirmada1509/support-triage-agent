@@ -1,6 +1,6 @@
 # Codebase summary
 
-Status: September 27, 2026, through Phase 7 code (external account check pending). This
+Status: September 27, 2026, through Phase 7 in local-outcome mode. This
 describes working code in the repository; the build plan and later phases are separate. For
 implementation rules,
 read [AGENTS.md](AGENTS.md). For item-by-item progress, read
@@ -26,9 +26,9 @@ webhook → context → enrichment → retrieval + classification → route
                                                 ├─ tech issue → duplicates → brief → analysts
                                                 │     → round 2 → verdict
                                                 └─ uncertain → approval
-confirmed bug or incident → Linear engineering handoff → approval
-feature request → roadmap handoff; billing/account request → account-manager note
-approved lanes (and linked duplicates) → Pylon reply or logged fallback → ticket memory
+confirmed bug or incident → local finding (optional Linear issue) → approval if required
+feature request → optional roadmap handoff; billing/account → optional account-manager note
+approved lanes (and linked duplicates) → Pylon reply or local log → memory → final outcome
 ```
 
 `jev` remains the graph stage and event name for compatibility. Jev is unavailable, so that
@@ -51,6 +51,7 @@ stage calls the configured structured LLM classifier. It is not a Jev API integr
 | Code index | ast-grep extracts service symbols, error messages, flag reads and gRPC handlers at each deployed commit; service cards and exported TSV files guide the offline codebase analyst | `app/indexer/`, `codebox/bin/` |
 | Layer 2 | Duplicate linking, deterministic brief, parallel HolmesGPT and codebox analysts, checked findings, optional round 2, verdict rules, investigation memory and cost tracking | `app/nodes/duplicates.py`, `app/nodes/brief.py`, `app/nodes/findings.py`, `app/nodes/verdict.py`, `app/analysts/` |
 | Layer 3 and delivery | Ownership-based Linear issues with checked evidence, optional links, priority and a durable event receipt; feature roadmap issues; Pylon customer replies and account-manager notes, with a logged fallback and retry receipts | `app/nodes/layer3.py`, `app/nodes/reply.py`, `app/integrations/` |
+| Final result | A typed outcome event records the verdict or request, root cause, code location, optional engineering issue, approval and reply delivery; the ticket detail endpoint exposes it | `app/outcome.py`, `app/tasks.py`, `app/api/main.py` |
 
 The application uses Python 3.12, FastAPI, Pydantic AI, LangGraph, Procrastinate, SQLAlchemy,
 psycopg, PostgreSQL 16 and pgvector. `app/models.py` defines the typed objects passed between
@@ -93,10 +94,10 @@ code index tables are used by Phase 6; eval results remain ahead of their workfl
 - Layer 2 is model behaviour on a small demo. An ordered `make test-layer2` run passed all five
   tickets in 11m57s: false positive, two correctly located bugs, config incident, and duplicate
   link. Earlier runs varied; Phase 9 will measure reliability and latency across repeats.
-- The Linear and Pylon HTTP contracts and worker flow pass with fake external responses. The
-  local `.env.agent` has no Linear or Pylon credential, so real external issue creation and
-  customer delivery have not been validated. The API's live SSE stream delivered a newly
-  inserted event to `curl`; approval/resume passed the database suite.
+- Linear and Pylon are optional. Their HTTP contracts pass with fake external responses; the
+  local `.env.agent` has no credentials, so real external delivery has not been validated. A
+  no-Linear worker run finishes with a visible local outcome. The live SSE stream delivered a
+  newly inserted event to `curl`, and approval/resume passed the database suite.
 - `web/` is a placeholder; the Next.js Triage Console is Phase 8 work. The API and event types
   it will consume already exist. The scorecard endpoint reads the database, but Phase 9 has not
   populated full eval results or performed complete rehearsals.

@@ -26,7 +26,7 @@ from app.api.schemas import (
     TicketStatus,
     TicketSummary,
 )
-from app.events import ApprovalRequiredEvent, JevEvent, LinkEvent, StoredEvent
+from app.events import ApprovalRequiredEvent, JevEvent, LinkEvent, OutcomeEvent, StoredEvent
 from app.graph.build import pipeline_shape
 from app.models import ApprovalDecision, Ticket
 from app.settings import ROOT, settings
@@ -88,6 +88,7 @@ async def get_ticket(ticket_id: str) -> TicketDetail:
     detail = TicketDetail.model_validate(row)
     detail.jev = next((e for e in reversed(events) if isinstance(e, JevEvent)), None)
     detail.links = [e for e in events if isinstance(e, LinkEvent)]
+    detail.outcome = next((e for e in reversed(events) if isinstance(e, OutcomeEvent)), None)
     if row.status == "needs_approval":
         detail.pending_approval = next(
             (e for e in reversed(events) if isinstance(e, ApprovalRequiredEvent)), None
