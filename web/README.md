@@ -43,7 +43,11 @@ finishes. The timeline shows a running call without inventing arguments in the m
 Live view formats enrichment, analyst findings, duplicate checks, and verdicts as readable
 summaries; Raw retains the complete event data. Running analyst groups show four recent updates
 with a Show all control. Stage and customer avatars, semantic spinners, and a compact pipeline
-show progress. Pipeline arrows remain usable with scrollbars hidden.
+show progress. Pipeline arrows remain usable with scrollbars hidden. The pipeline uses the
+backend's left-to-right positions (`app/graph/layout.yaml`) as they are; `pipelineLayout` in the
+ticket screen only routes the few long edges around other nodes and draws each handoff <->
+follow-up pair as one line. The sidebar header shows the DeepSeek credit left, from
+`GET /providers/deepseek/balance`, refreshed every minute.
 The ticket queue, preview, simulator, scorecard, and sidebar use the same compact spacing,
 typography, and status colors. The scorecard keeps its honest empty state until eval data exists.
 Use **New ticket** on `/tickets` to enter a tenant, subject, and customer message. It submits
@@ -54,7 +58,7 @@ are served as they are from `../planning/` by `app/how-it-works/[slug]/route.ts`
 only the files listed in `app/how-it-works/diagrams.ts`, so the repo keeps one copy of each.
 
 Routes: `/tickets`, `/ticket/{id}` (or `?replay=1`), `/simulator`, `/scorecard`, `/how-it-works`
-(diagrams at `/how-it-works/{system-map,bug-walkthrough,zuddl-flow}`).
+(diagrams at `/how-it-works/{system-map,bug-walkthrough}`).
 
 For UI development without backend services or LLM credentials, run `cd web && pnpm dev` and open
 `http://localhost:3000/ticket/demo`. This uses a sanitized 126-event payment investigation fixture

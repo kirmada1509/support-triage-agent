@@ -4,6 +4,7 @@ import asyncio
 import hashlib
 import hmac
 import json
+import os
 import uuid
 from contextlib import asynccontextmanager
 from functools import cache
@@ -18,7 +19,9 @@ from sse_starlette import EventSourceResponse, ServerSentEvent
 from app import db
 from app.api.presentation import present_run_events, present_stored_event
 from app.api.schemas import (
+    Balance,
     Pipeline,
+    ProviderBalance,
     PylonTicketIn,
     ScorecardEntry,
     SimulatorTemplate,
@@ -30,7 +33,9 @@ from app.api.schemas import (
 from app.code_snippets import snippets_from_events
 from app.events import ApprovalRequiredEvent, JevEvent, LinkEvent, OutcomeEvent, StoredEvent
 from app.graph.build import pipeline_shape
+from app.integrations import deepseek
 from app.models import ApprovalDecision, Ticket
+from app.models_config import PROVIDER_KEYS
 from app.settings import ROOT, settings
 from app.tasks import app as procrastinate_app
 from app.tasks import enqueue_resume, enqueue_run
@@ -211,6 +216,23 @@ async def simulator_send(req: SimulatorTicketIn) -> dict:
         )
         r.raise_for_status()
     return r.json()
+
+
+@api.get("/providers/deepseek/balance")
+async def deepseek_balance() -> ProviderBalance:
+    key = os.environ.get(PROVIDER_KEYS["deepseek"], "")
+    if not key:
+        return ProviderBalance(provider="deepseek", configured=False, available=None, balances=[])
+    try:
+        account = await deepseek.balance(key)
+    except (httpx.HTTPError, ValueError) as e:
+        raise HTTPException(502, f"DeepSeek balance unavailable: {type(e).__name__}") from e
+    return ProviderBalance(
+        provider="deepseek",
+        configured=True,
+        available=account.available,
+        balances=[Balance(currency=b.currency, total=b.total) for b in account.balances],
+    )
 
 
 @api.get("/evals/scorecard")

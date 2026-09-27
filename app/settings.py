@@ -20,6 +20,7 @@ class Settings(BaseSettings):
     pylon_api_base_url: str = "https://api.usepylon.com"
     linear_api_key: str = ""
     linear_api_url: str = "https://api.linear.app/graphql"
+    deepseek_api_url: str = "https://api.deepseek.com"  # for the console's balance
     roadmap_linear_team: str = ""  # Linear team key for feature requests
     github_repo_url: str = ""  # optional fork URL for code and commit evidence
     jaeger_base_url: str = "http://localhost:8080"

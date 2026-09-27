@@ -167,6 +167,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/providers/deepseek/balance": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Deepseek Balance */
+        get: operations["deepseek_balance_providers_deepseek_balance_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/evals/scorecard": {
         parameters: {
             query?: never;
@@ -221,6 +238,13 @@ export interface components {
             reasons: string[];
             /** Linear Issue */
             linear_issue?: string | null;
+        };
+        /** Balance */
+        Balance: {
+            /** Currency */
+            currency: string;
+            /** Total */
+            total: number;
         };
         /** CodeOut */
         CodeOut: {
@@ -538,6 +562,20 @@ export interface components {
             x: number;
             /** Y */
             y: number;
+        };
+        /**
+         * ProviderBalance
+         * @description A provider account's credit; configured is false when its key isn't set.
+         */
+        ProviderBalance: {
+            /** Provider */
+            provider: string;
+            /** Configured */
+            configured: boolean;
+            /** Available */
+            available: boolean | null;
+            /** Balances */
+            balances: components["schemas"]["Balance"][];
         };
         /** RetrievalEvent */
         RetrievalEvent: {
@@ -1179,6 +1217,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    deepseek_balance_providers_deepseek_balance_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProviderBalance"];
                 };
             };
         };

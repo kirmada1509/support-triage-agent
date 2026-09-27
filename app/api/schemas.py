@@ -97,6 +97,20 @@ class SimulatorTicketIn(BaseModel):
     requester: str | None = "ops@figma-merch.example"
 
 
+class Balance(BaseModel):
+    currency: str
+    total: float
+
+
+class ProviderBalance(BaseModel):
+    """A provider account's credit; configured is false when its key isn't set."""
+
+    provider: str
+    configured: bool
+    available: bool | None
+    balances: list[Balance]
+
+
 class ScorecardEntry(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 

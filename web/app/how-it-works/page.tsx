@@ -27,7 +27,7 @@ export default function HowItWorksPage() {
     <section>
       <h2 className="mb-1 text-sm font-medium">Architecture diagrams</h2>
       <p className="mb-4 text-xs text-muted-foreground">Each opens in a new tab, straight from the repo&rsquo;s <code className="font-mono">planning/</code> folder.</p>
-      <div className="grid gap-3 md:grid-cols-3">
+      <div className="grid gap-3 md:grid-cols-2">
         {diagrams.map((d) => <div key={d.slug} className="flex flex-col rounded-lg border bg-card p-4">
           <h3 className="text-sm font-medium">{d.title}</h3>
           <p className="mt-1 flex-1 text-sm leading-relaxed text-muted-foreground">{d.description}</p>

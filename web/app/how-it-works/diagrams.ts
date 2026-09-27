@@ -12,10 +12,4 @@ export const diagrams = [
     title: "Expired-Card Bug Walkthrough",
     description: "One bug ticket from start to finish: categorization, the brief, both analysts in parallel, the handoff where they ask each other, the verdict and the Linear issue.",
   },
-  {
-    slug: "zuddl-flow",
-    file: "Zuddl Ticket Triage Flow.html",
-    title: "Zuddl Ticket Triage Flow",
-    description: "The design for Zuddl's own stack: every lane a ticket can take, when a person steps in, and example tickets for each exit.",
-  },
 ] as const;

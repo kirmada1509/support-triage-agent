@@ -3,7 +3,7 @@
 Context and rules for coding agents working in this repo. Read it before changing anything, and
 keep it true (see "Keeping this file current" at the end).
 
-Last updated: Sep 27, 2026, two-way analyst handoff (Layer 2) and local Ollama profiles.
+Last updated: Sep 28, 2026, console pipeline layout and DeepSeek balance.
 
 ## What this is
 
@@ -55,13 +55,14 @@ anything uncertain. A Next.js Triage Console shows every stage live.
 app/
   api/main.py       FastAPI: POST /webhooks/pylon (HMAC), /tickets, /tickets/{id}, /pipeline,
                     /tickets/{id}/events (+ /stream SSE, ?replay=1), /tickets/{id}/approve,
-                    /simulator/templates, /simulator/tickets, /evals/scorecard
+                    /simulator/templates, /simulator/tickets, /evals/scorecard,
+                    /providers/deepseek/balance
   api/schemas.py    request and response models
   graph/build.py    the StateGraph: NODES, edges, RETRY policies, pipeline_shape() for the console
   graph/state.py    TicketState (each node returns only the keys it changes)
   graph/routes.py   pick_lane, is_duplicate, pick_outcome: pure functions of the state
   graph/stream.py   emit() from inside nodes, staged() wrapper, run_graph() -> event sink
-  graph/layout.yaml node positions for the console's flowchart
+  graph/layout.yaml node positions for the console's left-to-right flowchart (used as is)
   nodes/*.py        one async run(state) per stage
   events.py         event models (discriminated union) the console renders
   code_snippets.py  checked codebox excerpts for engineering handoffs and final outcomes
@@ -80,7 +81,8 @@ app/
                     (service cards), export.py (TSV for the codebox), __main__.py (CLI)
   analysts/         Layer 2's outside calls: holmes.py (HolmesGPT's container, budget enforced
                     from its stdout), codebox.py (mini-swe-agent in the codebox, in a thread)
-  integrations/     Linear GraphQL issue creation and Pylon reply/internal-note HTTP adapters
+  integrations/     Linear GraphQL issue creation, Pylon reply/internal-note HTTP adapters, and
+                    the DeepSeek balance the console's sidebar shows
   outcome.py        final ticket result, emitted to SSE and exposed on ticket detail
 config/             models.yaml (names, prices), roles.yaml (model per role), ownership.yaml,
                     ollama/Modelfile (the local qwen with a 32k context)
@@ -93,7 +95,7 @@ sandbox/            builds the shop fork: pin, overlay, patches, setup, images, 
 scenarios/          tickets.yaml (9 demo tickets), scenario.py, send_ticket.py, deploy.sh, flag.sh,
                     record.py (writes deploy and flag history)
 tests/              pytest suites (see Testing); tests/fixtures/ holds real captured data
-planning/           the plan, the build checklist, the phase 2 spike results, three HTML diagrams
+planning/           the plan, the build checklist, the phase 2 spike results, two HTML diagrams
                     (linked from the console's How it works page, served from here)
 knowledge/          31 help articles / 62 sections with source map
 seed/               200 labelled synthetic tickets and generator

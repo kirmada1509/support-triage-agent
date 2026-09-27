@@ -1,22 +1,25 @@
-# Positions for the console's flowchart (React Flow coordinates). Nodes come from graph.get_graph().
-__start__:        {x: 0,    y: 0}
-context:          {x: 0,    y: 100}
-enrich:           {x: 0,    y: 200}
-retrieve:         {x: -140, y: 300}
-jev:              {x: 140,  y: 300}
-route:            {x: 0,    y: 400}
-layer1:           {x: -420, y: 520}
-requests:         {x: -210, y: 520}
-duplicates:       {x: 140,  y: 520}
-brief:            {x: 140,  y: 640}
-data_analyst:     {x: 0,    y: 760}
-codebase_analyst: {x: 280,  y: 760}
-handoff:          {x: 140,  y: 880}
-code_followup:    {x: 280,  y: 980}
-data_followup:    {x: 0,    y: 980}
-verdict:          {x: 140,  y: 1100}
-layer3:           {x: 280,  y: 1220}
-approve:          {x: 0,    y: 1340}
-reply:            {x: 0,    y: 1460}
-remember:         {x: 0,    y: 1580}
-__end__:          {x: 0,    y: 1700}
+# Positions for the console's left-to-right flowchart (React Flow coordinates, a node's top-left
+# corner; nodes are 132x42). Nodes come from graph.get_graph(). x is a column (160 apart); y is a
+# lane offset from the main row: parallel pairs at +-30, the follow-ups and layer3 at +-58, and
+# layer1 / requests above everything so their edges to approve run clear of Layer 2.
+__start__:        {x: 0,     y: 0}
+context:          {x: 160,   y: 0}
+enrich:           {x: 320,   y: 0}
+retrieve:         {x: 480,   y: -30}
+jev:              {x: 480,   y: 30}
+route:            {x: 640,   y: 0}
+layer1:           {x: 800,   y: -156}
+requests:         {x: 800,   y: -104}
+duplicates:       {x: 800,   y: 0}
+brief:            {x: 960,   y: 0}
+data_analyst:     {x: 1120,  y: -30}
+codebase_analyst: {x: 1120,  y: 30}
+handoff:          {x: 1280,  y: 0}
+data_followup:    {x: 1440,  y: -58}
+code_followup:    {x: 1440,  y: 58}
+verdict:          {x: 1600,  y: 0}
+layer3:           {x: 1760,  y: 58}
+approve:          {x: 1920,  y: 0}
+reply:            {x: 2080,  y: 0}
+remember:         {x: 2240,  y: 0}
+__end__:          {x: 2400,  y: 0}

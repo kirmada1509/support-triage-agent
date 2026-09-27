@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
 import { FlaskConical, ListTodo, Moon, Sun, ChartNoAxesCombined, Sparkles, CircleHelp, Network } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { CreditBalance } from "@/components/credit-balance";
 import {
   Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent,
   SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem,
@@ -22,11 +23,12 @@ export function AppSidebar() {
   const { theme, setTheme } = useTheme();
   return (
     <Sidebar variant="sidebar" collapsible="offcanvas" className="border-r bg-sidebar">
-      <SidebarHeader className="h-20 justify-center border-b px-4">
+      <SidebarHeader className="gap-3 border-b px-4 py-4">
         <Link href="/tickets" className="flex items-center gap-2.5 text-sm font-semibold tracking-tight">
           <span className="flex size-8 items-center justify-center rounded-lg border bg-background text-foreground"><Sparkles size={15} /></span>
           <span>Support Triage<span className="mt-0.5 block text-[10px] font-normal tracking-normal text-muted-foreground">Operations console</span></span>
         </Link>
+        <CreditBalance />
       </SidebarHeader>
       <SidebarContent className="pt-5">
         <SidebarGroup><p className="px-2 pb-2 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Workspace</p><SidebarGroupContent><SidebarMenu className="gap-1">
