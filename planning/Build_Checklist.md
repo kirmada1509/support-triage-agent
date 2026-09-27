@@ -217,6 +217,9 @@ Last updated Sep 27, 2026, Phase 8 console implemented and live paths verified; 
 - [x] Ticket selection opens the right preview on desktop and a visible Sheet below `xl`;
   fixed a hidden mobile Sheet that left its blur overlay over the desktop page. Verified both
   layouts and that resizing from a narrow view closes the Sheet.
+- [x] Running HolmesGPT calls with no arguments yet reported no longer render misleading
+  `Parameters {}`; the timeline waits for the backend's completed event to show the command
+  and output. Verified against ticket T-390875's stored running and completed tool events.
 - [x] Manual browser run: simulator ticket T-2FC8BE streamed to a local outcome without refresh;
   approval ticket T-8BEEAC resumed after an edited reply; `make scenario-4` sent T-BD9A0F,
   showed HolmesGPT and codebase analyst calls, stage transitions, approval, and a confirmed-bug

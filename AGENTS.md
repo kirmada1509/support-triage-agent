@@ -291,6 +291,9 @@ cd web && pnpm install && pnpm dev # console on :3000; see web/README.md for che
 - Agents' step limits count model turns, not tool calls (HolmesGPT made up to 62 calls in 15 turns);
   enforce time and call budgets in the node. At `--max-steps` HolmesGPT returns its last raw
   message (DeepSeek's `DSML` tool-call markup), not an answer, so the node stops it instead.
+- HolmesGPT's stdout reports a tool's name when it starts, but its command and output are only
+  available in the final JSON result. Running `tool_call` events therefore have `args: {}`;
+  the console replaces each with its completed event by call ID once the analyst finishes.
 - An analyst's "exact error" can be its own tool's error (a bad OpenSearch query): only a
   successful trace or log call may supply it (`ERROR_TOOLS` in `findings.py`), and a failed tool
   must exit non-zero so HolmesGPT marks it failed.

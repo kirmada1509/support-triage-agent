@@ -36,5 +36,7 @@ The backend emits HolmesGPT and codebox results as `terminal` outputs today. The
 also renders the structured `code`, `diff`, `series`, `trace`, `table`, `log`, `commit`, and `json`
 variants when they are emitted. It does not parse analyst stdout. The scorecard reads
 `/evals/scorecard`; it shows an empty state until evaluation results are recorded in the database.
+HolmesGPT streams tool names as calls start; their arguments and output arrive when its run
+finishes. The timeline shows a running call without inventing arguments in the meantime.
 
 Routes: `/tickets`, `/ticket/{id}` (or `?replay=1`), `/simulator`, `/scorecard`.
