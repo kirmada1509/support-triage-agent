@@ -1,6 +1,6 @@
 # Codebase summary
 
-Status: September 27, 2026, through most of Phase 6. This describes working code in the repository;
+Status: September 27, 2026, through Phase 6. This describes working code in the repository;
 the build plan and later-phase stubs are called out separately below. For implementation rules,
 read [AGENTS.md](AGENTS.md). For item-by-item progress, read
 [planning/Build_Checklist.md](planning/Build_Checklist.md).
@@ -74,6 +74,8 @@ code index tables are used by Phase 6; eval results remain ahead of their workfl
 - Jaeger search can list successful traces for a service and operation. Condensed successful
   quote traces show item count and total, so the analyst can compare shipping amounts across
   versions without chasing unrelated payment errors.
+- HolmesGPT's original tool-call IDs and the app's stage IDs are both validated against the
+  actual calls. Accepted citations use the stage ID, so the console can link them to tool events.
 - `knowledge/` contains 31 source-checked articles split into 62 indexed sections. `seed/`
   contains 200 labelled synthetic past tickets. `evals/tickets.yaml` fixes 20 ticket labels.
   The stored retrieval baseline found the answering section in the top five for 7/7 labelled
@@ -84,9 +86,9 @@ code index tables are used by Phase 6; eval results remain ahead of their workfl
 
 ## Still incomplete
 
-- Layer 2 is model behaviour on a small demo: the last full `make test-layer2` run passed tickets
-  3, 4, 6 and 7; ticket 5 was inconclusive amid earlier payment errors. The trace-search fix has
-  local tests but still needs a full live run on the harness. Phase 9 will measure variance.
+- Layer 2 is model behaviour on a small demo. An ordered `make test-layer2` run passed all five
+  tickets in 11m57s: false positive, two correctly located bugs, config incident, and duplicate
+  link. Earlier runs varied; Phase 9 will measure reliability and latency across repeats.
 - `layer3` returns a fake Linear issue ID. `reply` does not send a Pylon message. The approval
   API works, but downstream engineering/customer delivery is Phase 7 work.
 - `web/` is a placeholder; the Next.js Triage Console is Phase 8 work. The API and event types

@@ -122,6 +122,25 @@ def test_evidence_must_point_at_a_call_that_happened():
     assert [e.call_id for e in check_evidence(f, HOLMES_CALLS).evidence] == ["t1"]
 
 
+def test_holmes_native_call_id_is_checked_and_canonicalized():
+    native = "call_02_ET_2z5uLSaIYjiBa6p1XqGp1546"
+    call = ToolRecord(
+        call_id="h2",
+        provider_call_id=native,
+        tool="find_error_traces",
+        output=f"{TRACE} charge error: {EXPIRED}",
+    )
+    cited = data_findings(
+        Evidence(source="trace", ref=TRACE, observation="decline", call_id=native)
+    )
+    checked = check_evidence(cited, [call])
+    assert [e.call_id for e in checked.evidence] == ["h2"]
+    invented = data_findings(
+        Evidence(source="trace", ref=TRACE, observation="decline", call_id="call_invented")
+    )
+    assert check_evidence(invented, [call]).evidence == []
+
+
 def test_a_trace_id_must_appear_in_that_calls_output():
     f = data_findings(Evidence(source="trace", ref="f" * 32, observation="o", call_id="t1"))
     checked = check_evidence(f, HOLMES_CALLS)
@@ -384,6 +403,7 @@ HOLMES_RESULT = json.loads((ROOT / "tests" / "fixtures" / "holmes_ticket4.json")
 def test_holmes_calls_become_records_evidence_can_cite():
     calls = holmes.records(HOLMES_RESULT)
     assert [c.call_id for c in calls[:3]] == ["h1", "h2", "h3"]
+    assert calls[0].provider_call_id == HOLMES_RESULT["tool_calls"][0]["tool_call_id"]
     assert calls[0].tool == "deploys" and "payment | v1.3.0 | v1.4.0" in calls[0].output
     assert "psql" in calls[0].args["command"]
     traces = next(c for c in calls if c.tool == "find_error_traces")

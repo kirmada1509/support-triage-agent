@@ -3,7 +3,7 @@
 Context and rules for coding agents working in this repo. Read it before changing anything, and
 keep it true (see "Keeping this file current" at the end).
 
-Last updated: Sep 27, 2026, phase 6 in progress (quote trace search added; live validation pending).
+Last updated: Sep 27, 2026, phase 6 complete (ordered Layer 2 live suite passed 5/5).
 
 ## What this is
 
@@ -148,7 +148,9 @@ web/                phase 8 placeholder
   sends the data analyst's exact error to the codebox once. `verdict` (role `verdict`) is then
   checked by `apply_rules`: two independent sources, a bug needs the file:line and commit the
   codebase analyst saw, an incident a flag change, a false positive the code. `remember` writes
-  ticket memory and an `investigations` row. Analyst costs go to `tickets.cost_usd`.
+  ticket memory and an `investigations` row. HolmesGPT's original tool-call IDs and the app's
+  `hN` IDs both resolve to the same checked record; kept citations use `hN`. Round 2 has 90 s
+  and 24 commands. Analyst costs go to `tickets.cost_usd`.
 - **Quote evidence.** The data analyst can search successful Jaeger traces by service, operation
   and time. Condensed successful quote traces include item count and total; the quote question
   compares these before and after the deploy. Generic trace search cannot supply the exact
@@ -266,6 +268,9 @@ make lint fmt                      # ruff check + format check / fix, line lengt
 - An analyst's "exact error" can be its own tool's error (a bad OpenSearch query): only a
   successful trace or log call may supply it (`ERROR_TOOLS` in `findings.py`), and a failed tool
   must exit non-zero so HolmesGPT marks it failed.
+- HolmesGPT's answer can cite its native `call_...` IDs even when the findings prompt numbers
+  calls `h1`, `h2`, etc. Preserve and validate both IDs, then normalize citations to `hN`; otherwise
+  every valid evidence item can be dropped and the verdict becomes inconclusive.
 - In the codebox, mount the fork's `.git` at `/git` and set `GIT_DIR=/git/worktrees/shop@<tag>`,
   `GIT_WORK_TREE=/repo`: mounting it at its host path silently fails under Docker Desktop. Set
   `PREV_GIT_DIR` too, or git in `/prev` silently shows the deployed tag (`codebox/bin/git`).

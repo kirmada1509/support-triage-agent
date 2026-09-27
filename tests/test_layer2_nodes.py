@@ -312,7 +312,9 @@ async def test_round2_sends_the_exact_error_to_the_codebase_analyst(
     assert (
         f.round == 2
         and EXPIRED in seen["task"]
-        and seen["max_commands"] < codebase_analyst.MAX_COMMANDS
+        and seen["max_commands"] == 24
+        and "Submit the answer" in seen["task"]
+        and "unrelated tests" in seen["task"]
     )
 
 

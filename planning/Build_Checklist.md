@@ -4,11 +4,11 @@ What's built and what isn't, phase by phase, against `Agent_Architecture_And_Bui
 Tick an item when it works and is tested the way the plan's "How it's tested" says; tick a
 phase's "Done when" only when that whole criterion has been seen working.
 
-Last updated Sep 27, 2026, during phase 6 (ticket 5 trace search improved locally; full live run pending). Suite inventory (provider calls depend on credit):
+Last updated Sep 27, 2026, phase 6 complete (ordered live tickets 3–7 passed 5/5). Suite inventory (provider calls depend on credit):
 
 | Suite | Command | Needs | Tests |
 | --- | --- | --- | --- |
-| Units, graph in memory, front pipeline, scenario logic, sandbox kit, tracing, model config, retrieval, indexer, codebox helpers, trace condensing, Layer 2 rules and nodes | `make test` | nothing | 219 |
+| Units, graph in memory, front pipeline, scenario logic, sandbox kit, tracing, model config, retrieval, indexer, codebox helpers, trace condensing, Layer 2 rules and nodes | `make test` | nothing | 220 |
 | Database | `make test-db` | `make db` | 12 |
 | The fork: tags, planted bugs, overlay, images, the code index at both tags | `make test-sandbox` | `make sandbox` | 28 |
 | The running shop: every scenario, read-only role, metrics, logs | `make test-shop` | `make shop-up` | 15 |
@@ -155,7 +155,8 @@ Last updated Sep 27, 2026, during phase 6 (ticket 5 trace search improved locall
   error must come from a trace or log (not a tool's own error)
 - [x] Cost per analyst run (HolmesGPT's own total; the codebox's from tokens and `models.yaml`),
   added to `tickets.cost_usd` by the worker
-- [x] Round 2: the data analyst's exact error to the codebox once (90 s, 16 commands);
+- [x] Round 2: the data analyst's exact error to the codebox once (90 s, 24 commands;
+  raised from 16 after a live Amex run exhausted the smaller budget);
   `lookup-error` now finds a template from the start of a message
 - [x] Verdict, then `apply_rules`: two sources, production must show the symptom, a bug needs the
   file:line and commit the codebase analyst saw, an incident a flag change, a false positive the
@@ -164,16 +165,17 @@ Last updated Sep 27, 2026, during phase 6 (ticket 5 trace search improved locall
 - [x] Added a read-only Jaeger search for successful service/operation traces and quote totals in
   condensed summaries; quote investigations now search before/after quote deploys first. Local
   tests cover the tool definition, summary, prompt and evidence checks
-- [ ] Rebuild with `make analyst-images` and rerun `make test-spike` after the log-search and
-  `lookup-error` changes, and the new Jaeger tool. Requires the live test harness
-- [ ] Ticket 5 in the full `make test-layer2` run: passes alone, but after scenarios 3 and 4 the
-  data analyst sometimes follows payment's errors in its window instead of quote's doubled
-  amounts, and the verdict is (rightly) inconclusive. 2 of 3 full runs failed it. Rerun the
-  full suite after rebuilding the analyst image to check the trace-search change
+- [x] Rebuilt with `make analyst-images`; `make test-spike` passed 6/6 after the log-search,
+  `lookup-error`, and Jaeger tool changes
+- [x] HolmesGPT's native tool-call IDs are preserved and checked alongside the app's `hN` IDs;
+  valid citations are normalized to `hN`. A live run dropped all 14 data citations and ended
+  inconclusive; subsequent live runs kept evidence with this ID handling
+- [x] Ticket 5 in the ordered `make test-layer2` run: confirmed quote bug at
+  `src/quote/app/routes.php:34-39`, commit `8dd1ecde`, after scenarios 3 and 4
 - [ ] Layer 2 run-to-run variance (HolmesGPT repeats queries; 50-210 s): measure in phase 9
-- [ ] **Done when:** ticket 3 is a false positive, tickets 4 and 5 are bugs with the right file
+- [x] **Done when:** ticket 3 is a false positive, tickets 4 and 5 are bugs with the right file
   and commit, ticket 6 is a config incident, and ticket 7 links to ticket 4's open issue
-  (all seen, but not yet in one run: the last full run passed 3, 4, 6, 7)
+  (one ordered run passed 5/5 in 11m57s; 85%, 90%, 90%, 88%, linked)
 
 ## Phase 7: Layer 3 and console API (day 12)
 

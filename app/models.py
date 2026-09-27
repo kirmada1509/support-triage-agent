@@ -133,6 +133,7 @@ class ToolRecord(BaseModel):
     """One tool call or shell command an analyst made, as it happened: what evidence may cite."""
 
     call_id: str
+    provider_call_id: str | None = None  # HolmesGPT's original ID, if its answer cites it
     tool: str  # a HolmesGPT tool name, or "bash" for the codebox
     args: dict[str, Any] = {}
     output: str = ""

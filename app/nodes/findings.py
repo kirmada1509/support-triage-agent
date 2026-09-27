@@ -127,7 +127,14 @@ def _supported(e: Evidence, agent: str, calls: dict[str, ToolRecord]) -> bool:
 def check_evidence(findings: Findings, calls: list[ToolRecord]) -> Findings:
     """Keep evidence tied to a real tool call that showed it; cap confidence when none is left."""
     by_id = {c.call_id: c for c in calls}
-    kept = [e for e in findings.evidence if _supported(e, findings.agent, by_id)]
+    for c in calls:
+        if c.provider_call_id and c.provider_call_id not in by_id:
+            by_id[c.provider_call_id] = c
+    kept = [
+        e.model_copy(update={"call_id": by_id[e.call_id].call_id})
+        for e in findings.evidence
+        if e.call_id and _supported(e, findings.agent, by_id)
+    ]
     error_text = findings.error_text
     sources = [c for c in calls if c.ok and c.tool in ERROR_TOOLS[findings.agent]]
     if error_text and not any(

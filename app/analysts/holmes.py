@@ -92,6 +92,7 @@ def records(result: dict) -> list[ToolRecord]:
         out.append(
             ToolRecord(
                 call_id=f"h{n}",
+                provider_call_id=c.get("tool_call_id"),
                 tool=c.get("tool_name", "?"),
                 args={"command": c.get("description", "")},
                 output=str(text)[:OUTPUT_CHARS],

@@ -13,7 +13,7 @@ from app.nodes.duplicates import error_signature
 
 STAGE = "round2"
 TIMEOUT_S = 90
-MAX_COMMANDS = 16
+MAX_COMMANDS = 24
 
 
 async def investigate(task: str, brief, on_call, **budget) -> AnalystRun:
@@ -46,8 +46,10 @@ async def run(state: TicketState) -> dict:
     task = (
         f"The data analyst saw this exact error in production for {b.suspected_service} at "
         f'{b.deployed_version}:\n"{text}"\n'
-        "Find where the code produces it (lookup-error), read that code path, and say whether "
-        "it is intended behaviour or a regression, with file:line and the commit (git blame)."
+        "Use lookup-error, read the matched code path, and git blame its line. Compare that "
+        "path with /prev only if needed to tell intended behaviour from a regression. "
+        "Submit the answer as soon as the file:line, commit, and judgment are supported; "
+        "skip unrelated tests, release history, and other error paths."
     )
     try:
         result = await investigate(task, b, emit, max_commands=MAX_COMMANDS, timeout_s=TIMEOUT_S)
