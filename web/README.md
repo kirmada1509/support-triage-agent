@@ -40,6 +40,10 @@ does not parse analyst stdout. The scorecard reads
 `/evals/scorecard`; it shows an empty state until evaluation results are recorded in the database.
 HolmesGPT streams tool names as calls start; their arguments and output arrive when its run
 finishes. The timeline shows a running call without inventing arguments in the meantime.
+Live view formats enrichment, analyst findings, duplicate checks, and verdicts as readable
+summaries; Raw retains the complete event data. Running analyst groups show four recent updates
+with a Show all control. Stage and customer avatars, semantic spinners, and a compact pipeline
+show progress. Pipeline arrows remain usable with scrollbars hidden.
 
 Routes: `/tickets`, `/ticket/{id}` (or `?replay=1`), `/simulator`, `/scorecard`.
 

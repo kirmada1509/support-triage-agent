@@ -692,8 +692,11 @@ status; it does not route the graph. The analysts persist their original termina
 adapter at the FastAPI read boundary recognizes validated Prometheus series/tables, logs, and
 unambiguous code/diffs; it preserves the raw text and leaves unknown output as terminal. Mixed
 git history and diff output receives a syntax hint without losing either section. The frontend
-does not parse stdout. The investigation timeline shows readable enrichment and one collapsible
-group per analyst stage, with commands and outputs inside. `/ticket/demo` runs the same screen
+does not parse stdout. The investigation timeline shows readable enrichment, findings, and verdict
+summaries, plus one collapsible group per analyst stage with commands and outputs inside. Running
+groups show recent calls first and let operators expand the full history. Semantic stage avatars,
+spinners, and a compact auto-centering pipeline make progress visible without changing backend
+execution. `/ticket/demo` runs the same screen
 from a validated, sanitized stored payment run with local playback and simulated approval,
 requiring no API, worker, shop, or model credentials. Real `?replay=1` keeps the backend's timing.
 `/evals/scorecard` currently has no rows until Phase 9 records evaluation results. The current

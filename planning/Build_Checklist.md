@@ -231,6 +231,11 @@ Last updated Sep 27, 2026, Phase 8 investigation readability and offline demo ve
   worker, provider, or approval POST calls. Browser verified Play/Pause/Step/Restart, approval
   pause, edited local reply, final local outcome, stage filtering, and light/dark mode while API
   was unavailable; the browser request log contained no backend requests.
+- [x] Investigation polish: the typed verdict and analyst findings render as readable summaries
+  in Live while Raw keeps the original data. Stage and customer avatars, restrained spinners,
+  approval waiting state, pipeline auto-centering and scroll controls, and hidden scrollbars make
+  the recorded run easier to follow. Running analyst groups show four recent updates with a
+  Show all control; the full history remains available when the group finishes.
 - [x] Manual browser run: simulator ticket T-2FC8BE streamed to a local outcome without refresh;
   approval ticket T-8BEEAC resumed after an edited reply; `make scenario-4` sent T-BD9A0F,
   showed HolmesGPT and codebase analyst calls, stage transitions, approval, and a confirmed-bug

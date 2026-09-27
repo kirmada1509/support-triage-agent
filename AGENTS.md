@@ -298,7 +298,8 @@ cd web && pnpm install && pnpm dev # console on :3000; see web/README.md for che
   the console replaces each with its completed event by call ID once the analyst finishes.
 - The API shapes recognized analyst terminal results for display without rewriting `events` or
   evidence records. `/ticket/demo` uses a sanitized stored fixture and local simulated approval;
-  see `web/README.md`. A real replay still comes from FastAPI SSE.
+  see `web/README.md`. Live view presents typed enrichment, findings, and verdict data as
+  readable summaries and keeps full payloads in Raw. A real replay still comes from FastAPI SSE.
 - An analyst's "exact error" can be its own tool's error (a bad OpenSearch query): only a
   successful trace or log call may supply it (`ERROR_TOOLS` in `findings.py`), and a failed tool
   must exit non-zero so HolmesGPT marks it failed.
