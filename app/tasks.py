@@ -91,7 +91,14 @@ async def _drive(ticket_id: str, graph_input, seen: set[str] | None = None) -> N
 
 @app.task(name="run_ticket", queue="tickets")
 async def run_ticket(ticket_id: str) -> None:
-    ticket = Ticket.model_validate(await db.get_ticket(ticket_id), from_attributes=True)
+    row = await db.get_ticket(ticket_id)
+    ticket = Ticket.model_validate(row, from_attributes=True)
+    ticket = ticket.model_copy(
+        update={
+            "pylon_issue_id": (row.raw or {}).get("pylon_issue_id"),
+            "pylon_message_id": (row.raw or {}).get("pylon_message_id"),
+        }
+    )
     await _drive(ticket_id, {"ticket": ticket})
 
 

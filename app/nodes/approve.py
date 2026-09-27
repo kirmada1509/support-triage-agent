@@ -24,6 +24,9 @@ def approval_reasons(state: TicketState) -> list[str]:
             reasons.append("categorization unsure")
     if (v := state.get("verdict")) and (v.kind == "inconclusive" or v.confidence < 0.7):
         reasons.append(f"verdict {v.kind} at {v.confidence:.0%}")
+    if state.get("verdict") and state["verdict"].kind in {"confirmed_bug", "config_incident"}:
+        if not state.get("linear_issue"):
+            reasons.append("engineering handoff not created")
     if (a := state.get("layer1")) and (not a.confident or not a.cited_ids):
         reasons.append("Layer 1 answer not confident or uncited")
     if not state.get("reply"):

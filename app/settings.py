@@ -16,6 +16,14 @@ class Settings(BaseSettings):
     database_url: str = "postgresql://triage:triage@localhost:5433/triage"
     history_db_url: str = ""
     pylon_webhook_secret: str = "dev-secret"
+    pylon_api_token: str = ""
+    pylon_api_base_url: str = "https://api.usepylon.com"
+    linear_api_key: str = ""
+    linear_api_url: str = "https://api.linear.app/graphql"
+    roadmap_linear_team: str = ""  # Linear team key for feature requests
+    github_repo_url: str = ""  # optional fork URL for code and commit evidence
+    jaeger_base_url: str = "http://localhost:8080"
+    grafana_panel_url: str = ""  # optional preconfigured panel for supporting metrics
     api_base_url: str = "http://localhost:8000"
     role_profile: str | None = None  # ROLE_PROFILE: a profile in config/roles.yaml
     role_models: str | None = None  # ROLE_MODELS: "role=model,..." overrides single roles

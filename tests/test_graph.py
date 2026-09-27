@@ -87,6 +87,20 @@ async def test_tech_issue_runs_both_analysts_and_uses_edited_reply():
 
 
 async def test_confirmed_bug_goes_to_layer3(monkeypatch):
+    from app.integrations.linear import Issue
+    from app.nodes import layer3
+    from app.settings import settings
+
+    async def no_receipt(*args):
+        return None
+
+    async def created(*args):
+        return Issue("PAY-42", "https://linear.app/demo/issue/PAY-42")
+
+    monkeypatch.setattr(settings, "linear_api_key", "test-key")
+    monkeypatch.setattr(layer3.db, "delivery_receipt", no_receipt)
+    monkeypatch.setattr(layer3.linear, "create_issue", created)
+
     async def confirmed(state):
         return {
             "verdict": Verdict(
@@ -106,8 +120,8 @@ async def test_confirmed_bug_goes_to_layer3(monkeypatch):
     rec, paused = await run(graph, "T-4b", {"ticket": demo_ticket("4")})
     assert "layer3" in rec.stages("done")
     state = await state_of(graph, "T-4b")
-    assert state["linear_issue"] == "PAY-STUB"
-    assert paused["linear_issue"] == "PAY-STUB"
+    assert state["linear_issue"] == "PAY-42"
+    assert paused["linear_issue"] == "PAY-42"
 
 
 async def test_failed_node_emits_failed_stage(monkeypatch):

@@ -15,6 +15,8 @@ class Ticket(BaseModel):
     body: str
     requester: str | None = None
     received_at: datetime | None = None
+    pylon_issue_id: str | None = None  # absent for simulator tickets
+    pylon_message_id: str | None = None  # optional top-level customer-visible message ID
 
 
 # --- context (code, no LLM) -------------------------------------------------------------------

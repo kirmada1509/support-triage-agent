@@ -13,7 +13,7 @@ from sqlalchemy import delete, func, select, update
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
-from app.events import Event, EventAdapter, StageEvent, StoredEvent
+from app.events import DeliveryEvent, Event, EventAdapter, StageEvent, StoredEvent
 from app.models import ContextBundle, Deploy, FlagChange, Ticket
 from app.settings import settings
 from app.tables import (
@@ -144,6 +144,24 @@ async def list_events(ticket_id: str, after_id: int = 0) -> list[StoredEvent]:
     )
     async with Session() as s:
         return [to_stored(r) for r in await s.scalars(stmt)]
+
+
+async def delivery_receipt(ticket_id: str, destination: str) -> DeliveryEvent | None:
+    """Return the last successful outbound receipt, including one from a retried graph node."""
+    stmt = (
+        select(EventRow.payload)
+        .where(
+            EventRow.ticket_id == ticket_id,
+            EventRow.kind == "delivery",
+            EventRow.payload["destination"].astext == destination,
+            EventRow.payload["status"].astext == "sent",
+        )
+        .order_by(EventRow.id.desc())
+        .limit(1)
+    )
+    async with Session() as s:
+        payload = await s.scalar(stmt)
+    return DeliveryEvent.model_validate(payload) if payload else None
 
 
 async def stages_seen(ticket_id: str) -> set[str]:

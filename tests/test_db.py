@@ -15,7 +15,7 @@ from sqlalchemy.engine import make_url
 
 from app import db, tasks
 from app.alembic_config import alembic_config
-from app.events import JevEvent, ModelOutputEvent, StageEvent, ToolCallEvent
+from app.events import DeliveryEvent, JevEvent, ModelOutputEvent, StageEvent, ToolCallEvent
 from app.history_access import history_url_for_database, setup_history_reader
 from app.migrate import setup_libraries
 from app.models import Enrichment, RequestTriage, Ticket
@@ -48,7 +48,10 @@ def migrated():
 
 
 @pytest.fixture(autouse=True)
-async def clean():
+async def clean(monkeypatch):
+    monkeypatch.setattr(settings, "linear_api_key", "")
+    monkeypatch.setattr(settings, "pylon_api_token", "")
+    monkeypatch.setattr(settings, "roadmap_linear_team", "")
     async with db.Session.begin() as s:
         await s.execute(text(f"TRUNCATE {TABLES} CASCADE"))
     await db.upsert_tenant("figma-merch", "Figma Merch Store", "figma-shopper")
@@ -281,6 +284,48 @@ async def test_insert_notifies_listeners():
     assert note.payload == f"{t.id}:{event_id}"
 
 
+async def test_delivery_receipt_survives_retry_and_ignores_logged_fallback():
+    t = ticket("4")
+    await db.insert_ticket(t)
+    await db.record_event(
+        t.id, DeliveryEvent(stage="layer3", destination="linear", status="logged", detail="no key")
+    )
+    assert await db.delivery_receipt(t.id, "linear") is None
+    await db.record_event(
+        t.id,
+        DeliveryEvent(
+            stage="layer3",
+            destination="linear",
+            status="sent",
+            external_id="PAY-42",
+            detail="https://linear.app/demo/issue/PAY-42",
+        ),
+    )
+    receipt = await db.delivery_receipt(t.id, "linear")
+    assert receipt.external_id == "PAY-42"
+    assert await db.delivery_receipt(t.id, "pylon_reply") is None
+
+
+async def test_worker_restores_pylon_ids_from_webhook_payload(monkeypatch):
+    t = ticket("1")
+    await db.insert_ticket(
+        t,
+        raw={
+            "pylon_issue_id": "issue-7",
+            "pylon_message_id": "message-4",
+        },
+    )
+    seen = []
+
+    async def drive(ticket_id, graph_input):
+        seen.append(graph_input["ticket"])
+
+    monkeypatch.setattr(tasks, "_drive", drive)
+    await tasks.run_ticket(t.id)
+    assert seen[0].pylon_issue_id == "issue-7"
+    assert seen[0].pylon_message_id == "message-4"
+
+
 async def test_worker_runs_pauses_and_resumes(monkeypatch, layer2_fakes):
     def is_request_ticket(prompt):
         return '"id":"T-W2"' in prompt.split("Ticket: ", 1)[1].split("\n", 1)[0]
@@ -345,6 +390,48 @@ async def test_worker_runs_pauses_and_resumes(monkeypatch, layer2_fakes):
     assert (row.status, row.verdict_kind) == ("done", "inconclusive")
     stages = [e.event for e in await db.list_events(t4.id) if e.event.kind == "stage"]
     assert {e.stage for e in stages if e.status == "skipped"} == {"layer1", "requests", "layer3"}
+
+
+async def test_worker_creates_linear_issue_and_keeps_receipt(monkeypatch, front_stage_fakes):
+    from app.graph import build
+    from app.integrations.linear import Issue
+    from app.models import Verdict
+    from app.nodes import layer3
+
+    async def confirmed(state):
+        return {
+            "verdict": Verdict(
+                kind="confirmed_bug",
+                root_cause="Expiry comparison",
+                owning_service="payment",
+                confidence=0.9,
+                customer_reply="We found the issue.",
+                file_line="src/payment/charge.js:88",
+                commit="b7d87ca7",
+            ),
+            "reply": "We found the issue.",
+        }
+
+    created = []
+
+    async def create_issue(*args):
+        created.append(args)
+        return Issue("PAY-42", "https://linear.app/demo/issue/PAY-42")
+
+    monkeypatch.setitem(build.NODES, "verdict", confirmed)
+    monkeypatch.setattr(settings, "linear_api_key", "test-key")
+    monkeypatch.setattr(layer3.linear, "create_issue", create_issue)
+    t = ticket("4", "T-PHASE7")
+    await db.insert_ticket(t)
+    await tasks.run_ticket(t.id)
+    assert (await db.get_ticket(t.id)).status == "needs_approval"
+    assert len(created) == 1
+    assert (await db.delivery_receipt(t.id, "linear")).external_id == "PAY-42"
+    events = [e.event for e in await db.list_events(t.id)]
+    assert any(e.kind == "link" and e.url.endswith("PAY-42") for e in events)
+    await tasks.resume_ticket(t.id, {"approved": True, "edited_reply": "We're on it."})
+    assert (await db.get_ticket(t.id)).status == "done"
+    assert len(created) == 1
 
 
 async def test_the_worker_adds_up_model_costs():

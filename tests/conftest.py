@@ -13,7 +13,7 @@ from app.models import (
     RequestTriage,
     Ticket,
 )
-from app.settings import ROOT
+from app.settings import ROOT, settings
 
 NOW = datetime(2026, 9, 23, 10, 20, tzinfo=UTC)
 
@@ -32,6 +32,10 @@ def no_db(request, monkeypatch):
     `db` tests, which use the real thing)."""
     if request.node.get_closest_marker("db"):
         return
+    # Unit and live Layer 2 suites never write to configured external accounts.
+    monkeypatch.setattr(settings, "linear_api_key", "")
+    monkeypatch.setattr(settings, "pylon_api_token", "")
+    monkeypatch.setattr(settings, "roadmap_linear_team", "")
 
     async def fake_fetch_context(ticket, services, hours=24):
         return ContextBundle(

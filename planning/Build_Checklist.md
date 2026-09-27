@@ -4,12 +4,12 @@ What's built and what isn't, phase by phase, against `Agent_Architecture_And_Bui
 Tick an item when it works and is tested the way the plan's "How it's tested" says; tick a
 phase's "Done when" only when that whole criterion has been seen working.
 
-Last updated Sep 27, 2026, phase 6 complete (ordered live tickets 3–7 passed 5/5). Suite inventory (provider calls depend on credit):
+Last updated Sep 27, 2026, Phase 7 code complete; live Linear/Pylon account verification awaits credentials. Suite inventory (provider calls depend on credit):
 
 | Suite | Command | Needs | Tests |
 | --- | --- | --- | --- |
-| Units, graph in memory, front pipeline, scenario logic, sandbox kit, tracing, model config, retrieval, indexer, codebox helpers, trace condensing, Layer 2 rules and nodes | `make test` | nothing | 220 |
-| Database | `make test-db` | `make db` | 12 |
+| Units, graph in memory, front pipeline, scenario logic, sandbox kit, tracing, model config, retrieval, indexer, codebox helpers, trace condensing, Layer 2 rules and nodes, Linear/Pylon adapters | `make test` | nothing | 231 |
+| Database | `make test-db` | `make db` | 15 |
 | The fork: tags, planted bugs, overlay, images, the code index at both tags | `make test-sandbox` | `make sandbox` | 28 |
 | The running shop: every scenario, read-only role, metrics, logs | `make test-shop` | `make shop-up` | 15 |
 | Real model calls on each provider profile, a real payment service card | `make test-llm` | keys in `.env.agent` | 5 |
@@ -182,10 +182,16 @@ Last updated Sep 27, 2026, phase 6 complete (ordered live tickets 3–7 passed 5
 - [x] Approval node with `interrupt()`, resumed by `POST /tickets/{id}/approve`
 - [x] Console endpoints: queue, ticket, `/pipeline` from `get_graph()`, stored events, SSE stream
   with replay, approve, simulator, scorecard
-- [ ] Layer 3: ownership lookup and Linear issue creation
-- [ ] Customer acknowledgement and reply sending (Pylon, or logged without an account)
-- [ ] **Done when:** a bug ticket produces a Linear issue, an approval resumes the paused run, and
-  `curl` on the stream shows a live run's events arriving
+- [x] Layer 3: ownership lookup, checked evidence description, Linear GraphQL issue creation,
+  durable event receipt and issue link (worker test uses a fake Linear response)
+- [x] Customer acknowledgement and reply sending: Pylon reply and internal note adapters,
+  feature request roadmap handoff, logged fallback without an account; approval rejection sends
+  nothing, and retries check delivery receipts
+- [x] Approval resumes a paused worker run (`make test-db`)
+- [x] `curl -N` on a live API stream received a newly inserted stage event from Postgres
+- [ ] **Done when:** a bug ticket produces an issue in a real Linear workspace. `LINEAR_API_KEY`
+  is empty locally, so this external check has not run; the worker-to-adapter path passed with
+  a fake Linear response. Pylon live delivery likewise awaits an account token and issue.
 
 ## Phase 8: Triage Console (days 13–15)
 

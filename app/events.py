@@ -183,6 +183,17 @@ class LinkEvent(BaseModel):
     url: str
 
 
+class DeliveryEvent(BaseModel):
+    """A durable receipt for an external handoff or its local logged fallback."""
+
+    kind: Literal["delivery"] = "delivery"
+    stage: str
+    destination: Literal["linear", "pylon_reply", "pylon_note"]
+    status: Literal["sent", "logged"]
+    external_id: str | None = None
+    detail: str
+
+
 class ErrorEvent(BaseModel):
     kind: Literal["error"] = "error"
     stage: str | None = None
@@ -199,6 +210,7 @@ Event = Annotated[
     | JevEvent
     | ApprovalRequiredEvent
     | LinkEvent
+    | DeliveryEvent
     | ErrorEvent,
     Field(discriminator="kind"),
 ]

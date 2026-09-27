@@ -17,6 +17,8 @@ class PylonTicketIn(BaseModel):
     subject: str
     body: str
     requester: str | None = None
+    pylon_issue_id: str | None = None
+    pylon_message_id: str | None = None
 
 
 TicketStatus = Literal["queued", "running", "needs_approval", "done", "failed"]

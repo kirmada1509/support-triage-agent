@@ -364,7 +364,7 @@ Below 0.7 confidence on `ticket_type`, the ticket goes to a person. `revenue_blo
 
 ### Request triage (one LLM call)
 
-One call to the fast model returns `{kind: feature | billing | account, summary, roadmap_tag, acknowledgement}`. In Phase 4, code uses the model's kind, summary and tag but constructs a short acknowledgement from the ticket subject; it cannot claim a roadmap or team handoff before that exists. Phase 7 routes feature requests to the roadmap list, billing and account questions to the account manager, and sends the acknowledgement to the customer.
+One call to the fast model returns `{kind: feature | billing | account, summary, roadmap_tag, acknowledgement}`. In Phase 4, code uses the model's kind, summary and tag but constructs a short acknowledgement from the ticket subject; it cannot claim a roadmap or team handoff before that exists. Phase 7 routes feature requests to a configured Linear roadmap team (its backlog is the demo's roadmap list, since no list ID was specified), billing and account questions to the account manager via an internal Pylon note, and sends the acknowledgement to the customer when Pylon is configured. Without external accounts, both actions are logged.
 
 ### Layer 2: Tech support orchestrator + two subagents
 

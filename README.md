@@ -4,8 +4,9 @@ An AI first pass for B2B support tickets. A ticket arrives through a Pylon-style
 gets enriched and categorized by a structured LLM call, and takes one of three lanes: a cited Layer 1 answer, request
 triage, or, for tech issues, a Layer 2 investigation where a data analyst (HolmesGPT) and a
 read-only codebase analyst (mini-swe-agent) work in parallel against a real microservice shop.
-False positives are answered directly; real bugs go to the owning engineering team (Layer 3).
-A person approves anything uncertain. The Triage Console shows every stage live.
+False positives are answered directly; real bugs are routed to the owning engineering team
+(Layer 3). A person approves anything uncertain. The API streams every stage; the Triage Console
+is planned for Phase 8.
 
 The full design is in `planning/Agent_Architecture_And_Build_Plan.md`. Coding agents: start with
 [AGENTS.md](AGENTS.md) (context, rules, and the playbooks in `.claude/skills/`).
@@ -16,8 +17,9 @@ Phases 1–2 provide intake, a checkpointed graph, live events and approval. Pha
 hybrid retrieval index: 31 help articles, 200 labelled synthetic past tickets and a fixed
 20-ticket hit-rate set. Phase 4 adds real enrichment, retrieval, LLM categorization, cited Layer 1
 answers and request triage. Jev is unavailable; the `jev` stage name remains for existing events.
-Layer 2 and customer reply delivery remain stubs. [planning/Build_Checklist.md](planning/Build_Checklist.md)
-tracks each phase.
+Layer 2, Linear handoff and customer delivery are implemented. Without Linear and Pylon
+credentials, handoffs and replies are logged as delivery events; the Phase 7 live external
+check is still open. [planning/Build_Checklist.md](planning/Build_Checklist.md) tracks each phase.
 
 ## Run it
 
@@ -48,6 +50,28 @@ scenario logic against a simulated shop; `make test-db` runs the database tests 
 `triage_test` database. `make test-sandbox` and `make test-shop` check the shop fork and the
 running shop (see [sandbox/README.md](sandbox/README.md)).
 
+## Linear and Pylon delivery
+
+Set `LINEAR_API_KEY` in `.env.agent` to create engineering issues. The service's `linear_team`
+in `config/ownership.yaml` must match a team key in that Linear workspace. Set
+`ROADMAP_LINEAR_TEAM` to route feature requests to a separate team. An engineering issue includes
+the checked root cause, evidence references, reported symptom, file and commit, and a measured
+lower bound on affected tickets. `GITHUB_REPO_URL` and `GRAFANA_PANEL_URL` add optional evidence
+links; `JAEGER_BASE_URL` controls trace links. Without a Linear key, the handoff is logged and a
+bug or incident requires human approval before its reply proceeds.
+
+For customer delivery, set `PYLON_API_TOKEN` and, for an EU workspace,
+`PYLON_API_BASE_URL=https://api.eu.usepylon.com`. A live intake payload must include
+`pylon_issue_id` in addition to the local `id`; it may include `pylon_message_id` (the top-level
+ID of a customer-visible Pylon message). The reply adapter otherwise finds the latest
+customer-authored visible message on the issue. For email it supplies the contact's email as a
+recipient. Engineering issues and billing/account requests also produce an internal account
+manager note. Demo tickets have no Pylon issue ID and their replies are logged. The intake
+signature is this demo's HMAC header; Pylon's configurable webhook body and headers have not
+been validated against it, so a real inbound Pylon webhook still needs an auth/payload adapter.
+See the [Linear GraphQL guide](https://linear.app/developers/graphql) and
+[Pylon message API](https://docs.usepylon.com/pylon-docs/developer/api/api-reference/messages).
+
 ## Retrieval
 
 Run `make index-help index-tickets` after `make migrate` to fill the local database. The default
@@ -72,7 +96,7 @@ app/
   api/            FastAPI: webhook (HMAC), queue, ticket, /pipeline, events + SSE, approve,
                   simulator, scorecard
   graph/          LangGraph: state, build (nodes, edges, retries), routes, stream, layout.yaml
-  nodes/          one async function per stage (front pipeline real; later lanes still stubs)
+  nodes/          one async function per pipeline stage
   events.py       event models for the console (discriminated unions)
   models.py       Enrichment, Retrieved, Classification, Findings, Verdict, ...
   models_config.py  roles.yaml -> Pydantic AI model / LiteLLM string, fallbacks, limits
@@ -81,6 +105,7 @@ app/
   db.py           async engine, sessions and every query the app runs
   retrieval/      phase 3 indexing, embedding, hybrid search and hit rates
   indexer/        phase 5 code index (ast-grep), service cards, export for the codebox
+  integrations/   Linear GraphQL and Pylon HTTP adapters
 config/           models.yaml, roles.yaml, ownership.yaml (the one list of service names)
 db/migrations/    Alembic: env.py and versions/ (0001 also creates the NOTIFY trigger)
 holmes/           HolmesGPT's image and toolsets (jaeger, history, logs) + their helper scripts

@@ -3,7 +3,7 @@
 Context and rules for coding agents working in this repo. Read it before changing anything, and
 keep it true (see "Keeping this file current" at the end).
 
-Last updated: Sep 27, 2026, phase 6 complete (ordered Layer 2 live suite passed 5/5).
+Last updated: Sep 27, 2026, Phase 7 integrations built; live Linear/Pylon check awaits keys.
 
 ## What this is
 
@@ -62,7 +62,7 @@ app/
   graph/routes.py   pick_lane, is_duplicate, pick_outcome: pure functions of the state
   graph/stream.py   emit() from inside nodes, staged() wrapper, run_graph() -> event sink
   graph/layout.yaml node positions for the console's flowchart
-  nodes/*.py        one async run(state) per stage; later stubs say `TODO(phase N)`
+  nodes/*.py        one async run(state) per stage
   events.py         event models (discriminated union) the console renders
   models.py         Ticket, ContextBundle, Enrichment, Retrieved, Classification, Findings, Verdict...
   models_config.py  roles.yaml -> Pydantic AI model / LiteLLM string, fallbacks, UsageLimits, cost
@@ -78,6 +78,7 @@ app/
                     (service cards), export.py (TSV for the codebox), __main__.py (CLI)
   analysts/         Layer 2's outside calls: holmes.py (HolmesGPT's container, budget enforced
                     from its stdout), codebox.py (mini-swe-agent in the codebox, in a thread)
+  integrations/     Linear GraphQL issue creation and Pylon reply/internal-note HTTP adapters
 config/             models.yaml (names, prices), roles.yaml (model per role), ownership.yaml
 db/migrations/      Alembic; 0001 also creates the events NOTIFY trigger by hand
 holmes/             HolmesGPT's image (Dockerfile), config.yaml, toolsets.yaml, condense_traces.py,
@@ -105,8 +106,9 @@ web/                phase 8 placeholder
   `resume_ticket`, which resumes with `Command(resume=decision)`. Both take a lock on the ticket ID.
 - **Graph.** `context -> enrich -> (retrieve || jev) -> route`, then by lane: `layer1`,
   `requests`, or `duplicates -> brief -> (data_analyst || codebase_analyst) -> round2 -> verdict
-  -> layer3 | approve`; every lane ends `approve -> reply -> remember`. `findings` is the one
-  state key both analysts append to.
+  -> layer3 | approve`; approved lanes end `approve -> reply -> remember`, while a linked
+  duplicate goes directly to `reply -> remember`. `findings` is the one state key both analysts
+  append to.
 - **Nodes.** Plain async functions. Every node is wrapped by `staged()`, which emits
   running/done/failed events; a node may return `_summary` (one line for its flowchart node).
   Inside a node, `emit(...)` sends tool calls, model output and links to the console. Nodes that
@@ -160,8 +162,15 @@ web/                phase 8 placeholder
   stage calls the `classification` role (Jev is unavailable); below 0.7 type confidence or an
   unknown service goes to a person. `layer1` verifies every cited ID; `requests` drafts an
   acknowledgement. `make front-eval` scores them on 20 fixed tickets.
-- **Status.** Everything up to the verdict and memory write-back is real. Layer 3 (Linear) and
-  reply delivery remain stubs.
+- **Layer 3 and delivery.** `layer3` maps the checked verdict service through `ownership.yaml`,
+  creates a Linear issue in that team's workspace key, emits its link and adds a priority-aware
+  reply draft. `reply` files feature requests in the configured roadmap team, posts Pylon
+  customer replies and account-manager notes, and logs the handoff/reply when no account is
+  configured. The signed intake payload can include `pylon_issue_id` and the optional top-level
+  `pylon_message_id`; Pylon message lookup verifies that the target is customer-visible and
+  supplies the email recipient. Successful `delivery` events are receipts used on graph retries.
+  Missing Linear configuration forces approval of a bug/incident draft. Live external delivery
+  still needs account credentials; the worker path and HTTP contracts are tested with fakes.
 
 ## The sandbox shop
 
@@ -207,7 +216,7 @@ make lint fmt                      # ruff check + format check / fix, line lengt
 
 - Markers are excluded by default (`pyproject.toml` addopts). `db`, `shop`, `spike` and `layer2` refuse to run unless
   `DATABASE_URL` names a database ending in `_test`; the make targets set it.
-- **Replacing a stub node:** write its test first against `TicketState` (the state it receives,
+- **Changing a node:** write its test first against `TicketState` (the state it receives,
   the keys it returns), with the model or tool faked, then implement; `tests/test_graph.py`
   keeps the lanes working end to end. Put each outside call (model, HolmesGPT, Postgres,
   HTTP) behind one small function a test can replace, send progress with `emit(...)`, and give a
