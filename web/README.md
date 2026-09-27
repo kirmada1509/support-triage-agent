@@ -1,23 +1,32 @@
-# Triage Console (phase 8)
+# Triage Console
 
-Next.js App Router + TanStack Query + shadcn/ui + AI Elements + React Flow UI. Pages compose
-library components; the only custom files are `lib/api.ts`, `lib/use-ticket-events.ts`,
-`components/output-view.tsx` and `components/stage-node.tsx`.
+Next.js App Router frontend for the Support Triage Agent. It reads the existing FastAPI contract;
+`lib/schema.d.ts` is generated from `/openapi.json`. The ticket page uses the backend's pipeline
+nodes and positions, SSE stage events, and final outcome. Live and replay use the same timeline.
+
+## Run
+
+Start the API, worker, and database from the repository root (see the root README). Then:
 
 ```bash
-pnpm create next-app@latest web --ts --tailwind --app   # run from the repo root
-cd web && pnpm dlx shadcn@latest init
-pnpm dlx shadcn@latest add sidebar table badge card tabs resizable sheet tooltip progress \
-  skeleton chart form select textarea sonner
-pnpm dlx ai-elements@latest add tool code-block terminal commit stack-trace chain-of-thought \
-  task sources confirmation message shimmer
-pnpm dlx shadcn@latest add https://ui.reactflow.dev/base-node https://ui.reactflow.dev/node-status-indicator \
-  https://ui.reactflow.dev/animated-svg-edge https://ui.reactflow.dev/zoom-slider
-pnpm add @tanstack/react-query @tanstack/react-table @xyflow/react openapi-fetch openapi-react-query \
-  nuqs @melloware/react-logviewer @uiw/react-json-view date-fns next-themes
-pnpm add -D openapi-typescript
-# package.json: "gen:api": "openapi-typescript http://localhost:8000/openapi.json -o lib/schema.d.ts"
+cd web
+pnpm install
+pnpm dev                 # http://localhost:3000
+pnpm gen:api             # regenerate types while the API is running on :8000
+pnpm typecheck
+pnpm lint
+pnpm build
 ```
 
-Check the exact React Flow UI component names on its site before running the fourth command.
-`create-next-app` wants an empty folder: move this README aside first.
+Set `NEXT_PUBLIC_API_URL` if FastAPI is not on `http://localhost:8000`. The API allows the console
+origin at `http://localhost:3000` by default. For a live technical investigation, also start the
+sandbox shop and its analyst images as described in `../sandbox/README.md`.
+
+The UI uses copied shadcn/ui, AI Elements, and React Flow UI primitives. Custom integration code is
+limited to the typed API client, SSE hook, output-type switch, stage node, and page compositions.
+The backend emits HolmesGPT and codebox results as `terminal` outputs today. The output switch
+also renders the structured `code`, `diff`, `series`, `trace`, `table`, `log`, `commit`, and `json`
+variants when they are emitted. It does not parse analyst stdout. The scorecard reads
+`/evals/scorecard`; it shows an empty state until evaluation results are recorded in the database.
+
+Routes: `/tickets`, `/ticket/{id}` (or `?replay=1`), `/simulator`, `/scorecard`.

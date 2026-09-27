@@ -5,8 +5,7 @@ gets enriched and categorized by a structured LLM call, and takes one of three l
 triage, or, for tech issues, a Layer 2 investigation where a data analyst (HolmesGPT) and a
 read-only codebase analyst (mini-swe-agent) work in parallel against a real microservice shop.
 False positives are answered directly; real bugs are routed to the owning engineering team
-(Layer 3). A person approves anything uncertain. The API streams every stage; the Triage Console
-is planned for Phase 8.
+(Layer 3). A person approves anything uncertain. The API streams every stage into a live Triage Console.
 
 The full design is in `planning/Agent_Architecture_And_Build_Plan.md`. Coding agents: start with
 [AGENTS.md](AGENTS.md) (context, rules, and the playbooks in `.claude/skills/`).
@@ -19,12 +18,13 @@ hybrid retrieval index: 31 help articles, 200 labelled synthetic past tickets an
 answers and request triage. Jev is unavailable; the `jev` stage name remains for existing events.
 Layer 2 and Phase 7 are implemented. Linear and Pylon delivery are optional for the demo:
 without credentials, the ticket's finding and reply are recorded locally. Every completed
-ticket has a final outcome in its detail endpoint and event stream.
+ticket has a final outcome in its detail endpoint and event stream. The Next.js Triage Console
+shows the queue, live and replayed investigations, approvals, simulator, and scorecard.
 [planning/Build_Checklist.md](planning/Build_Checklist.md) tracks each phase.
 
 ## Run it
 
-Needs Docker, Python 3.12 and [uv](https://docs.astral.sh/uv/).
+Needs Docker, Python 3.12, [uv](https://docs.astral.sh/uv/) and Node.js for the console.
 
 ```bash
 cp .env.agent.example .env.agent   # set HISTORY_DB_URL's random password; add API keys later
@@ -46,6 +46,9 @@ curl -N "localhost:8000/tickets/<id>/events/stream?replay=1"   # replay a stored
 curl -X POST localhost:8000/tickets/<id>/approve \
   -H 'content-type: application/json' -d '{"approved": true}'  # resume a paused run
 ```
+
+Run `cd web && pnpm install && pnpm dev` in another terminal for the console at
+http://localhost:3000. See [web/README.md](web/README.md) for type generation and checks.
 
 API docs at http://localhost:8000/docs. `make test` runs the graph end to end in memory and the
 scenario logic against a simulated shop; `make test-db` runs the database tests on a throwaway
@@ -115,7 +118,7 @@ codebox/          the codebase analyst's read-only container + helper commands
 sandbox/          the shop fork's kit: pin, overlay, patches, setup, image builds, compose
 scenarios/        tickets.yaml (7 demo tickets), scenario.py, send_ticket.py, deploy.sh, flag.sh
 knowledge/ seed/ evals/   help, synthetic memory, fixed labels and the Phase 4 model baseline
-web/                phase 8 (see its README)
+web/                Next.js Triage Console (see its README)
 ```
 
 ## Database

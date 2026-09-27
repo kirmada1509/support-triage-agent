@@ -3,7 +3,7 @@
 Context and rules for coding agents working in this repo. Read it before changing anything, and
 keep it true (see "Keeping this file current" at the end).
 
-Last updated: Sep 27, 2026, Phase 7 complete in local-outcome mode; external delivery optional.
+Last updated: Sep 27, 2026, Phase 8 console implemented; live runs verified in local-outcome mode.
 
 ## What this is
 
@@ -94,7 +94,8 @@ planning/           the plan, the build checklist, the phase 2 spike results, th
 knowledge/          31 help articles / 62 sections with source map
 seed/               200 labelled synthetic tickets and generator
 evals/              20 fixed ticket labels, retrieval and Phase 4 model baselines
-web/                phase 8 placeholder
+web/                Next.js Triage Console: generated API types, live/replay SSE, approval, simulator,
+                    scorecard (see web/README.md)
 .claude/skills/     project skills: sandbox-shop, planted-bugs (see "Skills and plugins")
 ```
 
@@ -116,6 +117,10 @@ web/                phase 8 placeholder
   call outside services have a `RetryPolicy` in `build.py`.
 - **Events.** Each emitted event is a row in `events`; a trigger NOTIFYs, and the SSE endpoint
   LISTENs on a plain psycopg connection. Stored events replay a run with no model calls.
+- **Console.** `web/` reads FastAPI through OpenAPI-generated types. EventSource feeds TanStack
+  Query; the investigation timeline renders observable events and backend-typed tool outputs.
+  React Flow uses `/pipeline` positions and stage events. The scorecard is empty until Phase 9
+  records eval results. See `web/README.md` for commands.
 - **Database.** One Postgres 16 + pgvector (`make db`, localhost:5433, user/password/db
   `triage`). Our tables are SQLAlchemy models migrated by Alembic; Procrastinate and the LangGraph
   checkpointer own their tables, which Alembic ignores. `make migrate` also provisions
@@ -200,6 +205,7 @@ make index-code v=v1.4.0           # code index + service cards for every servic
 make retrieval-hits               # isolated retrieval benchmark on triage_retrieval_test
 make front-eval                    # 20 live front pipeline cases (indexed DB + model key)
 make lint fmt                      # ruff check + format check / fix, line length 100
+cd web && pnpm install && pnpm dev # console on :3000; see web/README.md for checks
 ```
 
 ## Testing

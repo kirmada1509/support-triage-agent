@@ -1,6 +1,6 @@
 # Codebase summary
 
-Status: September 27, 2026, through Phase 7 in local-outcome mode. This
+Status: September 27, 2026, through Phase 8 console implementation in local-outcome mode. This
 describes working code in the repository; the build plan and later phases are separate. For
 implementation rules,
 read [AGENTS.md](AGENTS.md). For item-by-item progress, read
@@ -52,6 +52,7 @@ stage calls the configured structured LLM classifier. It is not a Jev API integr
 | Layer 2 | Duplicate linking, deterministic brief, parallel HolmesGPT and codebox analysts, checked findings, optional round 2, verdict rules, investigation memory and cost tracking | `app/nodes/duplicates.py`, `app/nodes/brief.py`, `app/nodes/findings.py`, `app/nodes/verdict.py`, `app/analysts/` |
 | Layer 3 and delivery | Ownership-based Linear issues with checked evidence, optional links, priority and a durable event receipt; feature roadmap issues; Pylon customer replies and account-manager notes, with a logged fallback and retry receipts | `app/nodes/layer3.py`, `app/nodes/reply.py`, `app/integrations/` |
 | Final result | A typed outcome event records the verdict or request, root cause, code location, optional engineering issue, approval and reply delivery; the ticket detail endpoint exposes it | `app/outcome.py`, `app/tasks.py`, `app/api/main.py` |
+| Triage Console | Next.js queue, compact backend-shaped pipeline, live/replay event timeline, typed tool output rendering, approval, simulator, scorecard, and light/dark mode | `web/app/`, `web/lib/`, `web/components/` |
 
 The application uses Python 3.12, FastAPI, Pydantic AI, LangGraph, Procrastinate, SQLAlchemy,
 psycopg, PostgreSQL 16 and pgvector. `app/models.py` defines the typed objects passed between
@@ -98,9 +99,11 @@ code index tables are used by Phase 6; eval results remain ahead of their workfl
   local `.env.agent` has no credentials, so real external delivery has not been validated. A
   no-Linear worker run finishes with a visible local outcome. The live SSE stream delivered a
   newly inserted event to `curl`, and approval/resume passed the database suite.
-- `web/` is a placeholder; the Next.js Triage Console is Phase 8 work. The API and event types
-  it will consume already exist. The scorecard endpoint reads the database, but Phase 9 has not
-  populated full eval results or performed complete rehearsals.
+- The console has been checked against real live tickets, including a technical investigation,
+  edited approval, replay, and local final outcome. The backend currently emits analyst tool
+  results as terminal output; the UI also maps the structured output variants in the API schema,
+  but a live chart or diff event has not been observed. The scorecard endpoint reads the database,
+  but Phase 9 has not populated eval results or performed complete rehearsals.
 - The Phase 0 Grafana dashboard review remains open. See the
   checklist for exact status; do not infer completion from a wired graph edge or a schema table.
 
@@ -119,6 +122,7 @@ make retrieval-hits              # isolated retrieval benchmark
 make front-eval                  # live 20-ticket front-pipeline eval; needs model key
 make index-code v=v1.4.0        # code index and service cards at a shop tag
 make test-layer2                # live tickets 3–7; requires the running shop and analyst images
+cd web && pnpm install && pnpm dev # Triage Console on localhost:3000
 ```
 
 For the sandbox and live shop tests, use [README.md](README.md) and

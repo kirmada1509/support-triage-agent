@@ -4,7 +4,7 @@ What's built and what isn't, phase by phase, against `Agent_Architecture_And_Bui
 Tick an item when it works and is tested the way the plan's "How it's tested" says; tick a
 phase's "Done when" only when that whole criterion has been seen working.
 
-Last updated Sep 27, 2026, Phase 7 complete in local-outcome mode; external delivery is optional. Suite inventory (provider calls depend on credit):
+Last updated Sep 27, 2026, Phase 8 console implemented and live paths verified; structured analyst output variants and populated scorecard await backend data. Suite inventory (provider calls depend on credit):
 
 | Suite | Command | Needs | Tests |
 | --- | --- | --- | --- |
@@ -197,14 +197,24 @@ Last updated Sep 27, 2026, Phase 7 complete in local-outcome mode; external deli
 
 ## Phase 8: Triage Console (days 13–15)
 
-- [ ] Scaffold, shadcn, AI Elements, React Flow UI, generated API client, sidebar shell
-- [ ] `/tickets` queue
-- [ ] `/ticket/[id]`: pipeline, stage inspector, streaming hook, output view
-- [ ] Approve flow and replay
-- [ ] `/simulator` and `/scorecard`
-- [ ] Dark mode
+- [x] Next.js App Router, shadcn/ui, AI Elements, React Flow UI, OpenAPI-generated API client,
+  sidebar shell; `pnpm typecheck`, `pnpm lint`, and `pnpm build` pass
+- [x] `/tickets` queue, status filters, selected preview, and real ticket detail
+- [x] `/ticket/[id]`: backend pipeline topology and positions, stage-focused live timeline,
+  SSE hook, typed output renderers, ticket details, and final outcome
+- [x] Approval and edit flow resumes the same worker run; backend-timed replay uses the same UI
+- [x] `/simulator` loads real templates, creates a ticket, and opens its live investigation;
+  `/scorecard` reads the real endpoint and shows an honest empty state when it has no rows
+- [x] Light and dark mode, responsive details Sheet, loading and failure states
+- [x] Manual browser run: simulator ticket T-2FC8BE streamed to a local outcome without refresh;
+  approval ticket T-8BEEAC resumed after an edited reply; `make scenario-4` sent T-BD9A0F,
+  showed HolmesGPT and codebase analyst calls, stage transitions, approval, and a confirmed-bug
+  local outcome; replay delivered stored events in order
 - [ ] **Done when:** a live ticket lights up the flowchart stage by stage, every tool call shows
-  its code, command or chart, a reply can be approved, and a past run replays
+  its code, command or chart, a reply can be approved, and a past run replays. The observed
+  analyst calls emit `terminal` output; the typed code/diff/chart renderers are implemented but
+  a live event of each type has not been observed. The scorecard has no rows until Phase 9 fills
+  `eval_results`. Do not present either as populated demo data.
 
 ## Phase 9: Evals, model choice, rehearsal (days 16–17)
 
