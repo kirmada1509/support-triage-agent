@@ -681,6 +681,19 @@ After ticket 4's verdict is recorded, send ticket 7: "Our shoppers keep getting 
 
 The console is a Next.js app that shows everything the agent does, as it does it. Its guiding rule: **the backend sends render-ready data, and the frontend only picks a library component for each piece.** There's no parsing, no pipeline logic and no hand-built UI widgets in the frontend; the only custom code is four small glue files.
 
+**Phase 8 MVP decision (Sep 27, 2026).** The approved console uses a compact, horizontally
+scrollable React Flow pipeline above the main investigation timeline, with ticket details on the
+right. The timeline is also the stage inspector: selecting a backend-provided node filters its
+events; All activity and Follow live restore the full view. This supersedes the large left canvas
+and separate stage inspector described below. Live and replay use the same page and the backend's
+SSE timing. The installed TanStack Query version uses the documented `EventSource` +
+`setQueryData` fallback. The hook only deduplicates by event ID and derives the latest stage
+status; it does not route the graph. The current analysts emit their tool results as `terminal`
+outputs, even when those results contain code or diffs. The frontend renders that type as a
+Terminal and does not parse its stdout into another render type. The other typed output renderers
+are ready for events that carry those types. `/evals/scorecard` currently has no rows until Phase
+9 records evaluation results. The current component map and run commands are in `web/README.md`.
+
 ### Stack
 
 | Need | Library | Why this one |
@@ -850,7 +863,7 @@ web/
 
 | Endpoint | Returns |
 | --- | --- |
-| `GET /tickets` | Queue rows: current stage, stages done out of total, flags, cost, duration |
+| `GET /tickets` | Queue rows: status, subject, tenant, lane, severity, current stage, cost and timestamps |
 | `GET /tickets/{id}` | The ticket's text, tenant, lane, classifier answers, cost and links |
 | `GET /pipeline` | The flowchart: nodes, edges and positions |
 | `GET /tickets/{id}/events` | All stored events, for the Raw tab |
