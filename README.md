@@ -29,7 +29,20 @@ Needs Docker, Python 3.12, [uv](https://docs.astral.sh/uv/) and Node.js for the 
 For an already configured checkout (`.env.agent` present), start the local Postgres, API, worker,
 and console together with `./start_local.sh`. Open http://localhost:3000. Run
 `./stop_local.sh` to stop only services the script started; it leaves an existing Postgres
-container and the separate sandbox shop alone. Logs are in ignored `.local/logs/`.
+container and the separate sandbox shop alone. Use `./start_local.sh --follow` to start the
+services and watch one labeled API/worker/web log stream, or `./logs_local.sh` to attach later.
+Ctrl-C closes the log view without stopping services. Logs are in ignored `.local/logs/`.
+
+For a browser view of local logs and traces, first start the sandbox shop (`make shop-up`),
+then run `./start_local.sh --observability`. The optional local collector reads the API,
+worker, and web log files and sends them to the shop's existing OpenSearch through OpenTelemetry.
+Open [Grafana Explore](http://localhost:8080/grafana/explore), choose **OpenSearch** for logs,
+and filter `resource.service.name` to `support-triage-api`, `support-triage-worker`, or
+`support-triage-web`. Choose **Jaeger** in Explore for traces, or use the
+[Jaeger UI](http://localhost:8080/jaeger/ui/). The start script enables the worker's OTLP trace
+export unless `OTEL_EXPORTER_OTLP_ENDPOINT` is already configured. `./stop_local.sh` stops only
+its local log collector; it leaves the shop's Grafana, Jaeger, and OpenSearch running. The
+terminal log viewer remains available with `--follow` or `./logs_local.sh`.
 
 For first-time setup or separate terminals, use the commands below:
 

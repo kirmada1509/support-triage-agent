@@ -111,6 +111,8 @@ code index tables are used by Phase 6; eval results remain ahead of their workfl
 
 ```bash
 ./start_local.sh                # local Postgres, API, worker and console; stop with ./stop_local.sh
+./start_local.sh --follow       # labeled live logs; ./logs_local.sh reattaches later
+./start_local.sh --observability # local logs in Grafana Explore; worker traces in Jaeger
 make install db migrate          # dependencies and application database
 make index-help index-tickets    # populate retrieval_docs
 make api                         # FastAPI on localhost:8000

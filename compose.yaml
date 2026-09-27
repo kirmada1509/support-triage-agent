@@ -38,8 +38,21 @@ services:
     depends_on: { db: { condition: service_healthy } }
     networks: [default, shop]
 
+  local-log-collector:
+    profiles: ["observability"]
+    image: ghcr.io/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib:0.159.0
+    user: "0:0"
+    command: ["--config=/etc/otelcol-config.yaml"]
+    volumes:
+      - ./.local/logs:/var/log/triage:ro
+      - ./observability/local-logs.yaml:/etc/otelcol-config.yaml:ro
+      - local-log-offsets:/var/lib/otelcol
+    networks: [shop]
+    restart: unless-stopped
+
 volumes:
   triage-db:
+  local-log-offsets:
 
 networks:
   shop:

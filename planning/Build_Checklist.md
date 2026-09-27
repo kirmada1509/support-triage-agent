@@ -209,6 +209,11 @@ Last updated Sep 27, 2026, Phase 8 console implemented and live paths verified; 
 - [x] Root `start_local.sh` and `stop_local.sh` bring up and stop local Postgres, API, worker,
   and console without stopping an existing Postgres or the sandbox shop; tested both DB ownership
   paths and repeat start/stop
+- [x] `start_local.sh --follow` and `logs_local.sh` show labeled API, worker, and web logs in one
+  terminal; tested that Ctrl-C leaves the services running
+- [x] Optional `--observability` starts a file-log collector on the shop network; all three
+  local services reached OpenSearch with distinct service names, a new API access log appeared
+  without restarting the collector, and Grafana's OpenSearch and Jaeger data sources responded
 - [x] Manual browser run: simulator ticket T-2FC8BE streamed to a local outcome without refresh;
   approval ticket T-8BEEAC resumed after an edited reply; `make scenario-4` sent T-BD9A0F,
   showed HolmesGPT and codebase analyst calls, stage transitions, approval, and a confirmed-bug

@@ -40,6 +40,21 @@ stop_process web
 stop_process worker
 stop_process api
 
+if [ -f "$STATE/local-log-collector.id" ]; then
+  collector_id=$(sed -n '1p' "$STATE/local-log-collector.id")
+  collector_started=$(sed -n '2p' "$STATE/local-log-collector.id")
+  if command -v docker >/dev/null 2>&1 \
+    && [ -n "$collector_id" ] && [ -n "$collector_started" ] \
+    && [ "$(docker compose --profile observability ps --status running -q local-log-collector 2>/dev/null)" = "$collector_id" ] \
+    && [ "$(docker inspect -f '{{.State.StartedAt}}' "$collector_id" 2>/dev/null)" = "$collector_started" ]; then
+    docker compose --profile observability stop local-log-collector
+    echo "stopped local log collector"
+  else
+    echo "local log collector changed; leaving it alone"
+  fi
+  rm -f "$STATE/local-log-collector.id"
+fi
+
 if [ -f "$STATE/db.id" ]; then
   started_id=$(sed -n '1p' "$STATE/db.id")
   started_at=$(sed -n '2p' "$STATE/db.id")

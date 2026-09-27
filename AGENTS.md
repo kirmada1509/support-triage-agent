@@ -96,6 +96,7 @@ seed/               200 labelled synthetic tickets and generator
 evals/              20 fixed ticket labels, retrieval and Phase 4 model baselines
 web/                Next.js Triage Console: generated API types, live/replay SSE, approval, simulator,
                     scorecard (see web/README.md)
+observability/      local file-log collector config for Grafana/OpenSearch (optional Compose profile)
 .claude/skills/     project skills: sandbox-shop, planted-bugs (see "Skills and plugins")
 ```
 
@@ -192,6 +193,9 @@ Use the `planted-bugs` skill for changes to the fork's commits or overlay.
 ```bash
 make install db migrate            # deps, agent Postgres (5433), migrations + demo tenant
 ./start_local.sh / ./stop_local.sh # local DB, API, worker, console; ownership-aware shutdown
+./start_local.sh --follow          # labeled API/worker/web logs; Ctrl-C detaches the view
+./start_local.sh --observability   # host logs in Grafana Explore, agent traces in Jaeger; needs shop
+./logs_local.sh                    # attach to those logs after starting services
 make api / make worker             # FastAPI on :8000 / Procrastinate worker (separate terminals)
 make send t=4                      # send demo ticket 4 as-is
 make sandbox sandbox-images shop-up  # build the fork, its images, start the shop
@@ -263,7 +267,10 @@ cd web && pnpm install && pnpm dev # console on :3000; see web/README.md for che
   pieces, UTC, no search) are in [sandbox/README.md](sandbox/README.md#gotchas).
 - `start_local.sh` needs `.env.agent` and runs migrations. It writes owned process IDs and logs
   under ignored `.local/`; `stop_local.sh` leaves manually started processes, existing Postgres,
-  and the sandbox shop running.
+  and the sandbox shop running. `logs_local.sh` follows the three host-service logs with labels;
+  the `--follow` start option runs the same viewer after services are ready. With the shop up,
+  `--observability` starts `local-log-collector` to ship those files to the shop's OpenSearch;
+  Grafana Explore reads logs and Jaeger traces. The collector's offset volume survives stops.
 - Every model in `config/models.yaml` needs `settings.max_tokens`: without it OpenRouter reserves
   65536 output tokens per request and returns 402 once the key's credit can't cover that. Direct
   DeepSeek also needs thinking off for Pydantic AI's typed output.

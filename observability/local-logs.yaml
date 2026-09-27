@@ -1,0 +1,42 @@
+# Read host-run development service logs and send them to the shop's existing collector.
+extensions:
+  file_storage:
+    directory: /var/lib/otelcol
+    create_directory: true
+
+receivers:
+  file_log/api:
+    include: [/var/log/triage/api.log]
+    start_at: beginning
+    storage: file_storage
+    resource:
+      service.name: support-triage-api
+  file_log/worker:
+    include: [/var/log/triage/worker.log]
+    start_at: beginning
+    storage: file_storage
+    resource:
+      service.name: support-triage-worker
+  file_log/web:
+    include: [/var/log/triage/web.log]
+    start_at: beginning
+    storage: file_storage
+    resource:
+      service.name: support-triage-web
+
+exporters:
+  otlp_http:
+    endpoint: http://otel-collector:4318
+
+service:
+  extensions: [file_storage]
+  pipelines:
+    logs/api:
+      receivers: [file_log/api]
+      exporters: [otlp_http]
+    logs/worker:
+      receivers: [file_log/worker]
+      exporters: [otlp_http]
+    logs/web:
+      receivers: [file_log/web]
+      exporters: [otlp_http]

@@ -1,12 +1,17 @@
 #!/usr/bin/env bash
 # Start the local Postgres, API, worker, and Next.js console. Run from any directory.
-#   ./start_local.sh
+#   ./start_local.sh [--follow] [--observability]
 set -Eeuo pipefail
 
-if [ "$#" -ne 0 ]; then
-  echo "usage: ./start_local.sh" >&2
-  exit 2
-fi
+follow=0
+observability=0
+for option in "$@"; do
+  case "$option" in
+    --follow) [ "$follow" -eq 0 ] || { echo "duplicate --follow" >&2; exit 2; }; follow=1 ;;
+    --observability) [ "$observability" -eq 0 ] || { echo "duplicate --observability" >&2; exit 2; }; observability=1 ;;
+    *) echo "usage: ./start_local.sh [--follow] [--observability]" >&2; exit 2 ;;
+  esac
+done
 
 ROOT=$(cd "$(dirname "$0")" && pwd)
 STATE="$ROOT/.local"
@@ -17,6 +22,17 @@ for command in docker uv pnpm python3 curl; do
 done
 [ -f .env.agent ] || { echo "missing .env.agent; copy .env.agent.example and configure it" >&2; exit 1; }
 docker compose version >/dev/null
+if [ "$observability" -eq 1 ]; then
+  if [ "$(docker inspect -f '{{.State.Running}}' otel-collector 2>/dev/null)" != true ] \
+    || [ "$(docker inspect -f '{{.State.Running}}' grafana 2>/dev/null)" != true ]; then
+    echo "--observability needs the sandbox observability stack; run make shop-up first" >&2
+    exit 1
+  fi
+  if [ -z "${OTEL_EXPORTER_OTLP_ENDPOINT:-}" ] \
+    && ! grep -Eq '^[[:space:]]*OTEL_EXPORTER_OTLP_ENDPOINT=' .env.agent; then
+    export OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:8080/otlp-http
+  fi
+fi
 
 managed() {
   local file="$STATE/$1.pid" pid started
@@ -50,6 +66,7 @@ fi
 mkdir -p "$STATE/logs"
 started_services=()
 started_db=0
+started_collector=0
 finished=0
 cleanup() {
   if [ "$finished" -eq 1 ]; then return; fi
@@ -58,6 +75,10 @@ cleanup() {
     kill -TERM -- "-$pid" 2>/dev/null || true
     rm -f "$STATE/$name.pid"
   done
+  if [ "$started_collector" -eq 1 ]; then
+    docker compose --profile observability stop local-log-collector >/dev/null 2>&1 || true
+    rm -f "$STATE/local-log-collector.id"
+  fi
   if [ "$started_db" -eq 1 ]; then
     docker compose stop db >/dev/null 2>&1 || true
     rm -f "$STATE/db.id"
@@ -123,7 +144,27 @@ managed worker || { echo "worker exited; see $STATE/logs/worker.log" >&2; exit 1
 launch web "$ROOT/web" pnpm dev
 wait_for web http://localhost:3000/tickets
 
+if [ "$observability" -eq 1 ]; then
+  if [ -z "$(docker compose --profile observability ps --status running -q local-log-collector)" ]; then
+    docker compose --profile observability up -d local-log-collector
+    collector_id=$(docker compose --profile observability ps -q local-log-collector)
+    printf '%s\n%s\n' "$collector_id" "$(docker inspect -f '{{.State.StartedAt}}' "$collector_id")" \
+      > "$STATE/local-log-collector.id"
+    started_collector=1
+  fi
+  sleep 2
+  if [ -z "$(docker compose --profile observability ps --status running -q local-log-collector)" ]; then
+    echo "local log collector exited; inspect docker compose --profile observability logs local-log-collector" >&2
+    exit 1
+  fi
+  echo "Logs and traces: http://localhost:8080/grafana/explore"
+fi
+
 finished=1
 echo "Ready: http://localhost:3000 (API http://localhost:8000)"
 echo "Logs: $STATE/logs/"
 echo "Stop: ./stop_local.sh"
+if [ "$follow" -eq 1 ]; then
+  echo "Following logs; Ctrl-C closes this view but leaves services running."
+  exec "$ROOT/logs_local.sh"
+fi

@@ -694,6 +694,12 @@ Terminal and does not parse its stdout into another render type. The other typed
 are ready for events that carry those types. `/evals/scorecard` currently has no rows until Phase
 9 records evaluation results. The current component map and run commands are in `web/README.md`.
 
+**Local log viewing (Sep 27, 2026).** Keep API, worker, and web as host processes in the local
+development script. An optional OpenTelemetry file-log collector tails their `.local/logs/` files
+and sends them to the shop collector, so the existing OpenSearch data source in Grafana Explore
+shows the local services next to shop logs and Jaeger traces. Production containerization can use
+container stdout collection without changing the local development flow.
+
 ### Stack
 
 | Need | Library | Why this one |

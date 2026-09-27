@@ -7,6 +7,7 @@ nodes and positions, SSE stage events, and final outcome. Live and replay use th
 ## Run
 
 From the repository root, `./start_local.sh` starts Postgres, the API, worker, and this console;
+`./start_local.sh --follow` also shows labeled live logs, and `./logs_local.sh` attaches later.
 `./stop_local.sh` stops the services it started. For separate terminals, start the API, worker,
 and database as described in the root README, then:
 
@@ -19,6 +20,11 @@ pnpm typecheck
 pnpm lint
 pnpm build
 ```
+
+For browser-based API, worker, and web logs alongside Jaeger traces, start the sandbox shop and
+use `./start_local.sh --observability`. Open [Grafana Explore](http://localhost:8080/grafana/explore)
+and select the OpenSearch or Jaeger data source. This runs a small collector for the host log files;
+the application services still run locally.
 
 Set `NEXT_PUBLIC_API_URL` if FastAPI is not on `http://localhost:8000`. The API allows the console
 origin at `http://localhost:3000` by default. For a live technical investigation, also start the
