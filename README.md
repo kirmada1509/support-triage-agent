@@ -26,6 +26,13 @@ shows the queue, live and replayed investigations, approvals, simulator, and sco
 
 Needs Docker, Python 3.12, [uv](https://docs.astral.sh/uv/) and Node.js for the console.
 
+For an already configured checkout (`.env.agent` present), start the local Postgres, API, worker,
+and console together with `./start_local.sh`. Open http://localhost:3000. Run
+`./stop_local.sh` to stop only services the script started; it leaves an existing Postgres
+container and the separate sandbox shop alone. Logs are in ignored `.local/logs/`.
+
+For first-time setup or separate terminals, use the commands below:
+
 ```bash
 cp .env.agent.example .env.agent   # set HISTORY_DB_URL's random password; add API keys later
 make install                       # uv sync

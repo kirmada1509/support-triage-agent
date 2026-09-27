@@ -110,6 +110,7 @@ code index tables are used by Phase 6; eval results remain ahead of their workfl
 ## Run and verify
 
 ```bash
+./start_local.sh                # local Postgres, API, worker and console; stop with ./stop_local.sh
 make install db migrate          # dependencies and application database
 make index-help index-tickets    # populate retrieval_docs
 make api                         # FastAPI on localhost:8000

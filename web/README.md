@@ -6,7 +6,9 @@ nodes and positions, SSE stage events, and final outcome. Live and replay use th
 
 ## Run
 
-Start the API, worker, and database from the repository root (see the root README). Then:
+From the repository root, `./start_local.sh` starts Postgres, the API, worker, and this console;
+`./stop_local.sh` stops the services it started. For separate terminals, start the API, worker,
+and database as described in the root README, then:
 
 ```bash
 cd web

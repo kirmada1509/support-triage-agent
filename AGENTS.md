@@ -3,7 +3,7 @@
 Context and rules for coding agents working in this repo. Read it before changing anything, and
 keep it true (see "Keeping this file current" at the end).
 
-Last updated: Sep 27, 2026, Phase 8 console implemented; live runs verified in local-outcome mode.
+Last updated: Sep 27, 2026, Phase 8 console and local service scripts implemented; live runs verified in local-outcome mode.
 
 ## What this is
 
@@ -191,6 +191,7 @@ Use the `planted-bugs` skill for changes to the fork's commits or overlay.
 
 ```bash
 make install db migrate            # deps, agent Postgres (5433), migrations + demo tenant
+./start_local.sh / ./stop_local.sh # local DB, API, worker, console; ownership-aware shutdown
 make api / make worker             # FastAPI on :8000 / Procrastinate worker (separate terminals)
 make send t=4                      # send demo ticket 4 as-is
 make sandbox sandbox-images shop-up  # build the fork, its images, start the shop
@@ -260,6 +261,9 @@ cd web && pnpm install && pnpm dev # console on :3000; see web/README.md for che
 
 - The shop's own gotchas (its `.env`, Jaeger's memory, `flag.sh` and the fork, traces arriving in
   pieces, UTC, no search) are in [sandbox/README.md](sandbox/README.md#gotchas).
+- `start_local.sh` needs `.env.agent` and runs migrations. It writes owned process IDs and logs
+  under ignored `.local/`; `stop_local.sh` leaves manually started processes, existing Postgres,
+  and the sandbox shop running.
 - Every model in `config/models.yaml` needs `settings.max_tokens`: without it OpenRouter reserves
   65536 output tokens per request and returns 402 once the key's credit can't cover that. Direct
   DeepSeek also needs thinking off for Pydantic AI's typed output.
