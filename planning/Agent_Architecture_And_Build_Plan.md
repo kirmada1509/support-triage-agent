@@ -701,6 +701,8 @@ from a validated, sanitized stored payment run with local playback and simulated
 requiring no API, worker, shop, or model credentials. Real `?replay=1` keeps the backend's timing.
 `/evals/scorecard` currently has no rows until Phase 9 records evaluation results. The current
 component map and run commands are in `web/README.md`.
+The same visual language carries through the queue, ticket preview, simulator, scorecard, and
+navigation: compact headings, semantic status badges, light borders, and restrained iconography.
 
 **Local log viewing (Sep 27, 2026).** Keep API, worker, and web as host processes in the local
 development script. An optional OpenTelemetry file-log collector tails their `.local/logs/` files

@@ -44,6 +44,8 @@ Live view formats enrichment, analyst findings, duplicate checks, and verdicts a
 summaries; Raw retains the complete event data. Running analyst groups show four recent updates
 with a Show all control. Stage and customer avatars, semantic spinners, and a compact pipeline
 show progress. Pipeline arrows remain usable with scrollbars hidden.
+The ticket queue, preview, simulator, scorecard, and sidebar use the same compact spacing,
+typography, and status colors. The scorecard keeps its honest empty state until eval data exists.
 
 Routes: `/tickets`, `/ticket/{id}` (or `?replay=1`), `/simulator`, `/scorecard`.
 

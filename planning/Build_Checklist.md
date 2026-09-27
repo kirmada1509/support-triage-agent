@@ -236,6 +236,10 @@ Last updated Sep 27, 2026, Phase 8 investigation readability and offline demo ve
   approval waiting state, pipeline auto-centering and scroll controls, and hidden scrollbars make
   the recorded run easier to follow. Running analyst groups show four recent updates with a
   Show all control; the full history remains available when the group finishes.
+- [x] Applied the investigation screen's compact headers, semantic badges, small icons, dividers,
+  and light/dark styling across navigation, ticket queue and preview, simulator, and scorecard.
+  Browser verified queue selection, scenario selection, and the empty scorecard state without
+  creating a ticket or starting an agent run.
 - [x] Manual browser run: simulator ticket T-2FC8BE streamed to a local outcome without refresh;
   approval ticket T-8BEEAC resumed after an edited reply; `make scenario-4` sent T-BD9A0F,
   showed HolmesGPT and codebase analyst calls, stage transitions, approval, and a confirmed-bug
