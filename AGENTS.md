@@ -94,11 +94,12 @@ scenarios/          tickets.yaml (9 demo tickets), scenario.py, send_ticket.py, 
                     record.py (writes deploy and flag history)
 tests/              pytest suites (see Testing); tests/fixtures/ holds real captured data
 planning/           the plan, the build checklist, the phase 2 spike results, three HTML diagrams
+                    (linked from the console's How it works page, served from here)
 knowledge/          31 help articles / 62 sections with source map
 seed/               200 labelled synthetic tickets and generator
 evals/              20 fixed ticket labels, retrieval and Phase 4 model baselines
 web/                Next.js Triage Console: generated API types, live/replay SSE, offline demo,
-                    approval, simulator, scorecard (see web/README.md)
+                    approval, simulator, scorecard, how it works (see web/README.md)
 observability/      local file-log collector config for Grafana/OpenSearch (optional Compose profile)
 .claude/skills/     project skills: sandbox-shop, planted-bugs (see "Skills and plugins")
 ```

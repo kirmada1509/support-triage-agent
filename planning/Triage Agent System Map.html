@@ -98,7 +98,7 @@ td:first-child{width:44px}
     <span><i class="bdg l">A</i>setup flow</span>
   </div>
 
-  <div class="diagram" role="img" aria-label="System map: people and Pylon feed the FastAPI backend; the Next.js Triage Console reads it over REST and Server-Sent Events; a Procrastinate worker runs the pipeline with Pydantic AI, HolmesGPT and mini-swe-agent; it uses the agent Postgres with pgvector, LLM providers, local embeddings, TypeSafe Jev and Linear; HolmesGPT reads the sandbox shop's Prometheus, Jaeger, OpenSearch and database; mini-swe-agent reads the sandbox fork's worktrees in a read-only container.">
+  <div class="diagram" role="img" aria-label="System map: people and Pylon feed the FastAPI backend; the Next.js Triage Console reads it over REST and Server-Sent Events; a Procrastinate worker runs the pipeline with Pydantic AI, HolmesGPT and mini-swe-agent; it uses the agent Postgres with pgvector, LLM providers (or a local Ollama), local embeddings and Linear; HolmesGPT reads the sandbox shop's Prometheus, Jaeger, OpenSearch and database; mini-swe-agent reads the sandbox fork's worktrees in a read-only container.">
 <svg viewBox="0 0 1500 1200" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="ah"/></marker>
@@ -199,8 +199,8 @@ td:first-child{width:44px}
   <text x="882" y="147" class="t" style="font-size:12px">5 · Enrichment</text>
   <text x="882" y="161" class="s" style="font-size:10.5px">Pydantic AI + ID checks</text>
   <rect x="872" y="176" width="166" height="34" rx="7" class="box b3"/>
-  <text x="882" y="191" class="t" style="font-size:12px">6 · Retrieval ‖ Jev</text>
-  <text x="882" y="205" class="s" style="font-size:10.5px">hybrid search · Jev</text>
+  <text x="882" y="191" class="t" style="font-size:12px">6 · Retrieval ‖ classify</text>
+  <text x="882" y="205" class="s" style="font-size:10.5px">hybrid search · LLM call</text>
   <rect x="872" y="220" width="166" height="34" rx="7" class="box b3"/>
   <text x="882" y="235" class="t" style="font-size:12px">7 · Lane router</text>
   <text x="882" y="249" class="s" style="font-size:10.5px">how_to · request · tech</text>
@@ -266,8 +266,8 @@ td:first-child{width:44px}
   <text x="1124" y="463" class="t">Embeddings (local)</text>
   <text x="1124" y="481" class="s">bge-small-en-v1.5 · sentence-transformers, in-process</text>
   <rect x="1110" y="506" width="350" height="48" rx="9" class="box b4"/>
-  <text x="1124" y="527" class="t">TypeSafe Jev API</text>
-  <text x="1124" y="545" class="s">jev-latest · typed categorization with confidence</text>
+  <text x="1124" y="527" class="t">Ollama (optional, local)</text>
+  <text x="1124" y="545" class="s">qwen3.5:9b-32k · the ollama and ollama-think profiles</text>
   <rect x="1110" y="570" width="350" height="48" rx="9" class="box b4"/>
   <text x="1124" y="591" class="t">Linear API</text>
   <text x="1124" y="609" class="s">GraphQL · issues for the owning team</text>
@@ -276,7 +276,7 @@ td:first-child{width:44px}
   <text x="1124" y="673" class="s">customer replies and internal notes</text>
   <rect x="1110" y="698" width="350" height="64" rx="9" class="box"/>
   <text x="1124" y="720" class="t">Secrets</text>
-  <text x="1124" y="738" class="s">.env.agent: LLM key, TypeSafe key, Linear key,</text>
+  <text x="1124" y="738" class="s">.env.agent: LLM keys, Linear key, Pylon token,</text>
   <text x="1124" y="754" class="s">Pylon webhook secret · never in the repo</text>
 
   <!-- worker to data/external -->
@@ -432,7 +432,7 @@ td:first-child{width:44px}
           <tr><td>3</td><td>FastAPI stores the ticket and enqueues a job</td><td>Procrastinate on the agent Postgres</td></tr>
           <tr><td>4</td><td>A Procrastinate task starts the ticket's LangGraph run (thread ID = ticket ID, checkpointed in Postgres); the context node fetches tenant, recent deploys, flag changes and incidents</td><td>LangGraph · <code>tenants</code>, <code>deploys</code>, <code>flag_changes</code></td></tr>
           <tr><td>5</td><td>Enrichment: one LLM call returns identifiers, time window, symptom and likely services; code checks every ID</td><td>Pydantic AI → LLM provider</td></tr>
-          <tr><td>6</td><td>Retrieval and Jev run side by side: hybrid search over help sections and past or open tickets; Jev returns type, service, severity and revenue-blocking</td><td>Local embeddings + pgvector · TypeSafe Jev API</td></tr>
+          <tr><td>6</td><td>Retrieval and categorization run side by side: hybrid search over help sections and past or open tickets; one structured LLM call returns type, service, severity and revenue-blocking, each with a confidence (the stage is still named <code>jev</code> in events)</td><td>Local embeddings + pgvector · Pydantic AI → LLM provider</td></tr>
           <tr><td>7</td><td>A conditional edge sends how-to tickets to Layer 1 and requests to request triage (single LLM calls). Tech issues go to the duplicate check, then the brief node</td><td>LangGraph routing, Pydantic AI</td></tr>
           <tr><td>8</td><td>The brief node fans out to both analyst nodes, which run as parallel branches. HolmesGPT queries Prometheus, Jaeger, OpenSearch, astronomy-db and the history toolset. mini-swe-agent runs read-only commands in the codebox against the deployed worktree and the code index</td><td>HolmesGPT · mini-swe-agent · sandbox observability · codebox</td></tr>
           <tr><td>9</td><td>Their answers become <code>Findings</code>, with evidence checked against their tool logs. The handoff node then decides in code whether one analyst needs the other: production's exact error goes to the codebase analyst, an analyst's own question goes to the other, and a regression the code found goes to the data analyst to confirm. A short follow-up run answers each question (at most three), and its findings come back for the next one. The verdict call then decides false positive, bug, config incident or inconclusive, and rules in code check it</td><td>LangGraph loop · HolmesGPT · mini-swe-agent · Pydantic AI → LLM provider</td></tr>

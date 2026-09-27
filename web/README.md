@@ -49,7 +49,12 @@ typography, and status colors. The scorecard keeps its honest empty state until 
 Use **New ticket** on `/tickets` to enter a tenant, subject, and customer message. It submits
 through `POST /simulator/tickets` and opens the returned investigation immediately.
 
-Routes: `/tickets`, `/ticket/{id}` (or `?replay=1`), `/simulator`, `/scorecard`.
+`/how-it-works` explains the pipeline in five steps and links the architecture diagrams. They
+are served as they are from `../planning/` by `app/how-it-works/[slug]/route.ts`, which reads
+only the files listed in `app/how-it-works/diagrams.ts`, so the repo keeps one copy of each.
+
+Routes: `/tickets`, `/ticket/{id}` (or `?replay=1`), `/simulator`, `/scorecard`, `/how-it-works`
+(diagrams at `/how-it-works/{system-map,bug-walkthrough,zuddl-flow}`).
 
 For UI development without backend services or LLM credentials, run `cd web && pnpm dev` and open
 `http://localhost:3000/ticket/demo`. This uses a sanitized 126-event payment investigation fixture

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
-import { FlaskConical, ListTodo, Moon, Sun, ChartNoAxesCombined, Sparkles, CircleHelp } from "lucide-react";
+import { FlaskConical, ListTodo, Moon, Sun, ChartNoAxesCombined, Sparkles, CircleHelp, Network } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent,
@@ -14,6 +14,7 @@ const items = [
   { href: "/tickets", label: "Tickets", icon: ListTodo },
   { href: "/simulator", label: "Simulator", icon: FlaskConical },
   { href: "/scorecard", label: "Scorecard", icon: ChartNoAxesCombined },
+  { href: "/how-it-works", label: "How it works", icon: Network },
 ];
 
 export function AppSidebar() {

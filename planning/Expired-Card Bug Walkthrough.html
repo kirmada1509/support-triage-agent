@@ -55,7 +55,7 @@ svg text{font-family:var(--sans)}
 .chipt{font-family:var(--mono)!important;font-size:10.5px;letter-spacing:.04em}
 .rail{font-family:var(--mono)!important;font-size:11px;fill:var(--muted)}
 .n-code{fill:var(--surface);stroke:var(--line);stroke-width:1.3}
-.n-jev{fill:var(--accent-tint);stroke:var(--accent);stroke-width:1.6}
+.n-accent{fill:var(--accent-tint);stroke:var(--accent);stroke-width:1.6}
 .n-llm{fill:var(--surface);stroke:var(--llm);stroke-width:1.5}
 .n-call{fill:var(--llm-tint);stroke:var(--llm);stroke-width:1.2}
 .n-h{fill:var(--surface);stroke:var(--muted);stroke-width:1.3;stroke-dasharray:5 4}
@@ -69,7 +69,6 @@ svg text{font-family:var(--sans)}
 .railline{stroke:var(--line);stroke-width:2}
 .dot{fill:var(--surface);stroke:var(--muted);stroke-width:1.5}
 .c-code{fill:var(--sunk);stroke:var(--line)} .ct-code{fill:var(--muted)}
-.c-jev{fill:var(--surface);stroke:var(--accent)} .ct-jev{fill:var(--accent)}
 .c-llm{fill:var(--llm-tint);stroke:var(--llm)} .ct-llm{fill:var(--llm)}
 .c-h{fill:var(--surface);stroke:var(--muted);stroke-dasharray:3 3} .ct-h{fill:var(--muted)}
 .a{fill:var(--accent)} .l{fill:var(--llm)} .okc{fill:var(--ok)} .del{fill:var(--del)}
@@ -85,7 +84,6 @@ tr:last-child td{border-bottom:none}
 td code{font-family:var(--mono);font-size:12.5px}
 .pill{display:inline-block;font-family:var(--mono);font-size:11px;letter-spacing:.04em;padding:2px 8px;border-radius:999px;border:1px solid;white-space:nowrap}
 .p-no{color:var(--muted);border-color:var(--line);background:var(--sunk)}
-.p-jev{color:var(--accent);border-color:var(--accent);background:var(--accent-tint)}
 .p-llm{color:var(--llm);border-color:var(--llm);background:var(--llm-tint)}
 .note{font-size:13px;color:var(--muted);margin:0}
 </style>
@@ -99,14 +97,13 @@ td code{font-family:var(--mono);font-size:12.5px}
 
   <div class="legend" aria-label="Legend: what runs at each step">
     <span><i class="sw" style="border-color:var(--line);background:var(--surface)"></i>Plain code, no model</span>
-    <span><i class="sw" style="border-color:var(--accent);background:var(--accent-tint)"></i>Jev typed call</span>
     <span><i class="sw" style="border-color:var(--llm);background:var(--llm-tint)"></i>Single LLM call</span>
     <span><i class="sw" style="border-color:var(--llm);background:var(--surface)"></i>LLM agent with tools (any model)</span>
     <span><i class="sw" style="border-color:var(--muted);border-style:dashed"></i>A person</span>
     <span><i class="sw" style="border-color:var(--ok);background:var(--ok-tint)"></i>Outcome</span>
   </div>
 
-  <div class="diagram" role="img" aria-label="Flowchart of the expired-card bug ticket: Pylon ticket, intake, enrichment by one LLM call, Jev categorization, Layer 2 brief built in code, data analyst and codebase analyst in parallel, a handoff where each asks the other one question, verdict, then a Linear issue for the Payments team and a customer reply approved by a person.">
+  <div class="diagram" role="img" aria-label="Flowchart of the expired-card bug ticket: Pylon ticket, intake, enrichment by one LLM call, categorization by one LLM call, Layer 2 brief built in code, data analyst and codebase analyst in parallel, a handoff where each asks the other one question, verdict, then a Linear issue for the Payments team and a customer reply approved by a person.">
 <svg viewBox="0 0 1000 1868" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
@@ -154,19 +151,19 @@ td code{font-family:var(--mono);font-size:12.5px}
 
   <line x1="540" y1="364" x2="540" y2="390" class="e" marker-end="url(#ar)"/>
 
-  <!-- 4 Jev -->
-  <rect x="120" y="392" width="840" height="150" rx="10" class="n-jev"/>
-  <text x="144" y="420" class="t">Jev categorization</text>
-  <rect x="826" y="406" width="114" height="20" rx="10" class="c-jev"/><text x="883" y="420" text-anchor="middle" class="chipt ct-jev">Jev · typed call</text>
-  <text x="144" y="440" class="s">Four typed questions in one call, each with its own confidence</text>
+  <!-- 4 categorization -->
+  <rect x="120" y="392" width="840" height="150" rx="10" class="n-call"/>
+  <text x="144" y="420" class="t">Categorization</text>
+  <rect x="848" y="406" width="92" height="20" rx="10" class="c-llm"/><text x="894" y="420" text-anchor="middle" class="chipt ct-llm">one LLM call</text>
+  <text x="144" y="440" class="s">The fast model returns four typed answers in one structured call, each with its own confidence</text>
   <text x="144" y="468" class="m">ticket_type</text><text x="320" y="468" class="xs">choice</text><text x="420" y="468" class="m">tech_issue</text><text x="580" y="468" class="m a">0.93</text>
   <text x="144" y="490" class="m">service</text><text x="320" y="490" class="xs">choice</text><text x="420" y="490" class="m">payment</text><text x="580" y="490" class="m a">0.88</text>
-  <text x="144" y="512" class="m">severity</text><text x="320" y="512" class="xs">score</text><text x="420" y="512" class="m">3 of 4</text><text x="580" y="512" class="m a">0.74</text>
+  <text x="144" y="512" class="m">severity</text><text x="320" y="512" class="xs">score</text><text x="420" y="512" class="m">1 of 4</text><text x="580" y="512" class="m a">0.74</text>
   <text x="144" y="534" class="m">revenue_blocking</text><text x="320" y="534" class="xs">yes/no</text><text x="420" y="534" class="m">yes</text><text x="580" y="534" class="m a">0.81</text>
   <rect x="690" y="452" width="250" height="78" rx="8" class="inset"/>
-  <text x="706" y="476" class="m a">revenue_blocking 0.81 &gt; 0.8</text>
-  <text x="706" y="496" class="xs">so a person must approve the</text>
-  <text x="706" y="514" class="xs">customer reply before it's sent</text>
+  <text x="706" y="476" class="m l">revenue_blocking 0.81 &gt; 0.8</text>
+  <text x="706" y="496" class="xs">so code makes it Sev 1, and a person</text>
+  <text x="706" y="514" class="xs">must approve the reply before it's sent</text>
 
   <line x1="540" y1="542" x2="540" y2="568" class="e" marker-end="url(#ar)"/>
   <text x="552" y="560" class="xs">tech_issue, confidence ≥ 0.7 → Layer 2</text>
@@ -295,7 +292,7 @@ td code{font-family:var(--mono);font-size:12.5px}
   <text x="584" y="1752" class="xs">Internal note with the Linear link · account manager notified</text>
 
   <!-- total -->
-  <rect x="120" y="1794" width="840" height="48" rx="10" class="n-jev"/>
+  <rect x="120" y="1794" width="840" height="48" rx="10" class="n-accent"/>
   <text x="144" y="1823" class="ts">About 2.5–3.5 minutes from ticket to Linear issue <tspan class="s" font-weight="400">· every step above is a span in one Jaeger trace</tspan></text>
 </svg>
   </div>
@@ -310,7 +307,7 @@ td code{font-family:var(--mono);font-size:12.5px}
           <tr><td>Intake</td><td>FastAPI: signature check, store, queue</td><td><span class="pill p-no">none</span></td></tr>
           <tr><td>Context fetch</td><td>Tenant record, deploys and flag changes from the last 24 h, open incidents, service catalog</td><td><span class="pill p-no">none</span></td></tr>
           <tr><td>Enrichment</td><td>Reads the ticket and the context; returns identifiers, time window, symptom, likely services and relevant deploys. Code then checks every ID against the ticket and the fetched data.</td><td><span class="pill p-llm">fast model, one call</span></td></tr>
-          <tr><td>Categorization</td><td>Jev: four typed questions</td><td><span class="pill p-jev">Jev</span></td></tr>
+          <tr><td>Categorization</td><td>Type, service, severity and revenue-blocking, each with a confidence; below 0.7 or an unknown service goes to a person</td><td><span class="pill p-llm">fast model, one call</span></td></tr>
           <tr><td>Layer 1 answers <span style="color:var(--muted)">(how-to tickets)</span></td><td>Help center cached in the prompt; returns answer and cited articles</td><td><span class="pill p-llm">fast model, one call</span></td></tr>
           <tr><td>Request triage <span style="color:var(--muted)">(feature, billing)</span></td><td>Returns kind, summary, roadmap tag and acknowledgement</td><td><span class="pill p-llm">fast model, one call</span></td></tr>
           <tr><td>Brief</td><td>Built from the checked context: service, versions, window, recent changes, past tickets as hypotheses</td><td><span class="pill p-no">none</span></td></tr>
