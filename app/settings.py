@@ -26,6 +26,7 @@ class Settings(BaseSettings):
     jaeger_base_url: str = "http://localhost:8080"
     grafana_panel_url: str = ""  # optional preconfigured panel for supporting metrics
     api_base_url: str = "http://localhost:8000"
+    cors_origins: str = "http://localhost:3000"  # CORS_ORIGINS: comma-separated console origins
     role_profile: str | None = None  # ROLE_PROFILE: a profile in config/roles.yaml
     role_models: str | None = None  # ROLE_MODELS: "role=model,..." overrides single roles
     ollama_base_url: str = "http://localhost:11434/v1"  # for the local profiles

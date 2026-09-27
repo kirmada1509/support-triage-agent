@@ -2,7 +2,15 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { diagrams } from "../diagrams";
 
-// Read on each request, so an edited diagram shows without a rebuild; only the listed files.
+// Prerendered at build time, so a deployment needs ../planning only while it builds; `pnpm dev`
+// still reads on each request. Only the listed files are served.
+export const dynamic = "force-static";
+export const dynamicParams = false;
+
+export function generateStaticParams() {
+  return diagrams.map((d) => ({ slug: d.slug }));
+}
+
 export async function GET(_request: Request, { params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const diagram = diagrams.find((d) => d.slug === slug);

@@ -25,6 +25,7 @@ dependencies = [
     "opentelemetry-exporter-otlp-proto-http>=1.45.0",
     "mini-swe-agent==2.4.6",
     "sentence-transformers>=6.1.0",
+    "torch>=2.14.0",  # CPU-only on Linux, see [tool.uv.sources]
     "ast-grep-py==0.45.3",
 ]
 
@@ -74,3 +75,13 @@ name = "ruff_format"
 type = "module"
 module = "ruff"
 options = "format REVISION_SCRIPT_FILENAME"
+
+# On Linux (the hosted worker and API images) torch comes from PyTorch's CPU-only index: the
+# default wheel pulls ~3 GB of CUDA libraries that the embedding model never uses.
+[tool.uv.sources]
+torch = [{ index = "pytorch-cpu", marker = "sys_platform == 'linux'" }]
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true

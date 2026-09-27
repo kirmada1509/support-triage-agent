@@ -1,0 +1,17 @@
+# The Procrastinate worker that runs the LangGraph pipeline, on the VPS host (installed by
+# deploy/vps/deploy.sh). It reads /opt/support-triage-agent/.env.agent through app.settings.
+[Unit]
+Description=Support triage worker
+After=docker.service network-online.target
+Requires=docker.service
+
+[Service]
+WorkingDirectory=/opt/support-triage-agent
+ExecStart=/opt/support-triage-agent/.venv/bin/python -m procrastinate --app=app.tasks.app worker
+Restart=always
+RestartSec=5
+# The shared VPS runs other apps: cap the worker (it loads the embedding model).
+MemoryMax=2G
+
+[Install]
+WantedBy=multi-user.target

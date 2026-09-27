@@ -11,3 +11,5 @@ recordings/
 .local/
 .claude/worktrees/
 .claude/settings.local.json
+sandbox/compose.host.yaml
+deploy/vps/.env
