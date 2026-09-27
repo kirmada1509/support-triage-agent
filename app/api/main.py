@@ -16,6 +16,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from sse_starlette import EventSourceResponse, ServerSentEvent
 
 from app import db
+from app.api.presentation import present_stored_event
 from app.api.schemas import (
     Pipeline,
     PylonTicketIn,
@@ -118,11 +119,13 @@ async def approve(ticket_id: str, decision: ApprovalDecision) -> dict:
 
 @api.get("/tickets/{ticket_id}/events")
 async def list_events(ticket_id: str, after: int = 0) -> list[StoredEvent]:
-    return await db.list_events(ticket_id, after)
+    return [present_stored_event(e) for e in await db.list_events(ticket_id, after)]
 
 
 def _sse(e: StoredEvent) -> ServerSentEvent:
-    return ServerSentEvent(data=e.model_dump_json(), id=str(e.id), event=e.event.kind)
+    return ServerSentEvent(
+        data=present_stored_event(e).model_dump_json(), id=str(e.id), event=e.event.kind
+    )
 
 
 @api.get("/tickets/{ticket_id}/events/stream")

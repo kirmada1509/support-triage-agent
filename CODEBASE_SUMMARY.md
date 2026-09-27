@@ -100,9 +100,10 @@ code index tables are used by Phase 6; eval results remain ahead of their workfl
   no-Linear worker run finishes with a visible local outcome. The live SSE stream delivered a
   newly inserted event to `curl`, and approval/resume passed the database suite.
 - The console has been checked against real live tickets, including a technical investigation,
-  edited approval, replay, and local final outcome. The backend currently emits analyst tool
-  results as terminal output; the UI also maps the structured output variants in the API schema,
-  but a live chart or diff event has not been observed. The scorecard endpoint reads the database,
+  edited approval, replay, and local final outcome. The analysts persist terminal output; the
+  API presents validated Prometheus data, logs, and unambiguous code/diffs as typed outputs
+  without changing the stored event. A recorded run exercises series, table, log, and code
+  renderers in `/ticket/demo` without backend or model calls. The scorecard endpoint reads the database,
   but Phase 9 has not populated eval results or performed complete rehearsals.
 - The Phase 0 Grafana dashboard review remains open. See the
   checklist for exact status; do not infer completion from a wired graph edge or a schema table.

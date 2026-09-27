@@ -69,6 +69,9 @@ curl -X POST localhost:8000/tickets/<id>/approve \
 
 Run `cd web && pnpm install && pnpm dev` in another terminal for the console at
 http://localhost:3000. See [web/README.md](web/README.md) for type generation and checks.
+To develop the investigation UI without the API, database, worker, shop, or LLM credentials,
+run only `cd web && pnpm dev` and open http://localhost:3000/ticket/demo. Its recorded payment
+run supports local playback and simulated approval; it does not send backend requests.
 
 API docs at http://localhost:8000/docs. `make test` runs the graph end to end in memory and the
 scenario logic against a simulated shop; `make test-db` runs the database tests on a throwaway

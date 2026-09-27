@@ -26,7 +26,7 @@ export function OutputView({ output }: { output: Output }) {
         {output.file && <CodeBlockHeader><CodeBlockTitle><CodeBlockFilename>{output.file}</CodeBlockFilename></CodeBlockTitle></CodeBlockHeader>}
       </CodeBlock>;
     case "terminal":
-      return <Terminal output={`$ ${output.command}\n${output.output}`} />;
+      return output.language ? <CodeBlock code={output.output} language={output.language as React.ComponentProps<typeof CodeBlock>["language"]} /> : <Terminal output={output.output} />;
     case "commit":
       return <Commit defaultOpen={false}><CommitHeader><CommitInfo><CommitMessage>{output.title}</CommitMessage><CommitMetadata><CommitHash>{output.sha.slice(0, 10)}</CommitHash>{output.author}</CommitMetadata></CommitInfo></CommitHeader><CommitContent className="px-3 pb-3 text-xs text-muted-foreground">{output.files.join(" · ")}</CommitContent></Commit>;
     case "log":

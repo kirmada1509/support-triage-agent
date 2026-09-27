@@ -3,7 +3,7 @@
 Context and rules for coding agents working in this repo. Read it before changing anything, and
 keep it true (see "Keeping this file current" at the end).
 
-Last updated: Sep 27, 2026, Phase 8 console and local service scripts implemented; live runs verified in local-outcome mode.
+Last updated: Sep 27, 2026, Phase 8 console and offline investigation demo verified in local-outcome mode.
 
 ## What this is
 
@@ -64,6 +64,7 @@ app/
   graph/layout.yaml node positions for the console's flowchart
   nodes/*.py        one async run(state) per stage
   events.py         event models (discriminated union) the console renders
+  api/presentation.py pure typed-output hints at the API read boundary (stored raw output retained)
   models.py         Ticket, ContextBundle, Enrichment, Retrieved, Classification, Findings, Verdict...
   models_config.py  roles.yaml -> Pydantic AI model / LiteLLM string, fallbacks, UsageLimits, cost
   tasks.py          Procrastinate: run_ticket, resume_ticket; the checkpointer's psycopg pool
@@ -94,8 +95,8 @@ planning/           the plan, the build checklist, the phase 2 spike results, th
 knowledge/          31 help articles / 62 sections with source map
 seed/               200 labelled synthetic tickets and generator
 evals/              20 fixed ticket labels, retrieval and Phase 4 model baselines
-web/                Next.js Triage Console: generated API types, live/replay SSE, approval, simulator,
-                    scorecard (see web/README.md)
+web/                Next.js Triage Console: generated API types, live/replay SSE, offline demo,
+                    approval, simulator, scorecard (see web/README.md)
 observability/      local file-log collector config for Grafana/OpenSearch (optional Compose profile)
 .claude/skills/     project skills: sandbox-shop, planted-bugs (see "Skills and plugins")
 ```
@@ -119,7 +120,8 @@ observability/      local file-log collector config for Grafana/OpenSearch (opti
 - **Events.** Each emitted event is a row in `events`; a trigger NOTIFYs, and the SSE endpoint
   LISTENs on a plain psycopg connection. Stored events replay a run with no model calls.
 - **Console.** `web/` reads FastAPI through OpenAPI-generated types. EventSource feeds TanStack
-  Query; the investigation timeline renders observable events and backend-typed tool outputs.
+  Query; the investigation timeline renders observable events and API-presented typed outputs.
+  `/ticket/demo` plays a captured run locally without backend requests.
   React Flow uses `/pipeline` positions and stage events. The scorecard is empty until Phase 9
   records eval results. See `web/README.md` for commands.
 - **Database.** One Postgres 16 + pgvector (`make db`, localhost:5433, user/password/db
@@ -294,6 +296,9 @@ cd web && pnpm install && pnpm dev # console on :3000; see web/README.md for che
 - HolmesGPT's stdout reports a tool's name when it starts, but its command and output are only
   available in the final JSON result. Running `tool_call` events therefore have `args: {}`;
   the console replaces each with its completed event by call ID once the analyst finishes.
+- The API shapes recognized analyst terminal results for display without rewriting `events` or
+  evidence records. `/ticket/demo` uses a sanitized stored fixture and local simulated approval;
+  see `web/README.md`. A real replay still comes from FastAPI SSE.
 - An analyst's "exact error" can be its own tool's error (a bad OpenSearch query): only a
   successful trace or log call may supply it (`ERROR_TOOLS` in `findings.py`), and a failed tool
   must exit non-zero so HolmesGPT marks it failed.

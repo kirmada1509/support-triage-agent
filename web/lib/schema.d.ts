@@ -732,6 +732,8 @@ export interface components {
              * @default 0
              */
             exit_code: number;
+            /** Language */
+            language?: string | null;
         };
         /** TicketDetail */
         TicketDetail: {
@@ -852,6 +854,8 @@ export interface components {
             duration_ms?: number | null;
             /** Output */
             output?: (components["schemas"]["CodeOut"] | components["schemas"]["DiffOut"] | components["schemas"]["TerminalOut"] | components["schemas"]["CommitOut"] | components["schemas"]["LogOut"] | components["schemas"]["SeriesOut"] | components["schemas"]["TraceOut"] | components["schemas"]["TableOut"] | components["schemas"]["JsonOut"]) | null;
+            /** Raw Output */
+            raw_output?: string | null;
         };
         /** TraceOut */
         TraceOut: {

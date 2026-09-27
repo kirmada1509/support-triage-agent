@@ -40,7 +40,7 @@ export function AppSidebar() {
       </SidebarContent>
       <SidebarFooter className="border-t p-3">
         <Button variant="ghost" size="sm" className="w-full justify-start gap-2 text-muted-foreground" onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>
-          {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />} Theme
+          <Moon size={16} className="dark:hidden" /><Sun size={16} className="hidden dark:block" /> Theme
         </Button>
       </SidebarFooter>
     </Sidebar>

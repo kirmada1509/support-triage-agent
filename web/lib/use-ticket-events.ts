@@ -13,7 +13,7 @@ const kinds: StoredEvent["event"]["kind"][] = [
   "approval_required", "link", "delivery", "outcome", "error",
 ];
 
-export function useTicketEvents(ticketId: string, replay: boolean) {
+export function useTicketEvents(ticketId: string, replay: boolean, demoEvents?: StoredEvent[]) {
   const queryClient = useQueryClient();
   const key = useMemo(() => ["ticket-events", ticketId, replay] as const, [ticketId, replay]);
   const { data: events = [] } = useQuery<StoredEvent[]>({
@@ -25,6 +25,7 @@ export function useTicketEvents(ticketId: string, replay: boolean) {
   const [isConnected, setConnected] = useState(false);
 
   useEffect(() => {
+    if (demoEvents) return;
     queryClient.setQueryData<StoredEvent[]>(key, []);
     const source = new EventSource(
       `${API_URL}/tickets/${encodeURIComponent(ticketId)}/events/stream${replay ? "?replay=1" : ""}`,
@@ -46,34 +47,36 @@ export function useTicketEvents(ticketId: string, replay: boolean) {
       source.close();
       setConnected(false);
     };
-  }, [ticketId, replay, queryClient, key]);
+  }, [ticketId, replay, queryClient, key, demoEvents]);
+
+  const shownEvents = demoEvents ?? events;
 
   const eventsByStage = useMemo(() => {
     const grouped: Record<string, StoredEvent[]> = {};
-    for (const item of events) {
+    for (const item of shownEvents) {
       const stage = item.event.stage;
       if (stage) (grouped[stage] ??= []).push(item);
     }
     return grouped;
-  }, [events]);
+  }, [shownEvents]);
   const stageStatuses = useMemo(() => {
     const latest: Record<string, StageEvent> = {};
-    for (const item of events) {
+    for (const item of shownEvents) {
       if (item.event.kind === "stage") latest[item.event.stage] = item.event;
     }
     return latest;
-  }, [events]);
-  const activeStage = [...events].reverse().find((item) =>
+  }, [shownEvents]);
+  const activeStage = [...shownEvents].reverse().find((item) =>
     item.event.kind === "stage" && item.event.status === "running" &&
       stageStatuses[item.event.stage]?.status === "running",
   );
 
   return {
-    events,
+    events: shownEvents,
     eventsByStage,
     stageStatuses,
     activeStage: activeStage?.event.stage ?? null,
-    isConnected,
+    isConnected: demoEvents ? true : isConnected,
     isReplaying: replay,
   };
 }

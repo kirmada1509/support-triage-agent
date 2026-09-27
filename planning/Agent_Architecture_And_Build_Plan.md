@@ -688,11 +688,16 @@ events; All activity and Follow live restore the full view. This supersedes the 
 and separate stage inspector described below. Live and replay use the same page and the backend's
 SSE timing. The installed TanStack Query version uses the documented `EventSource` +
 `setQueryData` fallback. The hook only deduplicates by event ID and derives the latest stage
-status; it does not route the graph. The current analysts emit their tool results as `terminal`
-outputs, even when those results contain code or diffs. The frontend renders that type as a
-Terminal and does not parse its stdout into another render type. The other typed output renderers
-are ready for events that carry those types. `/evals/scorecard` currently has no rows until Phase
-9 records evaluation results. The current component map and run commands are in `web/README.md`.
+status; it does not route the graph. The analysts persist their original terminal output. A pure
+adapter at the FastAPI read boundary recognizes validated Prometheus series/tables, logs, and
+unambiguous code/diffs; it preserves the raw text and leaves unknown output as terminal. Mixed
+git history and diff output receives a syntax hint without losing either section. The frontend
+does not parse stdout. The investigation timeline shows readable enrichment and one collapsible
+group per analyst stage, with commands and outputs inside. `/ticket/demo` runs the same screen
+from a validated, sanitized stored payment run with local playback and simulated approval,
+requiring no API, worker, shop, or model credentials. Real `?replay=1` keeps the backend's timing.
+`/evals/scorecard` currently has no rows until Phase 9 records evaluation results. The current
+component map and run commands are in `web/README.md`.
 
 **Local log viewing (Sep 27, 2026).** Keep API, worker, and web as host processes in the local
 development script. An optional OpenTelemetry file-log collector tails their `.local/logs/` files

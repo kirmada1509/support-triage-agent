@@ -4,11 +4,11 @@ What's built and what isn't, phase by phase, against `Agent_Architecture_And_Bui
 Tick an item when it works and is tested the way the plan's "How it's tested" says; tick a
 phase's "Done when" only when that whole criterion has been seen working.
 
-Last updated Sep 27, 2026, Phase 8 console implemented and live paths verified; structured analyst output variants and populated scorecard await backend data. Suite inventory (provider calls depend on credit):
+Last updated Sep 27, 2026, Phase 8 investigation readability and offline demo verified; populated scorecard awaits Phase 9 data. Suite inventory (provider calls depend on credit):
 
 | Suite | Command | Needs | Tests |
 | --- | --- | --- | --- |
-| Units, graph in memory, front pipeline, scenario logic, sandbox kit, tracing, model config, retrieval, indexer, codebox helpers, trace condensing, Layer 2 rules and nodes, Linear/Pylon adapters, final outcome | `make test` | nothing | 233 |
+| Units, graph in memory, front pipeline, scenario logic, sandbox kit, tracing, model config, retrieval, indexer, codebox helpers, trace condensing, Layer 2 rules and nodes, Linear/Pylon adapters, final outcome, console presentation adapter and fixture | `make test` | nothing | 239 |
 | Database | `make test-db` | `make db` | 16 |
 | The fork: tags, planted bugs, overlay, images, the code index at both tags | `make test-sandbox` | `make sandbox` | 28 |
 | The running shop: every scenario, read-only role, metrics, logs | `make test-shop` | `make shop-up` | 15 |
@@ -220,15 +220,25 @@ Last updated Sep 27, 2026, Phase 8 console implemented and live paths verified; 
 - [x] Running HolmesGPT calls with no arguments yet reported no longer render misleading
   `Parameters {}`; the timeline waits for the backend's completed event to show the command
   and output. Verified against ticket T-390875's stored running and completed tool events.
+- [x] Enrichment shows a readable case summary; data and codebase analyst work is grouped by
+  stage in collapsible timeline entries. Commands use a copyable Bash Code Block, mixed diffs
+  are highlighted, and active stage headings show small spinners. Stage selection opens its
+  analyst group; Raw remains chronological.
+- [x] FastAPI read-boundary adapter presents stored Prometheus outputs as series/tables, logs as
+  logs, and unambiguous code as code while preserving raw text; malformed results remain terminal.
+  Verified with captured T-390875 API events and six provider-free tests.
+- [x] `/ticket/demo` uses a validated, sanitized 126-event payment fixture with no FastAPI,
+  worker, provider, or approval POST calls. Browser verified Play/Pause/Step/Restart, approval
+  pause, edited local reply, final local outcome, stage filtering, and light/dark mode while API
+  was unavailable; the browser request log contained no backend requests.
 - [x] Manual browser run: simulator ticket T-2FC8BE streamed to a local outcome without refresh;
   approval ticket T-8BEEAC resumed after an edited reply; `make scenario-4` sent T-BD9A0F,
   showed HolmesGPT and codebase analyst calls, stage transitions, approval, and a confirmed-bug
   local outcome; replay delivered stored events in order
-- [ ] **Done when:** a live ticket lights up the flowchart stage by stage, every tool call shows
-  its code, command or chart, a reply can be approved, and a past run replays. The observed
-  analyst calls emit `terminal` output; the typed code/diff/chart renderers are implemented but
-  a live event of each type has not been observed. The scorecard has no rows until Phase 9 fills
-  `eval_results`. Do not present either as populated demo data.
+- [x] **Done when:** a live ticket lights up the flowchart stage by stage, tool calls show their
+  commands and typed output when safely recognized, a reply can be approved, and a past run
+  replays. The captured payment run renders real series, table, log, and code events through the
+  API adapter. The scorecard remains honestly empty until Phase 9 fills `eval_results`.
 
 ## Phase 9: Evals, model choice, rehearsal (days 16–17)
 

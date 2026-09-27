@@ -35,6 +35,7 @@ class TerminalOut(BaseModel):
     command: str
     output: str
     exit_code: int = 0
+    language: str | None = None  # optional syntax hint for complete mixed terminal output
 
 
 class CommitOut(BaseModel):
@@ -135,6 +136,7 @@ class ToolCallEvent(BaseModel):
     status: Literal["running", "ok", "error"]
     duration_ms: int | None = None
     output: Output | None = None
+    raw_output: str | None = None  # original text when API adds a typed presentation output
 
 
 class ModelDeltaEvent(BaseModel):
