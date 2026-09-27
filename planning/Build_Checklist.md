@@ -214,6 +214,9 @@ Last updated Sep 27, 2026, Phase 8 console implemented and live paths verified; 
 - [x] Optional `--observability` starts a file-log collector on the shop network; all three
   local services reached OpenSearch with distinct service names, a new API access log appeared
   without restarting the collector, and Grafana's OpenSearch and Jaeger data sources responded
+- [x] Ticket selection opens the right preview on desktop and a visible Sheet below `xl`;
+  fixed a hidden mobile Sheet that left its blur overlay over the desktop page. Verified both
+  layouts and that resizing from a narrow view closes the Sheet.
 - [x] Manual browser run: simulator ticket T-2FC8BE streamed to a local outcome without refresh;
   approval ticket T-8BEEAC resumed after an edited reply; `make scenario-4` sent T-BD9A0F,
   showed HolmesGPT and codebase analyst calls, stage transitions, approval, and a confirmed-bug

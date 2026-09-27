@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { formatDistanceToNow, differenceInSeconds } from "date-fns";
 import { useReactTable, getCoreRowModel, type ColumnDef } from "@tanstack/react-table";
@@ -55,6 +55,12 @@ export default function TicketsPage() {
   const [search, setSearch] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [mobilePreview, setMobilePreview] = useState(false);
+  useEffect(() => {
+    const desktop = window.matchMedia("(min-width: 1280px)");
+    const closeOnDesktop = () => { if (desktop.matches) setMobilePreview(false); };
+    desktop.addEventListener("change", closeOnDesktop);
+    return () => desktop.removeEventListener("change", closeOnDesktop);
+  }, []);
   const { data: tickets, isLoading, error } = $api.useQuery("get", "/tickets", {}, { refetchInterval: 2000 });
   const selected = selectedId ?? tickets?.[0]?.id ?? "";
   const { data: detail } = $api.useQuery("get", "/tickets/{ticket_id}", { params: { path: { ticket_id: selected } } }, { enabled: Boolean(selected), refetchInterval: 2000 });
@@ -78,7 +84,7 @@ export default function TicketsPage() {
     <main className="min-w-0 flex-1 px-6 py-7 xl:px-8">
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4"><div><h1 className="text-2xl font-semibold tracking-tight">Tickets</h1><p className="mt-1 text-sm text-muted-foreground">Support investigations</p></div><div className="relative w-full max-w-xs"><Search className="absolute top-2.5 left-3 size-4 text-muted-foreground" /><Input aria-label="Search tickets" placeholder="Search tickets..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9" /></div></div>
       <Tabs value={filter} onValueChange={setFilter} className="mb-4"><TabsList variant="line"><TabsTrigger value="all">All</TabsTrigger><TabsTrigger value="running">Running</TabsTrigger><TabsTrigger value="needs_approval">Needs approval</TabsTrigger><TabsTrigger value="done">Done</TabsTrigger></TabsList></Tabs>
-      {isLoading ? <div className="space-y-3">{Array.from({ length: 7 }, (_, i) => <Skeleton key={i} className="h-14 w-full" />)}</div> : error ? <p className="py-20 text-center text-sm text-destructive">Could not load tickets. Check the API connection.</p> : rows.length === 0 ? <p className="py-20 text-center text-sm text-muted-foreground">No tickets found.</p> : <div className="overflow-x-auto rounded-md border"><Table><TableHeader>{table.getHeaderGroups().map((group) => <TableRow key={group.id}>{group.headers.map((header) => <TableHead key={header.id}>{typeof header.column.columnDef.header === "string" ? header.column.columnDef.header : ""}</TableHead>)}</TableRow>)}</TableHeader><TableBody>{table.getRowModel().rows.map((row) => <TableRow key={row.id} data-state={selected === row.original.id ? "selected" : undefined} className="h-16 cursor-pointer" onClick={() => { setSelectedId(row.original.id); setMobilePreview(true); }}>{row.getVisibleCells().map((cell) => <TableCell key={cell.id}>{typeof cell.column.columnDef.cell === "function" ? cell.column.columnDef.cell(cell.getContext()) : cell.getValue() as React.ReactNode}</TableCell>)}</TableRow>)}</TableBody></Table></div>}
+      {isLoading ? <div className="space-y-3">{Array.from({ length: 7 }, (_, i) => <Skeleton key={i} className="h-14 w-full" />)}</div> : error ? <p className="py-20 text-center text-sm text-destructive">Could not load tickets. Check the API connection.</p> : rows.length === 0 ? <p className="py-20 text-center text-sm text-muted-foreground">No tickets found.</p> : <div className="overflow-x-auto rounded-md border"><Table><TableHeader>{table.getHeaderGroups().map((group) => <TableRow key={group.id}>{group.headers.map((header) => <TableHead key={header.id}>{typeof header.column.columnDef.header === "string" ? header.column.columnDef.header : ""}</TableHead>)}</TableRow>)}</TableHeader><TableBody>{table.getRowModel().rows.map((row) => <TableRow key={row.id} data-state={selected === row.original.id ? "selected" : undefined} className="h-16 cursor-pointer" onClick={() => { setSelectedId(row.original.id); if (window.matchMedia("(max-width: 1279px)").matches) setMobilePreview(true); }}>{row.getVisibleCells().map((cell) => <TableCell key={cell.id}>{typeof cell.column.columnDef.cell === "function" ? cell.column.columnDef.cell(cell.getContext()) : cell.getValue() as React.ReactNode}</TableCell>)}</TableRow>)}</TableBody></Table></div>}
     </main>
     <aside className="hidden w-[310px] shrink-0 border-l xl:block"><Preview ticket={detail} /></aside>
     <Sheet open={mobilePreview} onOpenChange={setMobilePreview}><SheetContent className="p-0 xl:hidden"><SheetHeader className="sr-only"><SheetTitle>Ticket preview</SheetTitle></SheetHeader><Preview ticket={detail} /></SheetContent></Sheet>
