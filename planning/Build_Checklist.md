@@ -200,6 +200,9 @@ Last updated Sep 27, 2026, Phase 8 investigation readability and offline demo ve
 - [x] Next.js App Router, shadcn/ui, AI Elements, React Flow UI, OpenAPI-generated API client,
   sidebar shell; `pnpm typecheck`, `pnpm lint`, and `pnpm build` pass
 - [x] `/tickets` queue, status filters, selected preview, and real ticket detail
+- [x] `/tickets` New ticket dialog submits subject, customer message, and tenant through the
+  existing simulator intake endpoint and opens the returned live investigation. Browser verified
+  request, navigation, and failure feedback with intercepted POSTs; no agent run was started.
 - [x] `/ticket/[id]`: backend pipeline topology and positions, stage-focused live timeline,
   SSE hook, typed output renderers, ticket details, and final outcome
 - [x] Approval and edit flow resumes the same worker run; backend-timed replay uses the same UI

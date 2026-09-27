@@ -300,7 +300,8 @@ cd web && pnpm install && pnpm dev # console on :3000; see web/README.md for che
   evidence records. `/ticket/demo` uses a sanitized stored fixture and local simulated approval;
   see `web/README.md`. Live view presents typed enrichment, findings, and verdict data as
   readable summaries and keeps full payloads in Raw. The same compact visual treatment is used
-  across the queue, preview, simulator, and scorecard. A real replay still comes from FastAPI SSE.
+  across the queue, preview, simulator, and scorecard. The queue's New ticket dialog uses the
+  simulator intake endpoint and opens the resulting run. A real replay still comes from FastAPI SSE.
 - An analyst's "exact error" can be its own tool's error (a bad OpenSearch query): only a
   successful trace or log call may supply it (`ERROR_TOOLS` in `findings.py`), and a failed tool
   must exit non-zero so HolmesGPT marks it failed.

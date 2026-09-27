@@ -2,14 +2,17 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { formatDistanceToNow, differenceInSeconds } from "date-fns";
 import { useReactTable, getCoreRowModel, type ColumnDef } from "@tanstack/react-table";
-import { ArrowRight, Check, ChevronLeft, ChevronRight, Clock3, Inbox, LoaderCircle, Search, ShieldAlert } from "lucide-react";
+import { toast } from "sonner";
+import { ArrowRight, Check, ChevronLeft, ChevronRight, Clock3, Inbox, LoaderCircle, Plus, Search, ShieldAlert } from "lucide-react";
 import { $api } from "@/lib/api";
 import type { components } from "@/lib/schema";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -17,6 +20,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Separator } from "@/components/ui/separator";
+import { Textarea } from "@/components/ui/textarea";
 
 type Ticket = components["schemas"]["TicketSummary"];
 type Detail = components["schemas"]["TicketDetail"];
@@ -56,11 +60,27 @@ function Preview({ ticket }: { ticket: Detail | undefined }) {
 }
 
 export default function TicketsPage() {
+  const router = useRouter();
   const [filter, setFilter] = useState("all");
   const [search, setSearch] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [mobilePreview, setMobilePreview] = useState(false);
+  const [createOpen, setCreateOpen] = useState(false);
+  const [subject, setSubject] = useState("");
+  const [body, setBody] = useState("");
+  const [tenant, setTenant] = useState("figma-merch");
   const tableScroll = useRef<HTMLDivElement>(null);
+  const create = $api.useMutation("post", "/simulator/tickets");
+  async function createTicket(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!subject.trim() || !body.trim() || !tenant.trim()) return;
+    try {
+      const result = await create.mutateAsync({ body: { subject: subject.trim(), body: body.trim(), tenant_id: tenant.trim(), requester: null } });
+      if (typeof result.ticket_id !== "string") throw new Error("Ticket ID missing from response");
+      setCreateOpen(false);
+      router.push(`/ticket/${encodeURIComponent(result.ticket_id)}`);
+    } catch { toast.error("Could not create the ticket. Check the API connection and try again."); }
+  }
   useEffect(() => {
     const desktop = window.matchMedia("(min-width: 1280px)");
     const closeOnDesktop = () => { if (desktop.matches) setMobilePreview(false); };
@@ -88,7 +108,7 @@ export default function TicketsPage() {
   const table = useReactTable({ data: rows, columns, getCoreRowModel: getCoreRowModel() });
   return <div className="flex min-h-screen min-w-0">
     <main className="min-w-0 flex-1 px-6 py-7 xl:px-8">
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-4"><div><div className="mb-2 flex items-center gap-2 text-xs text-muted-foreground"><Clock3 size={13} /> Live queue</div><h1 className="text-xl font-semibold tracking-tight">Tickets</h1><p className="mt-1 text-xs text-muted-foreground">Support investigations{tickets ? ` · ${tickets.length} total` : ""}</p></div><div className="relative w-full max-w-xs"><Search className="absolute top-2.5 left-3 size-4 text-muted-foreground" /><Input aria-label="Search tickets" placeholder="Search tickets..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9" /></div></div>
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-4"><div className="min-w-40 flex-1"><div className="mb-2 flex items-center gap-2 text-xs text-muted-foreground"><Clock3 size={13} /> Live queue</div><h1 className="text-xl font-semibold tracking-tight">Tickets</h1><p className="mt-1 text-xs text-muted-foreground">Support investigations{tickets ? ` · ${tickets.length} total` : ""}</p></div><div className="flex w-full flex-wrap items-center gap-2 sm:w-auto"><div className="relative min-w-48 flex-1 sm:w-56 sm:flex-none"><Search className="absolute top-2.5 left-3 size-4 text-muted-foreground" /><Input aria-label="Search tickets" placeholder="Search tickets..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9" /></div><Dialog open={createOpen} onOpenChange={setCreateOpen}><DialogTrigger asChild><Button size="sm"><Plus size={15} /> New ticket</Button></DialogTrigger><DialogContent className="sm:max-w-lg"><DialogHeader><DialogTitle>New ticket</DialogTitle><DialogDescription>Create a ticket and start its investigation. You’ll go straight to the live activity.</DialogDescription></DialogHeader><form onSubmit={createTicket} className="space-y-4"><div><label htmlFor="new-ticket-tenant" className="mb-1.5 block text-xs font-medium">Tenant ID</label><Input id="new-ticket-tenant" value={tenant} onChange={(event) => setTenant(event.target.value)} required /></div><div><label htmlFor="new-ticket-subject" className="mb-1.5 block text-xs font-medium">Subject</label><Input id="new-ticket-subject" value={subject} onChange={(event) => setSubject(event.target.value)} placeholder="A short summary of the issue" required /></div><div><label htmlFor="new-ticket-body" className="mb-1.5 block text-xs font-medium">Customer message</label><Textarea id="new-ticket-body" value={body} onChange={(event) => setBody(event.target.value)} placeholder="Describe the customer’s issue…" className="min-h-36 resize-y" required /></div><DialogFooter><Button type="button" variant="outline" onClick={() => setCreateOpen(false)} disabled={create.isPending}>Cancel</Button><Button type="submit" disabled={create.isPending || !subject.trim() || !body.trim() || !tenant.trim()}>{create.isPending ? <LoaderCircle size={15} className="animate-spin" /> : <ArrowRight size={15} />}{create.isPending ? "Creating…" : "Create and investigate"}</Button></DialogFooter></form></DialogContent></Dialog></div></div>
       <div className="mb-4 flex items-center justify-between gap-2"><Tabs value={filter} onValueChange={setFilter}><TabsList variant="line"><TabsTrigger value="all">All</TabsTrigger><TabsTrigger value="running">Running</TabsTrigger><TabsTrigger value="needs_approval">Needs approval</TabsTrigger><TabsTrigger value="done">Done</TabsTrigger></TabsList></Tabs><div className="flex shrink-0 items-center gap-1"><Button variant="ghost" size="icon-xs" aria-label="Scroll tickets left" onClick={() => tableScroll.current?.querySelector<HTMLElement>('[data-slot="table-container"]')?.scrollBy({ left: -350, behavior: "smooth" })}><ChevronLeft size={14} /></Button><Button variant="ghost" size="icon-xs" aria-label="Scroll tickets right" onClick={() => tableScroll.current?.querySelector<HTMLElement>('[data-slot="table-container"]')?.scrollBy({ left: 350, behavior: "smooth" })}><ChevronRight size={14} /></Button></div></div>
       {isLoading ? <div className="space-y-3">{Array.from({ length: 7 }, (_, i) => <Skeleton key={i} className="h-14 w-full" />)}</div> : error ? <div className="flex flex-col items-center gap-2 py-20 text-center text-sm text-destructive"><ShieldAlert size={20} />Could not load tickets. Check the API connection.</div> : rows.length === 0 ? <div className="flex flex-col items-center gap-2 py-20 text-center text-sm text-muted-foreground"><Inbox size={20} />No tickets found.</div> : <div ref={tableScroll} className="overflow-x-auto rounded-md border"><Table><TableHeader>{table.getHeaderGroups().map((group) => <TableRow key={group.id}>{group.headers.map((header) => <TableHead key={header.id}>{typeof header.column.columnDef.header === "string" ? header.column.columnDef.header : ""}</TableHead>)}</TableRow>)}</TableHeader><TableBody>{table.getRowModel().rows.map((row) => <TableRow key={row.id} data-state={selected === row.original.id ? "selected" : undefined} className="h-[60px] cursor-pointer transition-colors hover:bg-muted/40 data-[state=selected]:bg-blue-50/60 dark:data-[state=selected]:bg-blue-950/20" onClick={() => { setSelectedId(row.original.id); if (window.matchMedia("(max-width: 1279px)").matches) setMobilePreview(true); }}>{row.getVisibleCells().map((cell) => <TableCell key={cell.id}>{typeof cell.column.columnDef.cell === "function" ? cell.column.columnDef.cell(cell.getContext()) : cell.getValue() as React.ReactNode}</TableCell>)}</TableRow>)}</TableBody></Table></div>}
     </main>

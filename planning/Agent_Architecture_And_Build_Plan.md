@@ -703,6 +703,9 @@ requiring no API, worker, shop, or model credentials. Real `?replay=1` keeps the
 component map and run commands are in `web/README.md`.
 The same visual language carries through the queue, ticket preview, simulator, scorecard, and
 navigation: compact headings, semantic status badges, light borders, and restrained iconography.
+The queue's New ticket action uses the existing simulator intake contract for a manually entered
+subject and message, then opens the ticket returned by the backend; it does not create a second
+ticket-writing path.
 
 **Local log viewing (Sep 27, 2026).** Keep API, worker, and web as host processes in the local
 development script. An optional OpenTelemetry file-log collector tails their `.local/logs/` files

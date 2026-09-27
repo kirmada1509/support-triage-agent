@@ -46,6 +46,8 @@ with a Show all control. Stage and customer avatars, semantic spinners, and a co
 show progress. Pipeline arrows remain usable with scrollbars hidden.
 The ticket queue, preview, simulator, scorecard, and sidebar use the same compact spacing,
 typography, and status colors. The scorecard keeps its honest empty state until eval data exists.
+Use **New ticket** on `/tickets` to enter a tenant, subject, and customer message. It submits
+through `POST /simulator/tickets` and opens the returned investigation immediately.
 
 Routes: `/tickets`, `/ticket/{id}` (or `?replay=1`), `/simulator`, `/scorecard`.
 
