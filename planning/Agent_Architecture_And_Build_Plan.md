@@ -245,7 +245,7 @@ flowchart TD
   S -.-> O
   O --> DA[Data analyst agent]
   O --> CA[Read-only coding agent]
-  DA -.->|round 2: exact error text| CA
+  DA <-.->|handoff: exact error, questions both ways| CA
   DA --> V{Verdict}
   CA --> V
   V -->|false positive| FP[Reply to customer]
@@ -267,6 +267,8 @@ class TicketState(TypedDict):
     retrieved: list[Retrieved]
     classification: Classification | None
     findings: Annotated[list[Findings], operator.add]  # both analysts add to it
+    handoff: Handoff | None  # the question the next follow-up answers
+    handoffs: Annotated[list[Handoff], operator.add]  # every question asked
     verdict: Verdict | None
     reply: str | None
 
@@ -274,7 +276,7 @@ class TicketState(TypedDict):
 g = StateGraph(TicketState)
 for name, fn in NODES.items():  # context, enrich, retrieve, jev, route, layer1, requests,
     g.add_node(name, fn)  # duplicates, brief, data_analyst, codebase_analyst,
-    # round2, verdict, layer3, approve, reply, remember
+    # handoff, code_followup, data_followup, verdict, layer3, approve, reply, remember
 g.add_edge(START, "context")
 g.add_edge("context", "enrich")
 g.add_edge("enrich", "retrieve")
@@ -284,15 +286,17 @@ g.add_conditional_edges("route", pick_lane, ["layer1", "requests", "duplicates"]
 g.add_conditional_edges("duplicates", is_duplicate, ["reply", "brief"])
 g.add_edge("brief", "data_analyst")
 g.add_edge("brief", "codebase_analyst")  # the two analysts run in parallel
-g.add_edge(["data_analyst", "codebase_analyst"], "round2")
-g.add_edge("round2", "verdict")
+g.add_edge(["data_analyst", "codebase_analyst"], "handoff")  # waits for both
+g.add_conditional_edges("handoff", pick_handoff, ["code_followup", "data_followup", "verdict"])
+g.add_edge("code_followup", "handoff")  # each answer goes back for the next question
+g.add_edge("data_followup", "handoff")
 g.add_conditional_edges("verdict", pick_outcome, ["layer3", "approve"])
 # layer1, requests and layer3 lead to approve → reply → remember → END
 graph = g.compile(checkpointer=postgres_checkpointer)
 ```
 
 - **Nodes are plain async functions.** Each takes the state and returns the keys it changes. Pydantic AI calls, HolmesGPT and mini-swe-agent all run inside nodes; LangGraph only decides what runs when.
-- **Parallel analysts.** `brief` fans out to both analyst nodes in the same step. The `findings` key adds both results together, and `round2` waits for both before deciding whether a second check is needed.
+- **Parallel analysts.** `brief` fans out to both analyst nodes in the same step. The `findings` key adds both results together, and `handoff` waits for both before deciding whether one analyst needs the other (see the two-way handoff in Layer 2).
 - **Approval.** When a person must approve, the `approve` node calls `interrupt()` with the draft reply. The run pauses and its state stays in the checkpointer. `POST /tickets/{id}/approve` enqueues a task that resumes it with `Command(resume=decision)`.
 - **Retries.** Nodes that call outside services get a retry policy, so a failed model call retries that node only, not the whole ticket.
 - **Live progress.** The worker runs the graph with `astream(stream_mode=["updates", "custom"])`. `updates` reports each node finishing, which becomes a stage event. Inside nodes, `get_stream_writer()` sends tool calls, commands and model text as they happen. Each chunk is written to the `events` table with a NOTIFY for the console ([streaming docs](https://docs.langchain.com/oss/python/langgraph/streaming)).
@@ -370,7 +374,7 @@ One call to the fast model returns `{kind: feature | billing | account, summary,
 
 This is the only lane that runs agents. A single call can't read a trace, decide what to search next, then check git history based on what it found; that takes a tool loop.
 
-The brief node writes one investigation brief in code, with no model call (everything in it is already checked): identifiers, time window, the suspected service from categorization and the versions it runs, recent deploys and flag changes, similar past tickets as hypotheses, and the customer's own words. Round 1 runs both analysts as parallel branches of the graph, each with a hard time limit and tool-call budget: the data analyst 240 seconds and 40 calls, the codebase analyst 120 seconds and 20 commands. (The first plan said 90 seconds and 15 calls; in phase 6 HolmesGPT on DeepSeek Flash needed 25 calls and 50 to 180 seconds across the demo tickets, and a stopped run is inconclusive, so the budget was set from measured runs.) If the data analyst finds an exact error message, round 2 sends it to the codebase analyst for a short check of that one code path (90 seconds, 24 commands). A live Amex run found the right code but used all 16 commands before submitting, so the task was narrowed and the allowance raised.
+The brief node writes one investigation brief in code, with no model call (everything in it is already checked): identifiers, time window, the suspected service from categorization and the versions it runs, recent deploys and flag changes, similar past tickets as hypotheses, and the customer's own words. Round 1 runs both analysts as parallel branches of the graph, each with a hard time limit and tool-call budget: the data analyst 240 seconds and 40 calls, the codebase analyst 120 seconds and 20 commands. (The first plan said 90 seconds and 15 calls; in phase 6 HolmesGPT on DeepSeek Flash needed 25 calls and 50 to 180 seconds across the demo tickets, and a stopped run is inconclusive, so the budget was set from measured runs.) After round 1 the analysts work as a team through a two-way handoff. The `handoff` node decides in code, from the checked findings, whether one analyst needs the other, in this order: the data analyst's exact error message goes to the codebase analyst until the code has located it, if the code index places the error in the suspected service (its most specific matching error template; an error it can't place still goes); an analyst's own question (each may end its answer with `ASK DATA ANALYST:` or `ASK CODEBASE ANALYST:` and one concrete question) goes to the other; and a regression the code found but production hasn't shown yet goes to the data analyst to confirm, which catches silent bugs with no error message (tickets 8 and 9) when the model forgets to ask. `code_followup` answers in the codebox (90 seconds, 24 commands; a live Amex run used all 16 of an earlier allowance before submitting) and `data_followup` in HolmesGPT (a hard stop at 150 seconds and 25 calls, and the question asks for about 10 and a partial answer over none: live, follow-ups used all of 15 and then of 25 and returned nothing). Each gets the brief, the question and the asking analyst's checked findings as data, and its findings join the rest as the next round. The loop is bounded: a question is asked once, each analyst answers at most two, at most three in all, and an analyst that ran out of budget on a question isn't asked another. The verdict sees the handoffs. A code judgment counts for the code it read: among the codebase analyst's judgments of the verdict's file:line, the latest decides (a live ticket 9 run had production's unrelated lookup error found intended in round 2, which overrode round 1's regression in the listing query until judgments were scoped this way). The first design was one-way: a single round 2 sent the data analyst's error to the codebox. It left silent bugs inconclusive, because nothing could ask production to confirm what the code showed.
 
 |  | Data analyst (HolmesGPT) | Codebase analyst (mini-swe-agent) |
 | --- | --- | --- |
@@ -746,7 +750,7 @@ container stdout collection without changing the local development flow.
 ### The ticket page, `/ticket/[id]`
 
 - **Header:** the customer's words, tenant, lane, severity, The classifier's answers with confidence bars, total cost and duration, and links to the Linear issue and the run's Jaeger trace. When a reply needs a person, an AI Elements Confirmation with the draft reply appears here, with Approve and Edit.
-- **Left pane, the pipeline:** a React Flow canvas of every stage: intake, context, enrichment, retrieval, categorization, lane choice, Layer 1 or request triage, duplicate check, brief, data analyst, codebase analyst, round 2, verdict, Layer 3, reply. Each node shows its status (waiting, running, done, skipped, failed), duration and a one-line result. The edges the ticket actually took are animated; skipped lanes are dimmed. Clicking a node selects it.
+- **Left pane, the pipeline:** a React Flow canvas of every stage: intake, context, enrichment, retrieval, categorization, lane choice, Layer 1 or request triage, duplicate check, brief, data analyst, codebase analyst, the handoff and its two follow-ups, verdict, Layer 3, reply. Each node shows its status (waiting, running, done, skipped, failed), duration and a one-line result. The edges the ticket actually took are animated; skipped lanes are dimmed. Clicking a node selects it.
 - **Right pane, the stage inspector** (shadcn Resizable, so the admin can widen either side), with three tabs:
   - **Stage:** everything the selected stage did, in order: model output streaming in, each tool call with its input and output, code it read, commands it ran, results it returned.
   - **Timeline:** every event from every stage, newest last, as an AI Elements Chain of Thought, so you can follow the whole run top to bottom.
@@ -947,7 +951,7 @@ Two rules keep this honest: a bug found in a later phase gets a failing test bef
 | 3. Retrieval (RAG) | 5–6 | Draft and check about 30 help-center articles; generate and label the \~200-ticket seed history from reviewed templates with near-misses; `EmbeddingClient` with the local model; `retrieval_docs` table; section chunking; hybrid search with reciprocal rank fusion; a hit-rate script over labelled queries; the 20-ticket eval dataset (labels only, see Demo tickets). Tests first for chunking, hashing, fusion and filters | Hit rates are measured for both indexes over the eval dataset's labels, and ticket 1's answering section comes back in the top 5 |
 | 4. Front-of-pipeline nodes | 7 | Fill in context, enrichment (with validation), retrieval, LLM categorization in the existing `jev` stage (with confidence gate), routing, Layer 1 (with citation checks) and request triage nodes. Tests first for validation, the confidence gate, routing and citation checks. Jev is unavailable. | All seven tickets get valid enrichment and take the right lane in the graph, tickets 1 and 2 get correct replies (ticket 1 cited), and the eval dataset's type, service and lane labels give a first score |
 | 5. Layer 2 tools + indexer | 8–9 | HolmesGPT toolset config with the custom `jaeger` and `history` toolsets and `condense_traces.py`; the codebase container with read-only worktrees and helper commands; indexer with ast-grep, the `.proto` method list and service cards, run from `deploy.sh`. Characterization tests for `condense_traces.py`, the helper commands and the indexer | Each toolset and helper command returns condensed real data, a write attempt is refused, both versions are indexed, and those results are pinned by tests |
-| 6. Layer 2 nodes | 10–11 | Duplicate check, brief, the two analyst nodes as parallel branches with timeouts and retry policies, each sending tool calls and commands to the stream; conversion of their answers to `Findings` with evidence checks; round 2; verdict; write-back to ticket memory. Tests first for evidence checks, signature normalization, round 2's trigger and the timeout path | Ticket 3 is a false positive; tickets 4 and 5 are bugs with the right file and commit; ticket 6 is a config incident; ticket 7 links to ticket 4's open issue |
+| 6. Layer 2 nodes | 10–11 | Duplicate check, brief, the two analyst nodes as parallel branches with timeouts and retry policies, each sending tool calls and commands to the stream; conversion of their answers to `Findings` with evidence checks; the two-way handoff; verdict; write-back to ticket memory. Tests first for evidence checks, signature normalization, the handoff's rules and the timeout path | Ticket 3 is a false positive; tickets 4 and 5 are bugs with the right file and commit; ticket 6 is a config incident; ticket 7 links to ticket 4's open issue |
 | 7. Layer 3 + console API | 12 | Layer 3 and approval nodes (`interrupt()`), optional Linear issue creation, local final outcome, customer ack or logged draft; the console endpoints: queue, ticket, `/pipeline` from `get_graph()`, stored events, the Server-Sent Events stream with replay, approve (resumes the graph), simulator, scorecard | A bug ticket finishes with a readable outcome even without Linear, an approval resumes the paused run, and `curl` on the stream receives a live event |
 | 8. Triage Console | 13–15 | Day 13: scaffold, shadcn/AI Elements/React Flow UI installs, generated API client, sidebar shell, `/tickets` queue. Day 14: `/ticket/[id]` with the pipeline, stage inspector, streaming hook and output view. Day 15: approve flow, replay, `/simulator`, `/scorecard`, dark mode | A live ticket lights up the flowchart stage by stage, every tool call shows its code, command or chart, a reply can be approved, and a past run replays |
 | 9. Evals, model choice, rehearsal | 16–17 | The phase 3 eval dataset as a Pydantic Evals run, per model and role, with and without retrieval; scorecard; models chosen per role; prompt fixes from failures; two full rehearsals; a backup video | At least 18 of 20 tickets are routed correctly on the chosen models, the scorecard is ready to show, and a run-through stays under 10 minutes |
@@ -987,7 +991,7 @@ support-agent/
       data_analyst.py      # HolmesGPT: config, toolsets, question, timeout, tool-call events
       codebase_analyst.py  # mini-swe-agent in its container, task prompt, timeout, command events
       findings.py      # text answer + tool log → Findings, evidence checks
-      round2.py
+      handoff.py, code_followup.py, data_followup.py
       verdict.py
       layer3.py        # ownership lookup, Linear issue
       approve.py       # interrupt() when a person must approve

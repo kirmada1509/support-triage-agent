@@ -64,3 +64,24 @@ tickets:
       Our shoppers keep getting told their card has expired at checkout, but it hasn't.
     expected_route: duplicate of ticket 4's open issue
     setup: send after ticket 4's verdict is recorded
+
+  # Silent bugs: nothing fails and no error message exists, so the codebase analyst finds the
+  # change and asks the data analyst to confirm it in production (the two-way handoff).
+  - id: "8"
+    title: Cart keeps items after non-USD orders
+    subject: Shoppers paying in euros still see their items in the cart after ordering
+    body: >-
+      Since this morning, shoppers who pay in euros or Canadian dollars find the things they
+      just bought still in their cart. figma-shopper-01 ordered around 10:40, the payment went
+      through, and the cart still shows the same items. Shoppers paying in US dollars are fine.
+    expected_route: layer2 -> confirmed_bug -> Checkout
+    setup: checkout v1.4.0 deployed; EUR, CAD and USD orders (make scenario-8)
+
+  - id: "9"
+    title: The Comet Book missing from the listing
+    subject: The Comet Book has disappeared from our store's product list
+    body: >-
+      Since this morning The Comet Book (the 99 cent one) is no longer in our store's product
+      listing. A direct link to its page still works, and we didn't remove it.
+    expected_route: layer2 -> confirmed_bug -> Catalog
+    setup: product-catalog v1.4.0 deployed (make scenario-9)

@@ -4,17 +4,18 @@ What's built and what isn't, phase by phase, against `Agent_Architecture_And_Bui
 Tick an item when it works and is tested the way the plan's "How it's tested" says; tick a
 phase's "Done when" only when that whole criterion has been seen working.
 
-Last updated Sep 27, 2026, source-backed engineering snippets verified in the final result and offline demo; populated scorecard awaits Phase 9 data. Suite inventory (provider calls depend on credit):
+Last updated Sep 27, 2026, two-way analyst handoff verified live on DeepSeek (4/4), local Ollama profiles available; populated scorecard awaits Phase 9 data. Suite inventory (provider calls depend on credit):
 
 | Suite | Command | Needs | Tests |
 | --- | --- | --- | --- |
-| Units, graph in memory, front pipeline, scenario logic, sandbox kit, tracing, model config, retrieval, indexer, codebox helpers, trace condensing, Layer 2 rules and nodes, Linear/Pylon adapters, final outcome, console presentation adapter and fixture | `make test` | nothing | 246 |
+| Units, graph in memory, front pipeline, scenario logic, sandbox kit, tracing, model config, retrieval, indexer, codebox helpers, trace condensing, Layer 2 rules, handoff and nodes, Linear/Pylon adapters, final outcome, console presentation adapter and fixture | `make test` | nothing | 289 |
 | Database | `make test-db` | `make db` | 16 |
 | The fork: tags, planted bugs, overlay, images, the code index at both tags | `make test-sandbox` | `make sandbox` | 28 |
 | The running shop: every scenario, read-only role, metrics, logs | `make test-shop` | `make shop-up` | 15 |
 | Real model calls on each provider profile, a real payment service card | `make test-llm` | keys in `.env.agent` | 5 |
 | Both analysts on demo tickets, codebox and history guardrails | `make test-spike` | shop, `make analyst-images`, keys | 6 |
 | Demo tickets 3-7 through the whole graph, live | `make test-layer2` | shop, `make sandbox-images analyst-images`, keys | 5 |
+| The two-way handoff on tickets 4, 8, 9, live | `make test-handoff` | shop, `make analyst-images`, DeepSeek key | 4 |
 
 ## Phase 0: Sandbox (days 1–2)
 
@@ -155,12 +156,13 @@ Last updated Sep 27, 2026, source-backed engineering snippets verified in the fi
   error must come from a trace or log (not a tool's own error)
 - [x] Cost per analyst run (HolmesGPT's own total; the codebox's from tokens and `models.yaml`),
   added to `tickets.cost_usd` by the worker
-- [x] Round 2: the data analyst's exact error to the codebox once (90 s, 24 commands;
+- [x] Round 2 (now `code_followup`, see the two-way handoff below): the data analyst's exact error to the codebox once (90 s, 24 commands;
   raised from 16 after a live Amex run exhausted the smaller budget);
   `lookup-error` now finds a template from the start of a message
 - [x] Verdict, then `apply_rules`: two sources, production must show the symptom, a bug needs the
   file:line and commit the codebase analyst saw, an incident a flag change, a false positive the
-  code; the codebase analyst's latest judgment (round 2 over round 1) decides bug vs intended
+  code; the codebase analyst's latest judgment of the verdict's file:line decides bug vs intended
+  (scoped to the place after the two-way handoff; the latest overall when none read it)
 - [x] Write-back to ticket memory and `investigations`
 - [x] Added a read-only Jaeger search for successful service/operation traces and quote totals in
   condensed summaries; quote investigations now search before/after quote deploys first. Local
@@ -173,6 +175,33 @@ Last updated Sep 27, 2026, source-backed engineering snippets verified in the fi
 - [x] Ticket 5 in the ordered `make test-layer2` run: confirmed quote bug at
   `src/quote/app/routes.php:34-39`, commit `8dd1ecde`, after scenarios 3 and 4
 - [ ] Layer 2 run-to-run variance (HolmesGPT repeats queries; 50-210 s): measure in phase 9
+- [x] Two-way handoff replaces the one-way round 2 (plan changed): `handoff` decides in code who
+  asks whom (production's exact error to the code, an analyst's `ASK ...:` question, a code
+  regression production hasn't shown yet to the data), `code_followup` / `data_followup` answer
+  with the asker's checked findings; each question once, two per analyst, three in all
+  (`tests/test_handoff.py`, node and graph tests, both directions and the cap)
+- [x] Tickets 8 (cart keeps items after EUR/CAD orders) and 9 (The Comet Book missing): silent
+  bugs where the code finds the change and production confirms it; `make scenario-8/9`
+- [x] Local Ollama profiles `ollama` (qwen3.5:9b-32k, thinking off) and `ollama-think`, no key;
+  thinking set per client, 32k context (`make ollama-model`), per-model `time_scale` for the
+  analysts' budgets; uncited evidence tied to the call that shows its ref
+- [x] Live fixes from `make test-handoff` on DeepSeek, each test first: a code judgment counts
+  for the file:line it read (ticket 9: production's lookup error at main.go:406, found intended,
+  overrode the listing regression at :235); the findings call gets the customer's symptom; an
+  error goes to the code only if the code index places it in the suspected service (ticket 8
+  chased payment's expiry error from ticket 4's scenario); evidence citing a call ID that names
+  no call (DeepSeek shortened HolmesGPT's native IDs) is tied to the call that shows it; the data
+  follow-up asks for about 10 calls under its hard 25
+- [x] `make test-handoff` on DeepSeek with every fix: 4/4 in 9m27s; tickets 4, 8, 9 are
+  confirmed bugs at the planted file and commit (92%, 85%, 93%), ticket 4 handed production's
+  error to the code, ticket 9 asked production to confirm the listing regression, ticket 8 needed
+  neither (`evals/handoff_deepseek.json`); ticket 3 still a false positive (86%) after the
+  judgment scoping. Earlier runs: 1/4 before the fixes, then 3/4, then 4/4
+- [ ] Data follow-ups still hit their 25-call stop on some questions (per-shopper breakdowns):
+  measure in phase 9 with the Layer 2 variance
+- [ ] Local qwen3.5:9b is too slow here for the analysts (~5 output tokens/s on a 16 GB M5 with
+  the shop up, swapping; one ticket 30-60 min): the live run was stopped; revisit with more memory
+  (thinking off first)
 - [x] **Done when:** ticket 3 is a false positive, tickets 4 and 5 are bugs with the right file
   and commit, ticket 6 is a config incident, and ticket 7 links to ticket 4's open issue
   (one ordered run passed 5/5 in 11m57s; 85%, 90%, 90%, 88%, linked)

@@ -51,8 +51,8 @@ really uses, and none of the messages says what it breaks.
 | --- | --- | --- | --- | --- |
 | Cards rejected in their expiry month | `src/payment/charge.js:88`, `>` became `>=` inside a refactor | refactor: simplify card expiry comparison | payment `charge` spans at `service.version=v1.4.0` fail with "The credit card (ending 4242) expired on 9/2026." only for cards expiring this month | `make scenario-4` |
 | Shipping doubled above 10 items | `src/quote/app/routes.php:34-39`, batches added to a `$quote` that already holds the total | perf: batch quote calculation for large orders | `calculate-quote` spans: `demo.shipping.quote.cost.total` / `items_count` is 17.98 above 10 items, 8.99 at or below | `make scenario-5` |
-| Items stay in the cart after a non-USD order | `src/checkout/main.go:544-554`, early return before `emptyUserCart` | chore: tidy up post-order cleanup | EUR and CAD orders have no checkout `EmptyCart` span; the cart still holds the items | `make scenario-cart` |
-| The Comet Book ($0.99) missing from the listing | `src/product-catalog/main.go:235`, `WHERE p.price_units > 0` | feat: hide unpriced products from the catalog listing | `ListProducts` spans' `demo.product.count` drops from 10 to 9; `catalog.products` still has 10 rows, the missing one with `price_units = 0, price_nanos = 990000000`; its product page still works | `make scenario-catalog` |
+| Items stay in the cart after a non-USD order | `src/checkout/main.go:544-554`, early return before `emptyUserCart` | chore: tidy up post-order cleanup | EUR and CAD orders have no checkout `EmptyCart` span; the cart still holds the items | `make scenario-8` |
+| The Comet Book ($0.99) missing from the listing | `src/product-catalog/main.go:235`, `WHERE p.price_units > 0` | feat: hide unpriced products from the catalog listing | `ListProducts` spans' `demo.product.count` drops from 10 to 9; `catalog.products` still has 10 rows, the missing one with `price_units = 0, price_nanos = 990000000`; its product page still works | `make scenario-9` |
 
 The harmless commits: payment's README gains the charge rules (including "a card stays valid
 through the last day of its expiration month", which the expiry bug contradicts), checkout and
@@ -78,8 +78,8 @@ The ticket goes out with the real times in it (`--no-send` prints it instead).
 | `4` expiry bug | 03, 11, 04, 12 (expire this month), 05, 13 (later) | this month's cards pass on v1.3.0 and fail on v1.4.0; later ones pass on both |
 | `5` bulk shipping | 15 (20 items), 16 (24 items), 17 (2 items) | shipping per item goes from $8.99 to $17.98 above 10 items only |
 | `6` paymentFailure flag | 18, 19, 20 | 6 orders with the flag off, flag to 25% (recorded), 24 orders of which about a quarter fail. Leaves the flag on: `make flag f=paymentFailure v=off` afterwards |
-| `cart` (spare) | 01 (EUR), 02 (CAD), 09 (USD) | non-USD carts keep their items on v1.4.0 |
-| `catalog` (spare) | none | The Comet Book drops out of `/api/products` on v1.4.0 |
+| `8` (or `cart`) | 01 (EUR), 02 (CAD), 09 (USD) | non-USD carts keep their items on v1.4.0 |
+| `9` (or `catalog`) | none | The Comet Book drops out of `/api/products` on v1.4.0 |
 | `1`, `2`, `7` | none | just send the ticket; send 7 after ticket 4's verdict is recorded |
 
 Shoppers are the Figma Merch tenant's (`figma-shopper-01` to `-20`); the load generator's

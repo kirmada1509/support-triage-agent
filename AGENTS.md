@@ -3,7 +3,7 @@
 Context and rules for coding agents working in this repo. Read it before changing anything, and
 keep it true (see "Keeping this file current" at the end).
 
-Last updated: Sep 27, 2026, Phase 8 console and source-backed engineering snippets verified in local-outcome mode.
+Last updated: Sep 27, 2026, two-way analyst handoff (Layer 2) and local Ollama profiles.
 
 ## What this is
 
@@ -82,14 +82,15 @@ app/
                     from its stdout), codebox.py (mini-swe-agent in the codebox, in a thread)
   integrations/     Linear GraphQL issue creation and Pylon reply/internal-note HTTP adapters
   outcome.py        final ticket result, emitted to SSE and exposed on ticket detail
-config/             models.yaml (names, prices), roles.yaml (model per role), ownership.yaml
+config/             models.yaml (names, prices), roles.yaml (model per role), ownership.yaml,
+                    ollama/Modelfile (the local qwen with a 32k context)
 db/migrations/      Alembic; 0001 also creates the events NOTIFY trigger by hand
 holmes/             HolmesGPT's image (Dockerfile), config.yaml, toolsets.yaml, condense_traces.py,
                     search_logs.py (the `logs` toolset's OpenSearch search), history_*.sql
 codebox/            the codebase analyst's read-only container; bin/ has the helper commands
                     (read the exported index at /index, else ctags and rg) and a git wrapper
 sandbox/            builds the shop fork: pin, overlay, patches, setup, images, compose wrapper
-scenarios/          tickets.yaml (7 demo tickets), scenario.py, send_ticket.py, deploy.sh, flag.sh,
+scenarios/          tickets.yaml (9 demo tickets), scenario.py, send_ticket.py, deploy.sh, flag.sh,
                     record.py (writes deploy and flag history)
 tests/              pytest suites (see Testing); tests/fixtures/ holds real captured data
 planning/           the plan, the build checklist, the phase 2 spike results, three HTML diagrams
@@ -110,10 +111,11 @@ observability/      local file-log collector config for Grafana/OpenSearch (opti
   step is checkpointed in Postgres. `approve` calls `interrupt()`; `POST .../approve` defers
   `resume_ticket`, which resumes with `Command(resume=decision)`. Both take a lock on the ticket ID.
 - **Graph.** `context -> enrich -> (retrieve || jev) -> route`, then by lane: `layer1`,
-  `requests`, or `duplicates -> brief -> (data_analyst || codebase_analyst) -> round2 -> verdict
+  `requests`, or `duplicates -> brief -> (data_analyst || codebase_analyst) -> handoff`, then
+  `handoff -> code_followup | data_followup -> handoff` until no question is left, then `verdict
   -> layer3 | approve`; approved lanes end `approve -> reply -> remember`, while a linked
-  duplicate goes directly to `reply -> remember`. `findings` is the one state key both analysts
-  append to.
+  duplicate goes directly to `reply -> remember`. `findings` and `handoffs` are the state keys the
+  analysts append to.
 - **Nodes.** Plain async functions. Every node is wrapped by `staged()`, which emits
   running/done/failed events; a node may return `_summary` (one line for its flowchart node).
   Inside a node, `emit(...)` sends tool calls, model output and links to the console. Nodes that
@@ -137,10 +139,13 @@ observability/      local file-log collector config for Grafana/OpenSearch (opti
   (`evals/retrieval_baseline.json`).
 - **Models: provider-agnostic.** No code names a provider. `config/roles.yaml` has one profile
   per provider (`deepseek` default, `gemini`, `openai`, `openrouter`), each role with a model and
-  a same-provider fallback. `ROLE_PROFILE` switches every role; `ROLE_MODELS="role=model,..."`
+  a same-provider fallback, plus `ollama` / `ollama-think`: local `qwen3.5:9b-32k` with thinking
+  off / on, no key and no fallback (`make ollama-model` builds it). `ROLE_PROFILE` switches every role; `ROLE_MODELS="role=model,..."`
   moves single roles to any model in `config/models.yaml`. A model's `pydantic_ai` prefix decides
   its key (`PROVIDER_KEYS`). `pydantic_ai_model(role)` carries the model's `settings`; the
-  analysts get `litellm_model`, `litellm_kwargs` and `key_envs`. `LIMITS` caps each single call;
+  analysts get `litellm_model`, `litellm_kwargs` (plus the model's `litellm_args`), `key_envs`,
+  and `container_env` for HolmesGPT's container. A model's `time_scale` multiplies the analyst
+  nodes' time budgets (`time_budget`), for slow local models. `LIMITS` caps each single call;
   `make models` shows roles and missing keys. A new provider needs `PROVIDER_KEYS` and `build_model`.
 - **Tracing.** With `OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:8080/otlp-http` each ticket run
   is one trace in the shop's Jaeger (`support-triage-agent`): a span per ticket, node and model call.
@@ -156,17 +161,30 @@ observability/      local file-log collector config for Grafana/OpenSearch (opti
   with the deployed commit's index at `/index` and the service card and change summary in its
   task (`app/analysts/codebox.py`); each streams its calls and stops at its time or call budget
   (constants in the node) to an inconclusive finding. `findings.convert` (role `findings`) turns
-  an answer into Findings and `check_evidence` keeps only evidence a real call showed. `round2`
-  sends the data analyst's exact error to the codebox once. `verdict` (role `verdict`) is then
+  an answer into Findings (it is told the customer's symptom, so `error_text` is the customer's
+  error, not another shopper's) and `check_evidence` keeps only evidence a real call showed
+  (evidence without a call ID, or with one that names no call, is tied to the first call that
+  shows its ref, under the same check).
+  **Handoff:** after round 1, `handoff` decides in code (`next_handoff`, no model call) whether one
+  analyst needs the other: the data analyst's exact error goes to the code until it is located,
+  if the code index places it in the suspected service (`origin`: the most specific matching
+  error template; an error it can't place still goes);
+  an analyst's own question (the `ASK DATA ANALYST:` / `ASK CODEBASE ANALYST:` line its prompt
+  allows, read by `findings.request_in`) goes to the other; a code regression that production
+  hasn't shown yet goes to the data analyst to confirm. `code_followup` (codebox, 90 s, 24
+  commands) and `data_followup` (HolmesGPT, 150 s, 25 calls; asked for about 10) answer with the asker's checked
+  findings in their task, as round N. Each question is asked once, each analyst answers at most
+  two, at most three in all. `verdict` (role `verdict`) sees the handoffs and is then
   checked by `apply_rules`: two independent sources, a bug needs the file:line and commit the
-  codebase analyst saw, an incident a flag change, a false positive the code. `remember` writes
+  codebase analyst saw, an incident a flag change, a false positive the code, and neither may
+  contradict the codebase analyst's latest judgment of the verdict's file:line. `remember` writes
   ticket memory and an `investigations` row. HolmesGPT's original tool-call IDs and the app's
-  `hN` IDs both resolve to the same checked record; kept citations use `hN`. Round 2 has 90 s
-  and 24 commands. Analyst costs go to `tickets.cost_usd`.
+  `hN` IDs both resolve to the same checked record; kept citations use `hN`. Analyst costs go to
+  `tickets.cost_usd`.
 - **Quote evidence.** The data analyst can search successful Jaeger traces by service, operation
   and time. Condensed successful quote traces include item count and total; the quote question
   compares these before and after the deploy. Generic trace search cannot supply the exact
-  error passed to round 2.
+  error handed to the codebase analyst.
 - **Front pipeline.** `enrich` extracts a UTC window and ticket clues, then code checks IDs,
   service names and changes. `retrieve` runs hybrid help and ticket searches. The legacy `jev`
   stage calls the `classification` role (Jev is unavailable); below 0.7 type confidence or an
@@ -209,6 +227,7 @@ make flag f=paymentFailure v=off   # change a flag, recorded (FLAG_RECORD=0 to s
 make migration m="..." ; make migrate ; make check-migrations
 make analyst-images                # sandbox/holmes:0.42.0 and sandbox/codebox
 make models                        # model per role, missing keys (ROLE_PROFILE=openai make models)
+make ollama-model                  # qwen3.5:9b-32k for ROLE_PROFILE=ollama / ollama-think
 make index-help index-tickets      # fill retrieval_docs, re-embed only changed text
 make index-code v=v1.4.0           # code index + service cards for every service at a tag
 make retrieval-hits               # isolated retrieval benchmark on triage_retrieval_test
@@ -228,8 +247,9 @@ cd web && pnpm install && pnpm dev # console on :3000; see web/README.md for che
 | `llm` | `make test-llm` | keys in `.env.agent` | one real typed call per provider profile, skipped without its key (a fraction of a cent) |
 | `spike` | `make test-spike` | shop, `make analyst-images`, keys | both analysts on demo tickets (~3 min, a few cents), codebox and history guardrails |
 | `layer2` | `make test-layer2` | shop, `make sandbox-images analyst-images`, keys | tickets 3-7 reproduced and run through the whole graph (~25 min) |
+| `handoff` | `make test-handoff` | shop, `make analyst-images`, a DeepSeek key (`PROFILE=ollama`: `make ollama-model`) | tickets 4, 8, 9 through the whole graph; both handoff directions; results in `evals/handoff_<profile>.json` (~15 min; hours on local qwen) |
 
-- Markers are excluded by default (`pyproject.toml` addopts). `db`, `shop`, `spike` and `layer2` refuse to run unless
+- Markers are excluded by default (`pyproject.toml` addopts). `db`, `shop`, `spike`, `layer2` and `handoff` refuse to run unless
   `DATABASE_URL` names a database ending in `_test`; the make targets set it.
 - **Changing a node:** write its test first against `TicketState` (the state it receives,
   the keys it returns), with the model or tool faked, then implement; `tests/test_graph.py`
@@ -318,6 +338,19 @@ cd web && pnpm install && pnpm dev # console on :3000; see web/README.md for che
   Postgres (HolmesGPT's `history`) needs `--add-host host.docker.internal:host-gateway` on Linux.
 - The codebox's awk is mawk: the index's error patterns are POSIX ERE, not `re.escape` output
   (it escapes spaces), and helpers pass arguments via `ENVIRON`, never `awk -v`.
+- Ollama serves every model with a 4096-token context unless told otherwise, and silently cuts
+  longer prompts: the local profiles use `qwen3.5:9b-32k` (`config/ollama/Modelfile`). Turning
+  qwen's thinking off takes a different spelling per client: `extra_body.reasoning_effort: none`
+  for Pydantic AI (Ollama's `/v1`, where `think: false` is ignored), a top-level
+  `reasoning_effort` for LiteLLM's `ollama_chat` (in `extra_body` it is ignored), and
+  `REASONING_EFFORT=none` for HolmesGPT. On a 16 GB Mac with the shop up it runs at about 5
+  output tokens/s (swap), hence `time_scale`.
+- Qwen 9B leaves `call_id` off evidence, and DeepSeek's findings calls shorten HolmesGPT's native
+  IDs (`call_02_ET_2z5u...`, where `call_NN` is only a per-turn counter) to `call_07`;
+  `check_evidence` ties such evidence to the call that shows its ref rather than dropping it.
+- With several scenarios in one window, the shop carries other tickets' errors (payment's expiry
+  bug during the cart ticket). The handoff sends an error to the code only if the code index
+  places it in the suspected service, and a code judgment only counts for the file:line it read.
 - Whole-graph tests need `front_stage_fakes` (`tests/conftest.py`, which pulls in
   `layer2_fakes`), or `enrich` calls a model and Layer 2 starts real containers.
 

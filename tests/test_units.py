@@ -76,9 +76,13 @@ def test_event_roundtrip():
 def test_pipeline_shape():
     shape = pipeline_shape()
     ids = {n["id"] for n in shape["nodes"]}
-    assert len(ids) == 19 and {"__start__", "__end__", "data_analyst"} <= ids
+    assert len(ids) == 21 and {"__start__", "__end__", "data_analyst", "handoff"} <= ids
     conditional = {(e["source"], e["target"]) for e in shape["edges"] if e["conditional"]}
     assert ("verdict", "layer3") in conditional and ("route", "duplicates") in conditional
+    assert {("handoff", "code_followup"), ("handoff", "data_followup")} <= conditional
+    edges = {(e["source"], e["target"]) for e in shape["edges"]}
+    assert {("code_followup", "handoff"), ("data_followup", "handoff")} <= edges
+    assert all(n["position"] != {"x": 0, "y": 0} for n in shape["nodes"] if n["id"] != "__start__")
 
 
 def test_webhook_rejects_bad_signature():

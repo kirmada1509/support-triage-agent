@@ -15,13 +15,13 @@ from app.nodes.findings import same_commit
 
 PROMPT = """You decide the outcome of a support investigation from two analysts' findings. The
 data analyst read production telemetry and change history; the codebase analyst read the code.
-Only the evidence below counts; every item was checked against the tool call it came from.
+After the first round they asked each other questions (handoffs); each later round answers one.
+Where a later round disagrees with round 1, the later round is the one about this ticket. Only the
+evidence below counts; every item was checked against the tool call it came from.
 
 Kinds:
 - false_positive: the system behaves as intended (the code shows the rule, and nothing changed
   it); the reply explains the intended behaviour to the customer.
-Round 2 findings checked the code path of the exact error production showed; where round 1 read
-something else, round 2 is the one about this ticket.
 - confirmed_bug: a recent code change broke it. file_line and commit must be copied from the
   codebase analyst's code and git evidence.
 - config_incident: a configuration or feature-flag change caused it, not code; the evidence must
@@ -38,6 +38,10 @@ fix or rollback.
 {brief}
 </brief>
 
+<handoffs>
+{handoffs}
+</handoffs>
+
 <findings>
 {findings}
 </findings>"""
@@ -48,6 +52,11 @@ def prompt(state: TicketState) -> str:
     return PROMPT.format(
         services=", ".join(ownership()),
         brief=state["brief"].text,
+        handoffs="\n".join(
+            f"round {h.round}: {h.from_agent} asked {h.to_agent}: {h.question}"
+            for h in state.get("handoffs", [])
+        )
+        or "none",
         findings=json.dumps(found, indent=1, default=str),
     )
 
@@ -103,10 +112,19 @@ def apply_rules(v: Verdict, findings: list[Findings], services: set[str]) -> Ver
         problems.append("no flag change in the evidence")
     if v.kind == "false_positive" and "code" not in sources:
         problems.append("no code showing the behaviour is intended")
-    # The codebase analyst's judgment of the code it read; round 2's, on the exact error production
-    # showed, over round 1's.
+    # The codebase analyst's judgment of the code it read: a later round's over an earlier one's,
+    # but only about the same code. With questions both ways, a later round may have answered one
+    # about another path (ticket 9: production's lookup error, not the listing query), so the
+    # judgments that read the verdict's file:line decide when there are any.
     judged = [f for f in findings if f.agent == "codebase_analyst" and f.evidence]
     judged = [f for f in judged if f.intended is not None]
+    here = [
+        f
+        for f in judged
+        if file_line
+        and any(_same_place(file_line, e.ref) for e in f.evidence if e.source == "code")
+    ]
+    judged = here or judged
     if judged:
         latest = max(judged, key=lambda f: f.round)
         if v.kind == "confirmed_bug" and latest.intended:
@@ -120,7 +138,10 @@ def apply_rules(v: Verdict, findings: list[Findings], services: set[str]) -> Ver
             "kind": "inconclusive",
             "confidence": min(v.confidence, 0.5),
             "customer_reply": HOLDING_REPLY,
-            "engineering_summary": f"Model said {v.kind}, but: {'; '.join(problems)}. "
+            "engineering_summary": f"Model said {v.kind}"
+            + (f" at {v.file_line}" if v.file_line else "")
+            + (f" (commit {v.commit})" if v.commit else "")
+            + f", but: {'; '.join(problems)}. "
             + (v.engineering_summary or v.root_cause),
         }
     )

@@ -173,6 +173,19 @@ class Findings(BaseModel):
         None  # codebase analyst: the code it cites is intended (or a regression)
     )
     completed: bool = True  # False when the run hit its time or call budget
+    request: str | None = None  # a question for the other analyst, from its ASK line (in code)
+
+
+class Handoff(BaseModel):
+    """One analyst's question to the other between rounds (app/nodes/handoff.py)."""
+
+    round: int  # the round that answers it
+    from_agent: Literal["data_analyst", "codebase_analyst"]
+    to_agent: Literal["data_analyst", "codebase_analyst"]
+    question: str
+    # error_text: production's exact error, to find in the code; request: the analyst's own
+    # question; confirm_regression: the code found a regression production hasn't shown yet
+    reason: Literal["error_text", "request", "confirm_regression"]
 
 
 class Verdict(BaseModel):

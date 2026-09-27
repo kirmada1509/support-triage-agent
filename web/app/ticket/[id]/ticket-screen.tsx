@@ -8,7 +8,7 @@ import { ReactFlow, type Edge } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import JsonView from "@uiw/react-json-view";
 import { toast } from "sonner";
-import { ArrowLeft, BadgeCheck, ChartNoAxesCombined, Check, ChevronDown, ChevronLeft, ChevronRight, CircleDot, Code2, Database, ExternalLink, FileCode2, GitCommitHorizontal, LoaderCircle, MessageSquareText, Pause, Play, Radio, RotateCcw, SearchCheck, ShieldCheck, SkipForward, Sparkles } from "lucide-react";
+import { ArrowLeft, ArrowLeftRight, BadgeCheck, ChartNoAxesCombined, Check, ChevronDown, ChevronLeft, ChevronRight, CircleDot, Code2, Database, ExternalLink, FileCode2, GitCommitHorizontal, LoaderCircle, MessageSquareText, Pause, Play, Radio, RotateCcw, SearchCheck, ShieldCheck, SkipForward, Sparkles } from "lucide-react";
 import { $api } from "@/lib/api";
 import { useTicketEvents } from "@/lib/use-ticket-events";
 import type { components } from "@/lib/schema";
@@ -46,7 +46,7 @@ function field(data: Record<string, unknown>, key: string) { return typeof data[
 function confidence(data: Record<string, unknown>) { return typeof data.confidence === "number" && Number.isFinite(data.confidence) ? Math.round(data.confidence * 100) : null; }
 
 function StageAvatar({ stage, running = false }: { stage: string; running?: boolean }) {
-  const Icon = stage === "data_analyst" ? ChartNoAxesCombined : stage === "codebase_analyst" || stage === "round2" ? Code2 : stage === "verdict" || stage === "complete" ? BadgeCheck : stage === "enrich" || stage === "duplicates" ? SearchCheck : stage === "retrieve" || stage === "context" || stage === "remember" ? Database : stage === "approve" || stage === "jev" ? ShieldCheck : stage === "layer3" ? GitCommitHorizontal : stage === "reply" ? MessageSquareText : Sparkles;
+  const Icon = stage === "data_analyst" || stage === "data_followup" ? ChartNoAxesCombined : stage === "codebase_analyst" || stage === "code_followup" || stage === "round2" ? Code2 : stage === "handoff" ? ArrowLeftRight : stage === "verdict" || stage === "complete" ? BadgeCheck : stage === "enrich" || stage === "duplicates" ? SearchCheck : stage === "retrieve" || stage === "context" || stage === "remember" ? Database : stage === "approve" || stage === "jev" ? ShieldCheck : stage === "layer3" ? GitCommitHorizontal : stage === "reply" ? MessageSquareText : Sparkles;
   return <Avatar size="sm"><AvatarFallback className={running ? "bg-blue-50 text-blue-600 dark:bg-blue-950 dark:text-blue-300" : "bg-muted/80 text-muted-foreground"}>{running ? <LoaderCircle size={13} className="animate-spin" /> : <Icon size={13} />}</AvatarFallback></Avatar>;
 }
 function statusTone(status: Detail["status"]) { return status === "running" ? "border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-900 dark:bg-blue-950 dark:text-blue-300" : status === "needs_approval" ? "border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-300" : status === "done" ? "border-green-200 bg-green-50 text-green-700 dark:border-green-900 dark:bg-green-950 dark:text-green-300" : status === "failed" ? "border-red-200 bg-red-50 text-red-700 dark:border-red-900 dark:bg-red-950 dark:text-red-300" : ""; }
@@ -75,7 +75,19 @@ function FindingsSummary({ data }: { data: Record<string, unknown> }) {
     <div className="mb-2 flex flex-wrap items-center gap-2"><CircleDot size={14} className="text-blue-600" /><span className="font-medium">Finding</span>{score !== null && <Badge variant="outline" className="ml-auto text-[11px]">{score}% confidence</Badge>}</div>
     {field(data, "hypothesis") && <p className="leading-relaxed">{field(data, "hypothesis")}</p>}
     {field(data, "error_text") && <p className="mt-3 rounded-md border bg-background px-3 py-2 font-mono text-xs text-muted-foreground">{field(data, "error_text")}</p>}
+    {field(data, "request") && <p className="mt-3 flex items-start gap-1.5 text-xs text-muted-foreground"><ArrowLeftRight size={13} className="mt-0.5 shrink-0" />Asks the {field(data, "agent") === "codebase_analyst" ? "data" : "codebase"} analyst: {field(data, "request")}</p>}
     {evidence.length > 0 && <Collapsible className="group/evidence mt-3 border-t pt-2"><CollapsibleTrigger asChild><Button variant="ghost" size="sm" className="-ml-2 h-7 text-xs text-muted-foreground">{evidence.length} evidence records <ChevronDown size={13} className="transition-transform group-data-[state=open]/evidence:rotate-180" /></Button></CollapsibleTrigger><CollapsibleContent className="space-y-3 pt-2">{evidence.map((item, index) => <div key={`${String(item.call_id ?? "evidence")}-${index}`} className="border-l-2 border-border pl-3"><div className="mb-1 flex items-center gap-2 text-[11px] text-muted-foreground"><Badge variant="outline" className="text-[10px]">{title(field(item, "source"))}</Badge>{field(item, "call_id") && <span className="font-mono">{field(item, "call_id")}</span>}</div><p className="leading-relaxed">{field(item, "observation") ?? field(item, "ref")}</p></div>)}</CollapsibleContent></Collapsible>}
+  </div>;
+}
+
+const REASONS: Record<string, string> = { error_text: "exact error from production", request: "asked by the analyst", confirm_regression: "check the regression in production" };
+
+function HandoffSummary({ data }: { data: Record<string, unknown> }) {
+  const reason = field(data, "reason");
+  return <div className="mt-2 rounded-lg border bg-muted/20 p-4 text-sm">
+    <div className="mb-2 flex flex-wrap items-center gap-2"><ArrowLeftRight size={14} className="text-blue-600" /><span className="font-medium">{title(field(data, "from_agent"))} → {title(field(data, "to_agent"))}</span>{typeof data.round === "number" && <Badge variant="outline" className="ml-auto text-[11px]">round {data.round}</Badge>}</div>
+    {field(data, "question") && <p className="leading-relaxed">{field(data, "question")}</p>}
+    {reason && <p className="mt-2 text-xs text-muted-foreground">{REASONS[reason] ?? title(reason)}</p>}
   </div>;
 }
 
@@ -147,7 +159,7 @@ function TimelineEntry({ item, ticketId, replay, pending, nested = false, demoAp
     {event.kind === "stage" && (approvalWaiting ? <p className="text-sm text-amber-700 dark:text-amber-300">Waiting for a person to approve the draft</p> : event.status === "running" && !event.summary ? <Shimmer className="text-sm">Working through this stage…</Shimmer> : <p className="text-sm text-muted-foreground">{event.summary ?? title(event.status)}</p>)}
     {event.kind === "tool_call" && <Tool defaultOpen={event.status === "error" || event.status === "running"} className="mt-2 mb-0 shadow-none"><ToolHeader type="dynamic-tool" toolName={event.tool} state={event.status === "running" ? "input-available" : event.status === "error" ? "output-error" : "output-available"} title={`${event.tool}${event.duration_ms != null ? ` · ${event.duration_ms} ms` : ""}`} /><ToolContent>{typeof event.args.command === "string" ? <CodeBlock code={event.args.command} language="bash"><CodeBlockHeader><CodeBlockTitle>Command</CodeBlockTitle><CodeBlockCopyButton /></CodeBlockHeader></CodeBlock> : Object.keys(event.args).length > 0 && <ToolInput input={event.args} />}{event.output ? <OutputView output={event.output} /> : event.status === "running" && <Shimmer className="text-xs">Waiting for tool output…</Shimmer>}</ToolContent></Tool>}
     {event.kind === "model_delta" && <Message from="assistant"><MessageContent><MessageResponse>{event.text}</MessageResponse></MessageContent></Message>}
-    {event.kind === "model_output" && <div className="mt-2">{event.name === "Verdict" ? <VerdictSummary data={event.data} /> : event.name === "Findings" ? <FindingsSummary data={event.data} /> : event.name === "DuplicateCheck" ? <DuplicateSummary data={event.data} /> : <><p className="mb-2 text-sm font-medium">{event.name}</p>{event.stage === "enrich" ? <EnrichmentSummary data={event.data} /> : <JsonView value={event.data} collapsed={1} />}</>}</div>}
+    {event.kind === "model_output" && <div className="mt-2">{event.name === "Verdict" ? <VerdictSummary data={event.data} /> : event.name === "Findings" ? <FindingsSummary data={event.data} /> : event.name === "Handoff" ? <HandoffSummary data={event.data} /> : event.name === "DuplicateCheck" ? <DuplicateSummary data={event.data} /> : <><p className="mb-2 text-sm font-medium">{event.name}</p>{event.stage === "enrich" ? <EnrichmentSummary data={event.data} /> : <JsonView value={event.data} collapsed={1} />}</>}</div>}
     {event.kind === "retrieval" && <div className="mt-2"><p className="mb-2 text-sm text-muted-foreground">Search: {event.query}</p><Sources><SourcesTrigger count={event.results.length} /><SourcesContent>{event.results.map((result) => <div key={`${result.kind}-${result.id}`} className="text-xs"><Badge variant="outline" className="mr-2">{title(result.kind)}</Badge><span className="font-medium">{result.title}</span><span className="ml-2 text-muted-foreground">{result.score.toFixed(2)}</span></div>)}</SourcesContent></Sources></div>}
     {event.kind === "jev" && <div className="mt-2 flex flex-wrap gap-2">{event.answers.map((answer) => <Badge variant="secondary" key={answer.question} className="font-normal">{title(answer.question)}: {String(answer.answer)} · {Math.round(answer.confidence * 100)}%</Badge>)}</div>}
     {event.kind === "approval_required" && <ApprovalSection id={ticketId} draft={event.draft_reply} reasons={event.reasons} replay={replay} pending={pending} demoApprove={demoApprove} />}
@@ -243,7 +255,7 @@ export default function TicketScreen() {
     const groups = new Map<string, StoredEvent[]>();
     for (const item of displayed) {
       const stage = item.event.stage;
-      if (stage && ["data_analyst", "codebase_analyst", "round2"].includes(stage)) {
+      if (stage && ["data_analyst", "codebase_analyst", "data_followup", "code_followup", "round2"].includes(stage)) {
         let group = groups.get(stage);
         if (!group) { group = []; groups.set(stage, group); blocks.push({ kind: "analyst", stage, items: group }); }
         group.push(item);

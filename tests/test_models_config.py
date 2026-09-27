@@ -6,13 +6,13 @@ from pydantic_ai.models.fallback import FallbackModel
 from app import models_config
 from app.settings import settings
 
-PROFILES = ("gemini", "openai", "deepseek", "openrouter")
+PROFILES = ("gemini", "openai", "deepseek", "openrouter", "ollama", "ollama-think")
 
 
 @pytest.fixture(autouse=True)
 def keys(monkeypatch):
     """Building a provider needs a key, not a valid one."""
-    for env in models_config.PROVIDER_KEYS.values():
+    for env in filter(None, models_config.PROVIDER_KEYS.values()):
         monkeypatch.setenv(env, "test")
 
 
@@ -40,8 +40,8 @@ def test_every_model_caps_its_output():
 def test_every_model_has_a_known_provider():
     for spec in models_config._models().values():
         assert spec.provider in models_config.PROVIDER_KEYS, spec.key
-        assert spec.litellm.split("/", 1)[0] == (
-            "gemini" if spec.provider == "google" else spec.provider
+        assert spec.litellm.split("/", 1)[0] == {"google": "gemini", "ollama": "ollama_chat"}.get(
+            spec.provider, spec.provider
         )
 
 
@@ -155,3 +155,44 @@ def test_missing_keys_names_what_to_set(config, monkeypatch):
     config("openai")
     monkeypatch.delenv("OPENAI_API_KEY")
     assert models_config.missing_keys() == {"OPENAI_API_KEY"}
+
+
+def test_the_local_profiles_need_no_key(config):
+    for profile in ("ollama", "ollama-think"):
+        config(profile)
+        assert models_config.required_keys() == set()
+        assert models_config.key_envs("data_analyst") == []
+
+
+def test_local_qwen_has_thinking_off_unless_asked(config):
+    """Ollama's OpenAI-compatible API takes reasoning_effort in the body; LiteLLM's ollama_chat
+    and HolmesGPT (REASONING_EFFORT) take it as a parameter."""
+    config("ollama")
+    model = models_config.pydantic_ai_model("enrichment")
+    assert model.system == "ollama" and model.model_name == "qwen3.5:9b-32k"
+    assert model.settings["extra_body"] == {"reasoning_effort": "none"}
+    assert models_config.litellm_model("codebase_analyst") == "ollama_chat/qwen3.5:9b-32k"
+    assert models_config.litellm_kwargs("codebase_analyst")["reasoning_effort"] == "none"
+    assert models_config.container_env("data_analyst")["REASONING_EFFORT"] == "none"
+    config("ollama-think")
+    assert "reasoning_effort" not in models_config.litellm_kwargs("codebase_analyst")
+    assert "REASONING_EFFORT" not in models_config.container_env("data_analyst")
+
+
+def test_holmes_reaches_the_hosts_ollama(config):
+    config("ollama")
+    env = models_config.container_env("data_analyst")
+    assert env["OLLAMA_API_BASE"] == "http://host.docker.internal:11434"
+    assert env["OVERRIDE_MAX_CONTENT_SIZE"] == "32768"
+    config("deepseek")
+    assert models_config.container_env("data_analyst") == {}
+
+
+def test_slow_local_models_scale_the_analysts_time_budgets(config):
+    """Budgets were set from DeepSeek runs; a local model on a laptop gets proportionally longer
+    before a run counts as inconclusive."""
+    config("deepseek")
+    assert models_config.time_budget("data_analyst", 240) == 240
+    config("ollama")
+    assert models_config.time_budget("data_analyst", 240) > 240
+    assert models_config.time_budget("codebase_analyst", 90) > 90

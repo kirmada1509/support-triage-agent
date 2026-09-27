@@ -1,5 +1,5 @@
-"""Layer 2's rules, as code: error signatures, evidence checks, round 2's trigger and the
-verdict's guardrails. No model, container or database."""
+"""Layer 2's rules, as code: error signatures, evidence checks and the verdict's guardrails
+(the handoff's are in test_handoff.py). No model, container or database."""
 
 import re
 
@@ -8,7 +8,6 @@ import pytest
 from app.models import Evidence, Findings, ToolRecord, Verdict
 from app.nodes.duplicates import error_signature, quoted_messages
 from app.nodes.findings import check_evidence, limit_hit
-from app.nodes.round2 import round2_target
 from app.nodes.verdict import apply_rules
 
 SERVICES = {"payment", "quote", "checkout", "cart", "product-catalog"}
@@ -122,6 +121,42 @@ def test_evidence_must_point_at_a_call_that_happened():
     assert [e.call_id for e in check_evidence(f, HOLMES_CALLS).evidence] == ["t1"]
 
 
+def test_uncited_evidence_is_tied_to_the_call_that_showed_it():
+    """Small models often leave call_id out: the ref must then appear in a real call's output,
+    which is the same check a cited call gets. A ref no call showed is still dropped."""
+    f = data_findings(
+        Evidence(source="trace", ref=TRACE, observation="o"),
+        Evidence(source="trace", ref="ffffffffffffffffffffffffffffffff", observation="made up"),
+    )
+    assert [(e.ref, e.call_id) for e in check_evidence(f, HOLMES_CALLS).evidence] == [(TRACE, "t1")]
+    code = code_findings(
+        Evidence(source="code", ref="src/payment/charge.js:89", observation="o"),
+        Evidence(source="git", ref=SHA[:8], observation="o"),
+    )
+    calls = [
+        ToolRecord(
+            call_id="c1", tool="bash", args={"command": "sed"}, output="src/payment/charge.js:89 x"
+        ),
+        ToolRecord(call_id="c2", tool="bash", args={"command": "git log"}, output=f"{SHA} fix"),
+    ]
+    assert [e.call_id for e in check_evidence(code, calls).evidence] == ["c1", "c2"]
+
+
+def test_evidence_citing_an_unknown_call_id_is_tied_to_the_call_that_showed_it():
+    """Live: the findings model shortened HolmesGPT's native IDs (call_02_ET_2z5u...) to call_07,
+    which resolve to nothing; every item of a good answer was dropped. A trace ID a real call
+    showed is still found; a made-up one still isn't."""
+    f = data_findings(
+        Evidence(source="trace", ref=TRACE, observation="o", call_id="call_07"),
+        Evidence(source="trace", ref="f" * 32, observation="made up", call_id="call_08"),
+    )
+    assert [(e.ref, e.call_id) for e in check_evidence(f, HOLMES_CALLS).evidence] == [(TRACE, "t1")]
+
+
+def test_an_empty_error_text_is_no_error():
+    assert check_evidence(data_findings(error_text=""), HOLMES_CALLS).error_text is None
+
+
 def test_holmes_native_call_id_is_checked_and_canonicalized():
     native = "call_02_ET_2z5uLSaIYjiBa6p1XqGp1546"
     call = ToolRecord(
@@ -135,10 +170,12 @@ def test_holmes_native_call_id_is_checked_and_canonicalized():
     )
     checked = check_evidence(cited, [call])
     assert [e.call_id for e in checked.evidence] == ["h2"]
+    # an ID that names no call falls back to the call that shows the ref (a made-up ref is still
+    # dropped: test_evidence_citing_an_unknown_call_id_is_tied_to_the_call_that_showed_it)
     invented = data_findings(
         Evidence(source="trace", ref=TRACE, observation="decline", call_id="call_invented")
     )
-    assert check_evidence(invented, [call]).evidence == []
+    assert [e.call_id for e in check_evidence(invented, [call]).evidence] == ["h2"]
 
 
 def test_a_trace_id_must_appear_in_that_calls_output():
@@ -240,31 +277,6 @@ def test_a_run_that_hits_its_limit_is_not_a_guess():
     assert "timed out after 90 s" in f.hypothesis
 
 
-# --- round 2 ----------------------------------------------------------------------------------
-
-
-def test_round2_checks_the_data_analysts_exact_error():
-    findings = [data_findings(error_text=EXPIRED), code_findings()]
-    assert round2_target(findings) == EXPIRED
-
-
-def test_no_round2_without_an_exact_error():
-    assert round2_target([data_findings(), code_findings()]) is None
-
-
-def test_no_round2_when_the_code_was_already_located():
-    located = code_findings(
-        Evidence(source="code", ref="src/payment/charge.js:89", observation="o", call_id="c1"),
-        error_text="The credit card (ending 0000) expired on 1/2027.",
-    )
-    assert round2_target([data_findings(error_text=EXPIRED), located]) is None
-
-
-def test_round2_runs_once():
-    done = code_findings(rnd=2)
-    assert round2_target([data_findings(error_text=EXPIRED), code_findings(), done]) is None
-
-
 # --- verdict rules ----------------------------------------------------------------------------
 
 
@@ -355,9 +367,10 @@ def test_a_config_incident_needs_the_symptom_as_well_as_the_flag():
     assert apply_rules(verdict("config_incident"), findings, SERVICES).kind == "inconclusive"
 
 
-def test_round2s_judgment_of_the_production_error_decides():
+def test_the_latest_judgment_of_the_same_code_decides():
     """Round 2 read the code path of the exact error production showed; round 1 may have
-    followed something else (ticket 3: the Amex rule, not the expiry change)."""
+    followed something else (ticket 3: the Amex rule, not the expiry change). Where both read the
+    same place, the later round decides."""
     r1 = code_findings(CODE_EV, GIT_EV).model_copy(update={"intended": False})
     r2 = code_findings(CODE_EV, rnd=2).model_copy(update={"intended": True})
     found = [data_findings(TRACE_EV, DEPLOY_EV), r1, r2]
@@ -365,6 +378,31 @@ def test_round2s_judgment_of_the_production_error_decides():
     v = apply_rules(bug, found, SERVICES)
     assert v.kind == "inconclusive" and "intended" in (v.engineering_summary or "")
     assert apply_rules(verdict("false_positive"), found, SERVICES).kind == "false_positive"
+
+
+def test_a_judgment_counts_for_the_code_it_read():
+    """Ticket 9, live: production's error ("Product Not Found", GetProduct at main.go:406) went to
+    the code, which rightly found that path intended. That says nothing about the listing query at
+    main.go:235, which round 1 found a regression; the bug at 235 stands."""
+    listing = Evidence(
+        source="code", ref="src/product-catalog/main.go:235", observation="o", call_id="c1"
+    )
+    lookup = Evidence(
+        source="code", ref="src/product-catalog/main.go:406", observation="o", call_id="c5"
+    )
+    r1 = code_findings(listing, GIT_EV).model_copy(update={"intended": False})
+    r2 = code_findings(lookup, rnd=2).model_copy(update={"intended": True})
+    found = [data_findings(TRACE_EV, DEPLOY_EV), r1, r2]
+    bug = verdict(
+        "confirmed_bug",
+        owning_service="product-catalog",
+        file_line="src/product-catalog/main.go:235",
+        commit=SHA,
+    )
+    assert apply_rules(bug, found, SERVICES).kind == "confirmed_bug"
+    # a bug at the path round 2 found intended is still refused
+    at_lookup = bug.model_copy(update={"file_line": "src/product-catalog/main.go:406"})
+    assert apply_rules(at_lookup, found, SERVICES).kind == "inconclusive"
 
 
 def test_a_false_positive_cant_stand_against_a_regression_in_the_code():
@@ -394,8 +432,9 @@ def test_an_inconclusive_verdict_stays_inconclusive(kind):
 
 import json  # noqa: E402
 
+from app import models_config  # noqa: E402
 from app.analysts import holmes  # noqa: E402
-from app.settings import ROOT  # noqa: E402
+from app.settings import ROOT, settings  # noqa: E402
 
 HOLMES_RESULT = json.loads((ROOT / "tests" / "fixtures" / "holmes_ticket4.json").read_text())
 
@@ -429,3 +468,37 @@ def test_the_holmes_container_carries_no_secrets_on_its_command_line(tmp_path, m
     assert cmd[cmd.index("--add-host") + 1] == "host.docker.internal:host-gateway"
     assert "HISTORY_DB_URL" in cmd and not any(a.startswith("HISTORY_DB_URL=") for a in cmd)
     assert cmd[cmd.index("--network") + 1] == "opentelemetry-demo"
+
+
+def test_the_holmes_container_gets_its_models_settings(tmp_path, monkeypatch):
+    """A local model is reached through the host, with its thinking and context settings."""
+    monkeypatch.setattr(settings, "role_profile", "ollama")
+    models_config._roles.cache_clear()
+    try:
+        cmd = holmes.command("holmes-x", tmp_path)
+    finally:
+        models_config._roles.cache_clear()
+    assert "OLLAMA_API_BASE=http://host.docker.internal:11434" in cmd
+    assert "REASONING_EFFORT=none" in cmd
+    assert cmd[cmd.index("--model") + 1] == "ollama_chat/qwen3.5:9b-32k"
+
+
+def test_the_findings_call_knows_the_tickets_symptom():
+    """Live ticket 8: with payment's expiry bug in the same window, the data analyst quoted another
+    shopper's card error for a cart ticket whose payments went through, and that error hijacked
+    the handoff. The conversion must know what the customer reported."""
+    from app.nodes.findings import _prompt
+
+    p = " ".join(
+        _prompt("data_analyst", "answer", HOLMES_CALLS, symptom="EUR carts keep items").split()
+    )
+    assert "EUR carts keep items" in p and "other requests" in p
+
+
+def test_an_overridden_verdict_says_what_the_model_claimed():
+    bug = verdict("confirmed_bug", file_line="src/checkout/main.go:548", commit="1d12d58b")
+    v = apply_rules(bug, [data_findings(TRACE_EV)], SERVICES)
+    assert v.kind == "inconclusive"
+    assert (
+        "src/checkout/main.go:548" in v.engineering_summary and "1d12d58b" in v.engineering_summary
+    )

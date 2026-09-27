@@ -1,0 +1,117 @@
+{
+ "profile": "deepseek",
+ "models": [
+  "deepseek-flash",
+  "deepseek-v4-pro"
+ ],
+ "started": "2026-09-27T18:19:31+00:00",
+ "tickets": {
+  "4": {
+   "seconds": 207,
+   "lane": "tech_issue",
+   "kind": "confirmed_bug",
+   "owning_service": "payment",
+   "file_line": "src/payment/charge.js:88",
+   "commit": "b7d87ca7b3dfd446651aa9a7db0b4d7e684289d0",
+   "confidence": 0.92,
+   "handoffs": [
+    "data_analyst->codebase_analyst (error_text)"
+   ],
+   "findings": [
+    {
+     "agent": "codebase_analyst",
+     "round": 1,
+     "completed": true,
+     "evidence": 4,
+     "request": null,
+     "hypothesis": "Commit b7d87ca7 (\"refactor: simplify card expiry comparison\") changed the expiry check in src/payment/charge.js from a strict `>` to `>=`, so a card is now rejected during its expiration month instead of only after it; this regression ships in v1.4.0 and rejects cards that are valid through the last"
+    },
+    {
+     "agent": "data_analyst",
+     "round": 1,
+     "completed": false,
+     "evidence": 9,
+     "request": null,
+     "hypothesis": "Payment v1.4.0 (deployed 2026-09-27, refactored card-expiry comparison) rejects valid cards whose expiry is the current month, returning \"The credit card (ending XXXX) expired on 9/2026\" and failing checkout. The analyst's timeline/quantification is incomplete: it cites an onset around 2026-09-26 wh"
+    },
+    {
+     "agent": "codebase_analyst",
+     "round": 2,
+     "completed": true,
+     "evidence": 6,
+     "request": null,
+     "hypothesis": "Commit b7d87ca7 (\"refactor: simplify card expiry comparison\") introduced an off-by-one regression in src/payment/charge.js: it replaced the strict `>` expiry check with `>=` on 1-based month/year periods, so cards expiring in the current month (still valid through end of month) are wrongly rejected "
+    }
+   ],
+   "correct": true
+  },
+  "8": {
+   "seconds": 191,
+   "lane": "tech_issue",
+   "kind": "confirmed_bug",
+   "owning_service": "checkout",
+   "file_line": "src/checkout/main.go:544-553",
+   "commit": "1d12d58b",
+   "confidence": 0.85,
+   "handoffs": [],
+   "findings": [
+    {
+     "agent": "codebase_analyst",
+     "round": 1,
+     "completed": true,
+     "evidence": 5,
+     "request": null,
+     "hypothesis": "Commit 1d12d58b (\"chore: tidy up post-order cleanup\", contained in deployed tag v1.4.0) replaced the unconditional post-order `cs.emptyUserCart(ctx, req.UserId)` with a `cleanUpAfterOrder` wrapper that returns early \u2014 without emptying the cart \u2014 when `req.UserCurrency != \"USD\"`, so EUR/CAD shoppers "
+    },
+    {
+     "agent": "data_analyst",
+     "round": 1,
+     "completed": true,
+     "evidence": 13,
+     "request": null,
+     "hypothesis": "The investigation was inconclusive: the analyst found only that checkout v1.4.0 produces a small number of error spans (including one on the payment Charge call) while orders otherwise logged as placed/payment-went-through, and never established a link between non-USD currency and the cart not being"
+    }
+   ],
+   "correct": true
+  },
+  "9": {
+   "seconds": 158,
+   "lane": "tech_issue",
+   "kind": "confirmed_bug",
+   "owning_service": "product-catalog",
+   "file_line": "src/product-catalog/main.go:235",
+   "commit": "6c877703f8766be0b2a9b521ec8266dc69369490",
+   "confidence": 0.93,
+   "handoffs": [
+    "codebase_analyst->data_analyst (request)"
+   ],
+   "findings": [
+    {
+     "agent": "codebase_analyst",
+     "round": 1,
+     "completed": true,
+     "evidence": 11,
+     "request": "Confirm the Comet Book (id HQTGWGPNH4) still has price_units=0, price_nanos=990000000, and SELECT id, name, price_units, price_nanos FROM catalog.products WHERE price_units <= 0 \u2014 how many rows are affected (i.e. how many real sub-$1 products are now hidden from the listing but still reachable via GetProduct)?",
+     "hypothesis": "Commit 6c877703 added a `WHERE p.price_units > 0` predicate to the catalog listing query (loadProductsFromDB) only, so The Comet Book \u2014 a real 99-cent product whose price is expressed as price_units=0 + price_nanos=990000000 \u2014 is silently filtered out of the storefront listing while GetProduct (whic"
+    },
+    {
+     "agent": "data_analyst",
+     "round": 1,
+     "completed": true,
+     "evidence": 7,
+     "request": null,
+     "hypothesis": "The product-catalog v1.4.0 deployment on 2026-09-27 18:26:38 (commit 6c877703, \"feat: hide unpriced products from the catalog listing\") caused the storefront listing to stop returning the Comet Book: ListProducts now returns 9 products instead of 10, because the Comet Book has no price (price_units/"
+    },
+    {
+     "agent": "data_analyst",
+     "round": 2,
+     "completed": true,
+     "evidence": 3,
+     "request": null,
+     "hypothesis": "The Comet Book (HQTGWGPNH4) is hidden from the storefront listing because its price is stored as price_units=0 with price_nanos=990000000 ($0.99), and the code's `WHERE p.price_units > 0` predicate excludes it; its data is unchanged, so direct GetProduct-by-id access still works while the listing dr"
+    }
+   ],
+   "correct": true
+  }
+ }
+}

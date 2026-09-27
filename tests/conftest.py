@@ -118,12 +118,14 @@ def layer2_fakes(monkeypatch):
     from app.models import Findings, ToolRecord
     from app.nodes import (
         brief,
+        code_followup,
         codebase_analyst,
         data_analyst,
+        data_followup,
         duplicates,
         findings,
+        handoff,
         remember,
-        round2,
     )
 
     def one_call(stage: str, tool: str, on_call) -> AnalystRun:
@@ -136,7 +138,7 @@ def layer2_fakes(monkeypatch):
     async def investigate(task, b, on_call, **budget):
         return one_call("codebase_analyst", "bash", on_call)
 
-    async def convert(agent, answer, calls, round=1):
+    async def convert(agent, answer, calls, round=1, symptom=""):
         return Findings(agent=agent, hypothesis="(fake)", evidence=[], confidence=0.5, round=round)
 
     async def empty(*args, **kwargs):
@@ -145,8 +147,9 @@ def layer2_fakes(monkeypatch):
     async def nothing(*args, **kwargs):
         return None
 
-    monkeypatch.setattr(data_analyst, "ask", ask)
-    for module in (codebase_analyst, round2):
+    for module in (data_analyst, data_followup):
+        monkeypatch.setattr(module, "ask", ask)
+    for module in (codebase_analyst, code_followup):
         monkeypatch.setattr(module, "investigate", investigate)
     monkeypatch.setattr(codebase_analyst, "service_card", nothing)
     monkeypatch.setattr(codebase_analyst, "change_summary", lambda *a: "")
@@ -154,5 +157,6 @@ def layer2_fakes(monkeypatch):
     monkeypatch.setattr(brief, "running_version", lambda service: "v1.4.0")
     monkeypatch.setattr(duplicates, "open_investigations", empty)
     monkeypatch.setattr(duplicates, "open_tickets", empty)
+    monkeypatch.setattr(handoff, "error_templates", empty)  # the code index is in Postgres
     monkeypatch.setattr(remember, "write_doc", nothing)
     monkeypatch.setattr(remember, "add_investigation", nothing)

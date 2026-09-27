@@ -27,6 +27,7 @@ class Settings(BaseSettings):
     api_base_url: str = "http://localhost:8000"
     role_profile: str | None = None  # ROLE_PROFILE: a profile in config/roles.yaml
     role_models: str | None = None  # ROLE_MODELS: "role=model,..." overrides single roles
+    ollama_base_url: str = "http://localhost:11434/v1"  # for the local profiles
     config_dir: Path = ROOT / "config"
 
     @property

@@ -49,7 +49,9 @@ COMPLETE_TASK_AND_SUBMIT_FINAL_OUTPUT followed by your answer, e.g.
 printf 'COMPLETE_TASK_AND_SUBMIT_FINAL_OUTPUT\\n%s\\n' "your answer"
 Answer with: where the behaviour comes from (file:line), the exact error message the code
 produces if there is one, what changed and in which commit (sha), and whether it is intended
-behaviour or a regression, with the evidence for that."""
+behaviour or a regression, with the evidence for that.
+If only production data can settle it (which requests fail, counts, values before and after the
+deploy), end the answer with one line: ASK DATA ANALYST: <one concrete question>."""
 
 
 def worktrees() -> Path:

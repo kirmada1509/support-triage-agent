@@ -36,6 +36,11 @@ _RUNNING = re.compile(r"^Running tool #(\d+) ([\w.-]+):")
 def command(name: str, workdir: Path) -> list[str]:
     """docker run for one question. Keys and the history URL come from the environment."""
     keys = [arg for env in models_config.key_envs("data_analyst") for arg in ("-e", env)]
+    model_env = [
+        arg
+        for k, v in models_config.container_env("data_analyst").items()
+        for arg in ("-e", f"{k}={v}")
+    ]
     return [
         "docker",
         "run",
@@ -53,6 +58,7 @@ def command(name: str, workdir: Path) -> list[str]:
         "-v",
         f"{workdir}:/out",
         *keys,
+        *model_env,
         "-e",
         "HISTORY_DB_URL",
         IMAGE,
@@ -119,6 +125,7 @@ async def ask(
     *,
     timeout_s: float,
     max_calls: int,
+    stage: str = "data_analyst",
 ) -> AnalystRun:
     workdir = Path(tempfile.mkdtemp(prefix="holmes-"))
     (workdir / "prompt.md").write_text(question)
@@ -145,9 +152,7 @@ async def ask(
                     if n > max_calls:
                         raise AnalystLimit(f"stopped at tool call {n} (budget {max_calls})")
                     on_call(
-                        ToolCallEvent(
-                            stage="data_analyst", call_id=f"h{n}", tool=tool, status="running"
-                        )
+                        ToolCallEvent(stage=stage, call_id=f"h{n}", tool=tool, status="running")
                     )
             await proc.wait()
     except TimeoutError:

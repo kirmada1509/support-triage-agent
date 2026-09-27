@@ -90,3 +90,37 @@ or-deepseek-v4-pro:
   context_tokens: 1048576
   price: {input: 0.4188, cached_input: 0.0349, output: 0.8376}
   settings: {max_tokens: 8192}
+# Local Qwen through Ollama (no key; OLLAMA_BASE_URL, default http://localhost:11434/v1).
+# qwen3.5:9b-32k is qwen3.5:9b with a 32k context (config/ollama/Modelfile, make ollama-model):
+# Ollama's 4096 default silently cuts the analysts' prompts. It thinks by default; the no-think
+# entry turns it off where each client takes it: in the body for Pydantic AI (Ollama's OpenAI
+# API), as a LiteLLM parameter for mini-swe-agent, and as HolmesGPT's REASONING_EFFORT.
+# `litellm_args` go to LiteLLM as they are; `container_env` goes into HolmesGPT's container.
+# `time_scale` multiplies the analysts' time budgets (set from hosted runs): measured on a 16 GB
+# M5 with the shop running, qwen3.5:9b reads ~100 prompt tokens/s and writes ~5 tokens/s.
+qwen3.5-9b:
+  pydantic_ai: "ollama:qwen3.5:9b-32k"
+  litellm: "ollama_chat/qwen3.5:9b-32k"
+  tools: true
+  json_output: true
+  context_tokens: 32768
+  price: {input: 0, cached_input: 0, output: 0}
+  settings: {max_tokens: 4096, extra_body: {reasoning_effort: none}}
+  litellm_args: {reasoning_effort: none}
+  time_scale: 5
+  container_env:
+    OLLAMA_API_BASE: http://host.docker.internal:11434
+    OVERRIDE_MAX_CONTENT_SIZE: "32768"
+    REASONING_EFFORT: none
+qwen3.5-9b-think:
+  pydantic_ai: "ollama:qwen3.5:9b-32k"
+  litellm: "ollama_chat/qwen3.5:9b-32k"
+  tools: true
+  json_output: true
+  context_tokens: 32768
+  price: {input: 0, cached_input: 0, output: 0}
+  settings: {max_tokens: 8192}             # thinking counts against the cap
+  time_scale: 10
+  container_env:
+    OLLAMA_API_BASE: http://host.docker.internal:11434
+    OVERRIDE_MAX_CONTENT_SIZE: "32768"

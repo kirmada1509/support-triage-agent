@@ -40,6 +40,14 @@ ERROR_TOOLS = {
     "codebase_analyst": {"bash"},
 }
 _SHA = re.compile(r"^[0-9a-f]{7,40}$")
+# The line an analyst ends its answer with to ask the other one something (its prompt says how).
+_ASK = re.compile(
+    r"^[\s*_>#-]*ask\s+(data|codebase)\s+analyst\s*[*_]*\s*:\s*[*_]*\s*(.+?)\s*$",
+    re.IGNORECASE | re.MULTILINE,
+)
+_NO_QUESTION = {"", "none", "n/a", "no", "nothing", "-"}
+REQUEST_CHARS = 500
+OTHER = {"data_analyst": "codebase", "codebase_analyst": "data"}
 SOURCES_OF = {
     "data_analyst": {"trace", "metric", "log", "sql", "deploy", "flag"},
     "codebase_analyst": {"code", "git"},
@@ -47,15 +55,18 @@ SOURCES_OF = {
 
 
 PROMPT = """Convert a support investigation analyst's answer into Findings. The analyst is the
-{agent}. Its answer and every tool call it made are below; use nothing else.
+{agent}. Its answer and every tool call it made are below; use nothing else. The customer
+reported: {symptom}
 
 - hypothesis: what the analyst concluded, in one or two sentences.
 - evidence: each fact the answer relies on, citing the call_id of the tool call whose output
   shows it. ref is the exact trace ID, file:line, commit sha, or query from that call. source:
   {sources}.
 - error_text: the exact error message the shop's service gave the customer's requests, as a
-  span, log or the code shows it; never an error from a tool or query itself. Leave it empty if
-  there is none.
+  span, log or the code shows it; never an error from a tool or query itself, and never one that
+  other requests got (another shopper's failure, a path the report isn't about). If the customer
+  reported no failure, leave it empty unless an error explains what they reported. Leave it empty
+  if there is none.
 - intended: codebase analyst only: true if the code it cites behaves as intended, false if a
   change made it a regression, empty if it didn't say.
 - confidence: 0 to 1, how well the tool outputs support the hypothesis.
@@ -78,7 +89,7 @@ SOURCE_HELP = {
 }
 
 
-def _prompt(agent: str, answer: str, calls: list[ToolRecord]) -> str:
+def _prompt(agent: str, answer: str, calls: list[ToolRecord], symptom: str = "") -> str:
     shown, used = [], 0
     for c in calls:
         args = " ".join(str(v) for v in c.args.values())[:300]
@@ -89,14 +100,31 @@ def _prompt(agent: str, answer: str, calls: list[ToolRecord]) -> str:
         shown.append(entry)
         used += len(entry)
     return PROMPT.format(
-        agent=agent, sources=SOURCE_HELP[agent], answer=answer, calls="\n\n".join(shown)
+        agent=agent,
+        symptom=symptom or "(not given)",
+        sources=SOURCE_HELP[agent],
+        answer=answer,
+        calls="\n\n".join(shown),
     )
 
 
-async def convert(agent: str, answer: str, calls: list[ToolRecord], round: int = 1) -> Findings:
+def request_in(answer: str, agent: str) -> str | None:
+    """The analyst's last question for the other analyst, read from its ASK line in code."""
+    asks = [q for who, q in _ASK.findall(answer) if who.lower() == OTHER[agent]]
+    question = asks[-1].strip() if asks else ""
+    if question.strip(" .*_").lower() in _NO_QUESTION:
+        return None
+    return question[:REQUEST_CHARS]
+
+
+async def convert(
+    agent: str, answer: str, calls: list[ToolRecord], round: int = 1, symptom: str = ""
+) -> Findings:
     """One typed call (role "findings"); the result still goes through check_evidence."""
-    f, _ = await call("findings", Findings, _prompt(agent, answer, calls))
-    return f.model_copy(update={"agent": agent, "round": round})
+    f, _ = await call("findings", Findings, _prompt(agent, answer, calls, symptom))
+    return f.model_copy(
+        update={"agent": agent, "round": round, "request": request_in(answer, agent)}
+    )
 
 
 def _seen(c: ToolRecord) -> str:
@@ -125,18 +153,34 @@ def _supported(e: Evidence, agent: str, calls: dict[str, ToolRecord]) -> bool:
     return True  # a query the analyst ran with the right tool; its wording needn't match
 
 
+def _showing(e: Evidence, agent: str, calls: list[ToolRecord]) -> str | None:
+    """For evidence without a usable call_id (left out, or a native ID mangled into one that
+    names no call): the first real call that shows its ref, held to the same check as a cited
+    call, and the ref must be in what it saw."""
+    ref = e.ref.strip().lower()
+    for c in calls:
+        cited = e.model_copy(update={"call_id": c.call_id})
+        if ref and ref in _seen(c) or e.source in ("trace", "code", "git"):
+            if _supported(cited, agent, {c.call_id: c}):
+                return c.call_id
+    return None
+
+
 def check_evidence(findings: Findings, calls: list[ToolRecord]) -> Findings:
     """Keep evidence tied to a real tool call that showed it; cap confidence when none is left."""
     by_id = {c.call_id: c for c in calls}
     for c in calls:
         if c.provider_call_id and c.provider_call_id not in by_id:
             by_id[c.provider_call_id] = c
-    kept = [
-        e.model_copy(update={"call_id": by_id[e.call_id].call_id})
-        for e in findings.evidence
-        if e.call_id and _supported(e, findings.agent, by_id)
-    ]
-    error_text = findings.error_text
+    kept = []
+    for e in findings.evidence:
+        if e.call_id in by_id:
+            if _supported(e, findings.agent, by_id):
+                kept.append(e.model_copy(update={"call_id": by_id[e.call_id].call_id}))
+        # no call ID, or one that names no call (a mangled native ID): the call that shows it
+        elif call_id := _showing(e, findings.agent, calls):
+            kept.append(e.model_copy(update={"call_id": call_id}))
+    error_text = findings.error_text or None
     sources = [c for c in calls if c.ok and c.tool in ERROR_TOOLS[findings.agent]]
     if error_text and not any(
         error_signature(error_text) in error_signature(_seen(c)) for c in sources

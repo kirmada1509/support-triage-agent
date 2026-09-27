@@ -2,7 +2,8 @@
 
 uv run python scenarios/scenario.py 4              # same as: make scenario-4
 uv run python scenarios/scenario.py 4 --no-send    # place the orders, print the ticket instead
-uv run python scenarios/scenario.py cart           # the spare bugs (eval set): cart, catalog
+uv run python scenarios/scenario.py 8              # tickets 8 and 9: the cart and catalog bugs
+uv run python scenarios/scenario.py cart --no-send # the same, by name
 
 Orders go through the shop's frontend API the way its load generator places them
 (src/load-generator/locustfile.py): POST /api/cart, then POST /api/checkout with a
@@ -482,8 +483,8 @@ def payment_flag(shop: Shop, check: Checks, a: argparse.Namespace) -> dict[str, 
     return {"11:05": f"{flag_at:%H:%M}"}
 
 
-def cart(shop: Shop, check: Checks, a: argparse.Namespace) -> None:
-    """Spare: checkout v1.4.0 leaves non-USD orders' items in the cart."""
+def cart(shop: Shop, check: Checks, a: argparse.Namespace) -> dict[str, str]:
+    """Ticket 8: checkout v1.4.0 leaves non-USD orders' items in the cart."""
     shoppers = [
         shopper(1, VISA[0], currency="EUR"),
         shopper(2, VISA[1], currency="CAD"),
@@ -524,10 +525,12 @@ def cart(shop: Shop, check: Checks, a: argparse.Namespace) -> None:
             has_empty == (o.shopper.currency == "USD"),
             f"{o.shopper.currency} order: EmptyCart span {'present' if has_empty else 'missing'}",
         )
+    first = next(o.at for o in after if o.shopper.n == 1)
+    return {"around 10:40": f"around {first:%H:%M}", "this morning": part_of_day(first)}
 
 
-def catalog(shop: Shop, check: Checks, a: argparse.Namespace) -> None:
-    """Spare: product-catalog v1.4.0 drops The Comet Book ($0.99) from the product listing."""
+def catalog(shop: Shop, check: Checks, a: argparse.Namespace) -> dict[str, str]:
+    """Ticket 9: product-catalog v1.4.0 drops The Comet Book ($0.99) from the product listing."""
     ensure("product-catalog", "v1.3.0")
     before = {p["id"] for p in shop.products()}
     print(f"  v1.3.0 listing: {len(before)} products")
@@ -539,6 +542,7 @@ def catalog(shop: Shop, check: Checks, a: argparse.Namespace) -> None:
     check(COMET_BOOK in before, "v1.3.0 lists The Comet Book")
     check(before - after == {COMET_BOOK}, "v1.4.0 lists every product except The Comet Book")
     check(shop.product_page(COMET_BOOK) == 200, "v1.4.0 still serves The Comet Book's own page")
+    return {"this morning": part_of_day(datetime.now(UTC))}
 
 
 SCENARIOS: dict[str, Scenario | None] = {
@@ -549,7 +553,9 @@ SCENARIOS: dict[str, Scenario | None] = {
     "5": bulk_quote,
     "6": payment_flag,
     "7": None,
-    "cart": cart,
+    "8": cart,
+    "9": catalog,
+    "cart": cart,  # the same scenarios by name
     "catalog": catalog,
 }
 

@@ -139,7 +139,7 @@ db/migrations/    Alembic: env.py and versions/ (0001 also creates the NOTIFY tr
 holmes/           HolmesGPT's image and toolsets (jaeger, history, logs) + their helper scripts
 codebox/          the codebase analyst's read-only container + helper commands
 sandbox/          the shop fork's kit: pin, overlay, patches, setup, image builds, compose
-scenarios/        tickets.yaml (7 demo tickets), scenario.py, send_ticket.py, deploy.sh, flag.sh
+scenarios/        tickets.yaml (9 demo tickets), scenario.py, send_ticket.py, deploy.sh, flag.sh
 knowledge/ seed/ evals/   help, synthetic memory, fixed labels and the Phase 4 model baseline
 web/                Next.js Triage Console (see its README)
 ```

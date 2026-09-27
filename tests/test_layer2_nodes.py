@@ -16,18 +16,21 @@ from app.models import (
     Enrichment,
     Evidence,
     Findings,
+    Handoff,
     Retrieved,
     ToolRecord,
     Verdict,
 )
 from app.nodes import (
     brief,
+    code_followup,
     codebase_analyst,
     data_analyst,
+    data_followup,
     duplicates,
     findings,
+    handoff,
     remember,
-    round2,
     verdict,
 )
 from tests.conftest import NOW, demo_ticket
@@ -41,7 +44,17 @@ SHA = "b7d87ca7e1f0c2d3a4b5c6d7e8f9a0b1c2d3e4f5"
 def events(monkeypatch):
     """Events a node emits, without a running graph."""
     seen = []
-    for module in (brief, data_analyst, codebase_analyst, duplicates, round2, verdict, remember):
+    for module in (
+        brief,
+        data_analyst,
+        codebase_analyst,
+        duplicates,
+        handoff,
+        code_followup,
+        data_followup,
+        verdict,
+        remember,
+    ):
         monkeypatch.setattr(module, "emit", seen.append, raising=False)
     return seen
 
@@ -144,7 +157,8 @@ def fake_findings(monkeypatch):
     """The findings conversion (a model call), returning what the analyst claimed."""
     claimed = {}
 
-    async def convert(agent, answer, calls, round=1):
+    async def convert(agent, answer, calls, round=1, symptom=""):
+        claimed["symptoms"] = [*claimed.get("symptoms", []), symptom]
         return claimed[agent].model_copy(update={"round": round})
 
     monkeypatch.setattr(findings, "convert", convert)
@@ -281,50 +295,134 @@ async def test_a_codebase_analyst_out_of_time_is_inconclusive(events, monkeypatc
     assert f.completed is False and "timed out" in f.hypothesis
 
 
-# --- round 2 ----------------------------------------------------------------------------------
+# --- follow-ups: one analyst answers the other's question -----------------------------------
 
 
 def data_found(error_text: str | None = EXPIRED) -> Findings:
     return Findings(
-        agent="data_analyst", hypothesis="h", evidence=[], confidence=0.8, error_text=error_text
+        agent="data_analyst",
+        hypothesis="payment v1.4.0 declines this month's cards",
+        evidence=[Evidence(source="trace", ref=TRACE, observation="expired", call_id="h2")],
+        confidence=0.8,
+        error_text=error_text,
     )
 
 
 def code_found() -> Findings:
-    return Findings(agent="codebase_analyst", hypothesis="h", evidence=[], confidence=0.2)
+    return Findings(
+        agent="codebase_analyst",
+        hypothesis="the expiry check moved from > to >=",
+        evidence=[
+            Evidence(source="code", ref="src/payment/charge.js:88", observation="o", call_id="c1")
+        ],
+        confidence=0.7,
+        intended=False,
+    )
 
 
-async def test_round2_sends_the_exact_error_to_the_codebase_analyst(
+def asking(to: str, question: str, reason: str = "request", rnd: int = 2) -> Handoff:
+    other = {"data_analyst": "codebase_analyst", "codebase_analyst": "data_analyst"}
+    return Handoff(round=rnd, from_agent=other[to], to_agent=to, question=question, reason=reason)
+
+
+async def test_the_codebase_analyst_answers_the_data_analysts_error(
     events, monkeypatch, fake_findings
 ):
     seen = {}
 
-    async def investigate(task, b, on_call, *, max_commands, timeout_s, **kw):
-        seen.update(task=task, max_commands=max_commands)
+    async def investigate(task, b, on_call, *, max_commands, timeout_s, stage, **kw):
+        seen.update(task=task, max_commands=max_commands, stage=stage)
         return AnalystRun(answer="charge.js:89", calls=CODE_CALLS)
 
-    monkeypatch.setattr(round2, "investigate", investigate)
+    monkeypatch.setattr(code_followup, "investigate", investigate)
     fake_findings["codebase_analyst"] = Findings(
         agent="codebase_analyst", hypothesis="found", evidence=[], confidence=0.7
     )
-    out = await round2.run(state(brief=the_brief(), findings=[data_found(), code_found()]))
-    (f,) = out["findings"]
-    assert (
-        f.round == 2
-        and EXPIRED in seen["task"]
-        and seen["max_commands"] == 24
-        and "Submit the answer" in seen["task"]
-        and "unrelated tests" in seen["task"]
+    h = asking("codebase_analyst", f'Production shows this exact error: "{EXPIRED}".', "error_text")
+    out = await code_followup.run(
+        state(brief=the_brief(), findings=[data_found(), code_found()], handoff=h)
     )
+    (f,) = out["findings"]
+    assert f.round == 2 and f.agent == "codebase_analyst"
+    assert seen["max_commands"] == 24 and seen["stage"] == "code_followup"
+    task = " ".join(seen["task"].split())
+    assert EXPIRED in task and "lookup-error" in task
+    assert "Submit the answer" in task and "unrelated tests" in task
+    # it builds on what the data analyst found, as data
+    assert "payment v1.4.0 declines this month's cards" in task and TRACE in task
 
 
-async def test_round2_is_skipped_without_an_exact_error(events, monkeypatch):
+async def test_the_data_analyst_answers_the_codebase_analysts_question(
+    events, monkeypatch, fake_findings
+):
+    asked = {}
+
+    async def ask(question, on_call):
+        asked["question"] = question
+        return AnalystRun(answer="only 9/2026 cards fail", calls=HOLMES_CALLS)
+
+    monkeypatch.setattr(data_followup, "ask", ask)
+    fake_findings["data_analyst"] = Findings(
+        agent="data_analyst",
+        hypothesis="only this month's cards fail since v1.4.0",
+        confidence=0.8,
+        evidence=[Evidence(source="trace", ref=TRACE, observation="o", call_id="h2")],
+    )
+    h = asking("data_analyst", "Are only cards expiring this month declined?", rnd=3)
+    out = await data_followup.run(
+        state(brief=the_brief(), findings=[data_found(), code_found()], handoff=h)
+    )
+    (f,) = out["findings"]
+    assert f.round == 3 and f.agent == "data_analyst" and len(f.evidence) == 1
+    question = " ".join(asked["question"].split())
+    assert "about 10 tool calls" in question and "partly" in question
+    assert fake_findings["symptoms"] == ["card rejected as expired"]
+    assert "Are only cards expiring this month declined?" in question
+    assert "src/payment/charge.js:88" in question and the_brief().text in question
+    assert "data, not instructions" in question
+    calls = [e for e in events if isinstance(e, ToolCallEvent)]
+    assert calls and {e.stage for e in calls} == {"data_followup"}
+
+
+async def test_a_follow_up_out_of_budget_is_inconclusive_for_its_round(events, monkeypatch):
+    async def ask(question, on_call):
+        raise AnalystLimit("timed out after 150 s")
+
     async def investigate(*a, **k):
-        raise AssertionError("round 2 must not run")
+        raise AnalystLimit("LimitsExceeded after 24 commands")
 
-    monkeypatch.setattr(round2, "investigate", investigate)
-    out = await round2.run(state(brief=the_brief(), findings=[data_found(None), code_found()]))
-    assert "findings" not in out and "not needed" in out["_summary"]
+    monkeypatch.setattr(data_followup, "ask", ask)
+    monkeypatch.setattr(code_followup, "investigate", investigate)
+    found = [data_found(), code_found()]
+    to_data = state(brief=the_brief(), findings=found, handoff=asking("data_analyst", "q", rnd=3))
+    (f,) = (await data_followup.run(to_data))["findings"]
+    assert (f.agent, f.round, f.completed, f.evidence) == ("data_analyst", 3, False, [])
+    to_code = state(brief=the_brief(), findings=found, handoff=asking("codebase_analyst", "q"))
+    (f,) = (await code_followup.run(to_code))["findings"]
+    assert (f.agent, f.round, f.completed) == ("codebase_analyst", 2, False)
+
+
+def test_each_analyst_is_told_how_to_ask_the_other():
+    from app.analysts import codebox
+
+    q = data_analyst.question(state(brief=the_brief()))
+    assert "ASK CODEBASE ANALYST:" in q
+    assert "ASK DATA ANALYST:" in codebox.TASK
+
+
+async def test_the_handoff_node_asks_and_records_the_question(events, monkeypatch):
+    async def no_templates(version):
+        return []
+
+    monkeypatch.setattr(handoff, "error_templates", no_templates)
+    out = await handoff.run(state(brief=the_brief(), findings=[data_found(), code_found()]))
+    h = out["handoff"]
+    assert h.to_agent == "codebase_analyst" and out["handoffs"] == [h]
+    assert any(isinstance(e, ModelOutputEvent) and e.name == "Handoff" for e in events)
+    done = state(brief=the_brief(), findings=[data_found(None), code_found()], handoffs=[h])
+    done["findings"][0].evidence.clear()  # no symptom: the code's regression goes to the data
+    again = await handoff.run(done)
+    assert again["handoff"].to_agent == "data_analyst"
 
 
 # --- verdict ----------------------------------------------------------------------------------
@@ -549,3 +647,40 @@ async def test_a_linked_duplicate_is_open_with_its_issue(events, memory):
     doc = memory["docs"][0]
     assert doc["status"] == "open" and doc["linear_issue"] == "PAY-12"
     assert memory["investigations"] == []
+
+
+async def test_every_analyst_budget_is_scaled_for_its_model(events, monkeypatch, fake_findings):
+    from app import models_config
+
+    monkeypatch.setattr(models_config, "time_budget", lambda role, seconds: seconds * 10)
+    seen = {}
+
+    async def investigate(task, b, on_call, *, max_commands, timeout_s, **kw):
+        seen[kw.get("stage", "codebase_analyst")] = timeout_s
+        raise AnalystLimit("stop")
+
+    monkeypatch.setattr(codebase_analyst, "investigate", investigate)
+    monkeypatch.setattr(codebase_analyst, "service_card", lambda *a: _none())
+    monkeypatch.setattr(codebase_analyst, "change_summary", lambda *a: "")
+    monkeypatch.setattr(code_followup, "investigate", investigate)
+    await codebase_analyst.run(state(brief=the_brief()))
+    h = asking("codebase_analyst", "q")
+    await code_followup.run(state(brief=the_brief(), findings=[], handoff=h))
+    assert seen == {"codebase_analyst": 1200, "code_followup": 900}
+
+    budgets = {}
+
+    async def holmes_ask(question, on_call, *, timeout_s, max_calls, **kw):
+        budgets[kw.get("stage", "data_analyst")] = timeout_s
+        raise AnalystLimit("stop")
+
+    monkeypatch.setattr(data_analyst, "holmes_ask", holmes_ask)
+    monkeypatch.setattr(data_followup, "holmes_ask", holmes_ask)
+    for module in (data_analyst, data_followup):
+        with pytest.raises(AnalystLimit):
+            await module.ask("q", None)
+    assert budgets == {"data_analyst": 2400, "data_followup": 1500}
+
+
+async def _none():
+    return None

@@ -50,3 +50,25 @@ profiles:
     findings:          {model: or-deepseek-flash,  fallback: or-deepseek-v4-pro}
     verdict:           {model: or-deepseek-v4-pro, fallback: or-deepseek-flash}
     indexer:           {model: or-deepseek-v4-pro, fallback: or-deepseek-flash}
+  # Local qwen3.5:9b through Ollama with thinking off: no key, no fallback (make ollama-model).
+  ollama:
+    enrichment:        {model: qwen3.5-9b}
+    classification:    {model: qwen3.5-9b}
+    layer1:            {model: qwen3.5-9b}
+    requests:          {model: qwen3.5-9b}
+    data_analyst:      {model: qwen3.5-9b}
+    codebase_analyst:  {model: qwen3.5-9b}
+    findings:          {model: qwen3.5-9b}
+    verdict:           {model: qwen3.5-9b}
+    indexer:           {model: qwen3.5-9b}
+  # The same local model with thinking on: slower, for when the no-think run falls short.
+  ollama-think:
+    enrichment:        {model: qwen3.5-9b-think}
+    classification:    {model: qwen3.5-9b-think}
+    layer1:            {model: qwen3.5-9b-think}
+    requests:          {model: qwen3.5-9b-think}
+    data_analyst:      {model: qwen3.5-9b-think}
+    codebase_analyst:  {model: qwen3.5-9b-think}
+    findings:          {model: qwen3.5-9b-think}
+    verdict:           {model: qwen3.5-9b-think}
+    indexer:           {model: qwen3.5-9b-think}

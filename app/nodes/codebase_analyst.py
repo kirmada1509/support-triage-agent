@@ -5,7 +5,7 @@ evidence) and the changes since the previous deploy. Each command is streamed; a
 its budget is inconclusive, never a guess.
 """
 
-from app import db
+from app import db, models_config
 from app.analysts import AnalystLimit, AnalystRun
 from app.analysts.codebox import investigate as codebox_investigate
 from app.events import ModelOutputEvent
@@ -13,7 +13,7 @@ from app.graph.state import TicketState
 from app.graph.stream import emit
 from app.indexer import build
 from app.indexer.__main__ import sandbox_dir, service_path
-from app.nodes import findings
+from app.nodes import data_analyst, findings
 from app.nodes._config import ownership
 
 STAGE = "codebase_analyst"
@@ -64,13 +64,19 @@ async def run(state: TicketState) -> dict:
     changes = change_summary(b.suspected_service, b.previous_version, b.deployed_version)
     try:
         result = await investigate(
-            task(state, card, changes), b, emit, max_commands=MAX_COMMANDS, timeout_s=TIMEOUT_S
+            task(state, card, changes),
+            b,
+            emit,
+            max_commands=MAX_COMMANDS,
+            timeout_s=models_config.time_budget("codebase_analyst", TIMEOUT_S),
         )
     except AnalystLimit as e:
         f = findings.limit_hit(STAGE, str(e))
         emit(ModelOutputEvent(stage=STAGE, name="Findings", data=f.model_dump()))
         return {"findings": [f], "_summary": f"inconclusive: {e}"}
-    claimed = await findings.convert(STAGE, result.answer, result.calls)
+    claimed = await findings.convert(
+        STAGE, result.answer, result.calls, symptom=data_analyst.symptom(state)
+    )
     f = findings.check_evidence(claimed, result.calls)
     emit(
         ModelOutputEvent(

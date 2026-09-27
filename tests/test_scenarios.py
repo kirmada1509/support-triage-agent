@@ -176,7 +176,8 @@ def test_scenarios_use_their_own_tenant_shoppers():
     """Each scenario's shoppers are figma-shopper-01..20 and no two scenarios share one, so
     their orders never mix in one shopper's history."""
     seen: dict[int, str] = {}
-    for name, fn in scenario.SCENARIOS.items():
+    unique = {fn: name for name, fn in reversed(scenario.SCENARIOS.items())}  # "8" is "cart"
+    for fn, name in unique.items():
         for n in map(int, re.findall(r"shopper\((\d+)", inspect.getsource(fn) if fn else "")):
             assert 1 <= n <= 20
             assert seen.setdefault(n, name) == name, f"shopper {n} in {seen[n]} and {name}"
@@ -198,6 +199,18 @@ def test_ticket_4_gets_the_first_failure_time(shop, monkeypatch, capsys):
     assert "scenario 4 reproduced" in out
 
 
+def test_ticket_8_gets_the_euro_shoppers_order_time(shop, monkeypatch, capsys):
+    out = main(monkeypatch, capsys, "8", "--no-send", "--gap", "0")
+    first = next(o.at for o in shop.orders if o.shopper.n == 1 and o.phase == "v1.4.0")
+    assert f"ordered around {first:%H:%M}" in out and "10:40" not in out
+    assert "scenario 8 reproduced" in out
+
+
+def test_ticket_9_is_sent_after_the_listing_changed(shop, monkeypatch, capsys):
+    out = main(monkeypatch, capsys, "9", "--no-send", "--gap", "0")
+    assert "scenario 9 reproduced" in out and "subject: The Comet Book has disappeared" in out
+
+
 def test_ticket_6_gets_the_flag_time_in_subject_and_body(shop, monkeypatch, capsys):
     out = main(monkeypatch, capsys, "6", "--no-send", "--gap", "0")
     assert "11:05" not in out
@@ -216,7 +229,7 @@ def test_ticket_is_not_sent_when_the_bug_does_not_reproduce(fixed_shop, monkeypa
 
 def test_every_demo_ticket_has_a_scenario():
     tickets = yaml.safe_load((ROOT / "scenarios" / "tickets.yaml").read_text())["tickets"]
-    assert [t["id"] for t in tickets] == [str(n) for n in range(1, 8)]
+    assert [t["id"] for t in tickets] == [str(n) for n in range(1, 10)]
     assert all(t["id"] in scenario.SCENARIOS for t in tickets)
 
 

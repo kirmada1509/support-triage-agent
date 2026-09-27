@@ -85,9 +85,13 @@ def present_stored_event(item: StoredEvent) -> StoredEvent:
     replacement = None
     if "prometheus" in tool:
         replacement = _prometheus(raw, command)
-    elif tool in {"search_logs", "log_indices"} or "log" in tool and event.stage == "data_analyst":
+    elif (
+        tool in {"search_logs", "log_indices"}
+        or "log" in tool
+        and event.stage in {"data_analyst", "data_followup"}
+    ):
         replacement = LogOut(source=event.tool, lines=raw.splitlines())
-    elif event.stage in {"codebase_analyst", "round2"}:
+    elif event.stage in {"codebase_analyst", "code_followup", "round2"}:  # round2: older runs
         if raw.startswith("diff --git ") and "---DIFF---" not in raw:
             replacement = DiffOut(diff=raw)
         else:

@@ -125,7 +125,8 @@ def snippets_from_events(file_line: str | None, events: list[StoredEvent]) -> li
     """Recover excerpts for old stored runs using their checked Findings and tool outputs."""
     if not REFERENCE.fullmatch(file_line or ""):
         return []
-    calls: dict[str, list[ToolRecord]] = {"codebase_analyst": [], "round2": []}
+    # round2 is the code follow-up's stage name in runs stored before the two-way handoff
+    calls: dict[str, list[ToolRecord]] = {"codebase_analyst": [], "code_followup": [], "round2": []}
     found: list[tuple[str, Findings]] = []
     for item in events:
         event = item.event

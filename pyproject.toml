@@ -48,8 +48,9 @@ markers = [
     "llm: real model calls, needs API keys in .env.agent; run with `make test-llm`",
     "spike: HolmesGPT and mini-swe-agent against the running shop; run with `make test-spike`",
     "layer2: Layer 2 demo tickets through the whole graph, live; run with `make test-layer2`",
+    "handoff: the analysts' two-way handoff on tickets 4, 8, 9, live; run with `make test-handoff`",
 ]
-addopts = "-m 'not db and not sandbox and not shop and not llm and not spike and not layer2'"
+addopts = "-m 'not db and not sandbox and not shop and not llm and not spike and not layer2 and not handoff'"
 
 [tool.ruff]
 line-length = 100

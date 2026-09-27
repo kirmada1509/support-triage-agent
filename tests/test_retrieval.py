@@ -59,7 +59,7 @@ def test_eval_set_is_fixed_and_labels_reference_expected_ids():
     assert [case["id"] for case in cases[:7]] == [str(i) for i in range(1, 8)]
     assert len({case["id"] for case in cases}) == 20
     scenarios = yaml.safe_load((ROOT / "scenarios" / "tickets.yaml").read_text())["tickets"]
-    for case, scenario in zip(cases[:7], scenarios, strict=True):
+    for case, scenario in zip(cases[:7], scenarios[:7], strict=True):
         assert (case["subject"], case["body"]) == (scenario["subject"], scenario["body"])
     ownership = yaml.safe_load((ROOT / "config" / "ownership.yaml").read_text())
     for case in cases:

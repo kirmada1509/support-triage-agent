@@ -10,17 +10,20 @@ from langgraph.types import RetryPolicy
 from pydantic import BaseModel
 
 from app import models
-from app.graph.routes import is_duplicate, pick_lane, pick_outcome
+from app.graph.routes import is_duplicate, pick_handoff, pick_lane, pick_outcome
 from app.graph.state import TicketState
 from app.graph.stream import staged
 from app.nodes import (
     approve,
     brief,
+    code_followup,
     codebase_analyst,
     context,
     data_analyst,
+    data_followup,
     duplicates,
     enrich,
+    handoff,
     jev,
     layer1,
     layer3,
@@ -28,7 +31,6 @@ from app.nodes import (
     reply,
     requests,
     retrieve,
-    round2,
     route,
     verdict,
 )
@@ -45,7 +47,9 @@ NODES = {
     "brief": brief.run,
     "data_analyst": data_analyst.run,
     "codebase_analyst": codebase_analyst.run,
-    "round2": round2.run,
+    "handoff": handoff.run,
+    "code_followup": code_followup.run,
+    "data_followup": data_followup.run,
     "verdict": verdict.run,
     "layer3": layer3.run,
     "approve": approve.run,
@@ -69,7 +73,8 @@ RETRY = {
     "remember": _CALLS_OUT,
     "data_analyst": _AGENT,
     "codebase_analyst": _AGENT,
-    "round2": _AGENT,
+    "code_followup": _AGENT,
+    "data_followup": _AGENT,
 }
 
 
@@ -99,8 +104,11 @@ def build_graph(checkpointer=None):
     g.add_conditional_edges("duplicates", is_duplicate, ["reply", "brief"])
     g.add_edge("brief", "data_analyst")
     g.add_edge("brief", "codebase_analyst")  # the two analysts run in parallel
-    g.add_edge(["data_analyst", "codebase_analyst"], "round2")
-    g.add_edge("round2", "verdict")
+    g.add_edge(["data_analyst", "codebase_analyst"], "handoff")  # waits for both
+    # then they ask each other, one question at a time, until handoff has none left
+    g.add_conditional_edges("handoff", pick_handoff, ["code_followup", "data_followup", "verdict"])
+    g.add_edge("code_followup", "handoff")
+    g.add_edge("data_followup", "handoff")
     g.add_conditional_edges("verdict", pick_outcome, ["layer3", "approve"])
     for n in ("layer1", "requests", "layer3"):
         g.add_edge(n, "approve")

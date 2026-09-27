@@ -7,6 +7,7 @@ from app.models import (
     ContextBundle,
     Enrichment,
     Findings,
+    Handoff,
     Lane,
     Layer1Answer,
     RequestTriage,
@@ -30,6 +31,8 @@ class TicketState(TypedDict, total=False):
     duplicate_of: str | None  # open issue this ticket repeats
     brief: Brief
     findings: Annotated[list[Findings], operator.add]  # both analysts add to it
+    handoff: Handoff | None  # the question the next follow-up answers, if any
+    handoffs: Annotated[list[Handoff], operator.add]  # every question asked so far
     verdict: Verdict
     linear_issue: str | None
     reply: str | None  # the draft, then the sent reply

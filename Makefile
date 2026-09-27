@@ -3,7 +3,7 @@ TEST_DATABASE_URL = postgresql://triage:triage@localhost:5433/triage_test
 .PHONY: install db migrate migration check-migrations api worker send deploy flag test test-db lint fmt \
     index-help index-tickets index-code retrieval-hits front-eval \
 	sandbox sandbox-images shop-up shop-down test-sandbox test-shop test-llm test-spike test-layer2 \
-	analyst-images models
+	test-handoff analyst-images models ollama-model
 
 install:            ## install Python deps (uv) and pin them in uv.lock
 	uv sync
@@ -102,6 +102,16 @@ test-layer2:        ## Layer 2 demo tickets 3-7 through the whole graph, live (n
 	docker compose exec -T db sh -c 'dropdb -U triage --if-exists --force triage_test && createdb -U triage triage_test'
 	DATABASE_URL=$(TEST_DATABASE_URL) uv run python -m app.migrate
 	DATABASE_URL=$(TEST_DATABASE_URL) uv run pytest -q -s -m layer2
+
+PROFILE ?= deepseek
+test-handoff:       ## the analysts' two-way handoff on tickets 4, 8, 9, live (PROFILE=deepseek default; ollama for local qwen)
+	docker compose exec -T db sh -c 'dropdb -U triage --if-exists --force triage_test && createdb -U triage triage_test'
+	DATABASE_URL=$(TEST_DATABASE_URL) uv run python -m app.migrate
+	ROLE_PROFILE=$(PROFILE) DATABASE_URL=$(TEST_DATABASE_URL) uv run pytest -q -s -m handoff
+
+ollama-model:       ## qwen3.5:9b with a 32k context for the local profiles (config/ollama/Modelfile)
+	ollama pull qwen3.5:9b
+	ollama create qwen3.5:9b-32k -f config/ollama/Modelfile
 
 lint:
 	uv run ruff check .

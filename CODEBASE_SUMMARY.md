@@ -24,7 +24,7 @@ webhook → context → enrichment → retrieval + classification → route
                                                 ├─ how-to → Layer 1 answer
                                                 ├─ request → request triage
                                                 ├─ tech issue → duplicates → brief → analysts
-                                                │     → round 2 → verdict
+                                                │     → handoff ⇄ follow-ups → verdict
                                                 └─ uncertain → approval
 confirmed bug or incident → local finding (optional Linear issue) → approval if required
 feature request → optional roadmap handoff; billing/account → optional account-manager note
@@ -47,9 +47,9 @@ stage calls the configured structured LLM classifier. It is not a Jev API integr
 | How-to answers | One model call uses retrieved help sections; code verifies citation IDs and requires a relevant help hit before the draft can be treated as confident | `app/nodes/layer1.py` |
 | Requests | One model call identifies feature, billing or account requests; code builds a truthful acknowledgement without claiming a team handoff has already happened | `app/nodes/requests.py` |
 | API and events | Queue/detail/pipeline endpoints, stored events, live SSE via Postgres LISTEN/NOTIFY, timed replay, approve endpoint, simulator templates and scorecard read endpoint | `app/api/`, `app/db.py`, `db/migrations/` |
-| Model setup and tracing | Configurable DeepSeek, Gemini, OpenAI and OpenRouter profiles, per-role overrides/fallbacks/limits; optional OpenTelemetry ticket, stage and Pydantic AI spans | `config/models.yaml`, `config/roles.yaml`, `app/models_config.py`, `app/tracing.py` |
+| Model setup and tracing | Configurable DeepSeek, Gemini, OpenAI, OpenRouter and local Ollama (qwen3.5:9b, thinking off or on) profiles, per-role overrides/fallbacks/limits; optional OpenTelemetry ticket, stage and Pydantic AI spans | `config/models.yaml`, `config/roles.yaml`, `app/models_config.py`, `app/tracing.py` |
 | Code index | ast-grep extracts service symbols, error messages, flag reads and gRPC handlers at each deployed commit; service cards and exported TSV files guide the offline codebase analyst | `app/indexer/`, `codebox/bin/` |
-| Layer 2 | Duplicate linking, deterministic brief, parallel HolmesGPT and codebox analysts, checked findings, optional round 2, verdict rules, investigation memory and cost tracking | `app/nodes/duplicates.py`, `app/nodes/brief.py`, `app/nodes/findings.py`, `app/nodes/verdict.py`, `app/analysts/` |
+| Layer 2 | Duplicate linking, deterministic brief, parallel HolmesGPT and codebox analysts, checked findings, a two-way handoff (each analyst asks the other up to two questions, three in all), verdict rules, investigation memory and cost tracking | `app/nodes/duplicates.py`, `app/nodes/brief.py`, `app/nodes/findings.py`, `app/nodes/handoff.py`, `app/nodes/code_followup.py`, `app/nodes/data_followup.py`, `app/nodes/verdict.py`, `app/analysts/` |
 | Layer 3 and delivery | Ownership-based Linear issues with checked evidence, optional links, priority and a durable event receipt; feature roadmap issues; Pylon customer replies and account-manager notes, with a logged fallback and retry receipts | `app/nodes/layer3.py`, `app/nodes/reply.py`, `app/integrations/` |
 | Final result | A typed outcome event records the verdict or request, root cause, checked code excerpts, optional engineering issue, approval and reply delivery; the ticket detail endpoint exposes it | `app/code_snippets.py`, `app/outcome.py`, `app/tasks.py`, `app/api/main.py` |
 | Triage Console | Next.js queue, compact backend-shaped pipeline, live/replay event timeline, typed tool output rendering, approval, simulator, scorecard, and light/dark mode | `web/app/`, `web/lib/`, `web/components/` |
@@ -66,7 +66,8 @@ code index tables are used by Phase 6; eval results remain ahead of their workfl
   good version; `v1.4.0` mixes four planted bugs with four ordinary changes. Versioned payment,
   quote, checkout and product-catalog images can be switched individually. See
   [sandbox/README.md](sandbox/README.md) for the bugs and setup.
-- `scenarios/` contains seven demo tickets plus two spare bug scenarios. Bug scenarios place real
+- `scenarios/` contains nine demo tickets: 8 and 9 are the silent cart and catalog bugs, where the
+  code finds the change and production confirms it. Bug scenarios place real
   shop orders, verify the expected trace evidence, record deploy/flag changes and then send
   the ticket. `config/ownership.yaml` is the single service vocabulary.
 - The shop's `agent_ro` login can read only catalog data. HolmesGPT's separate `history_ro`

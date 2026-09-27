@@ -7,7 +7,7 @@ settings from models.yaml. `python -m app.models_config` (make models) prints th
 """
 
 import os
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from decimal import Decimal
 from functools import cache
 
@@ -16,17 +16,20 @@ from pydantic_ai.models import Model, infer_model
 from pydantic_ai.models.fallback import FallbackModel
 from pydantic_ai.models.google import GoogleModel
 from pydantic_ai.models.openai import OpenAIChatModel
+from pydantic_ai.providers.ollama import OllamaProvider
 from pydantic_ai.settings import ModelSettings
 from pydantic_ai.usage import UsageLimits
 
 from app.settings import settings
 
 # The environment variable each provider's key is read from, by Pydantic AI and LiteLLM alike.
+# A local Ollama needs none.
 PROVIDER_KEYS = {
     "google": "GEMINI_API_KEY",
     "openai": "OPENAI_API_KEY",
     "deepseek": "DEEPSEEK_API_KEY",
     "openrouter": "OPENROUTER_API_KEY",
+    "ollama": None,
 }
 
 
@@ -37,13 +40,16 @@ class ModelSpec:
     litellm: str
     price: dict
     settings: ModelSettings
+    litellm_args: dict = field(default_factory=dict)  # extra LiteLLM parameters
+    container_env: dict = field(default_factory=dict)  # for HolmesGPT's container
+    time_scale: float = 1.0  # multiplies the analysts' time budgets (slow local models)
 
     @property
     def provider(self) -> str:
         return self.pydantic_ai.split(":", 1)[0]
 
     @property
-    def key_env(self) -> str:
+    def key_env(self) -> str | None:
         return PROVIDER_KEYS[self.provider]
 
 
@@ -64,6 +70,9 @@ def _models() -> dict[str, ModelSpec]:
             litellm=v["litellm"],
             price=v["price"],
             settings=v.get("settings", {}),
+            litellm_args=v.get("litellm_args", {}),
+            container_env={k: str(e) for k, e in v.get("container_env", {}).items()},
+            time_scale=float(v.get("time_scale", 1.0)),
         )
         for k, v in raw.items()
     }
@@ -110,7 +119,7 @@ def _specs(role_name: str) -> list[ModelSpec]:
 
 def key_envs(role_name: str) -> list[str]:
     """The key variables a role's models need, e.g. to pass into an analyst's container."""
-    return list(dict.fromkeys(m.key_env for m in _specs(role_name)))
+    return list(dict.fromkeys(m.key_env for m in _specs(role_name) if m.key_env))
 
 
 def required_keys() -> set[str]:
@@ -127,6 +136,9 @@ _OPENAI_COMPATIBLE = {"openai", "deepseek", "openrouter"}
 
 def build_model(spec: ModelSpec) -> Model:
     provider, name = spec.pydantic_ai.split(":", 1)
+    if provider == "ollama":  # a local Ollama's OpenAI-compatible API
+        ollama = OllamaProvider(base_url=settings.ollama_base_url)
+        return OpenAIChatModel(name, provider=ollama, settings=spec.settings)
     if provider in _OPENAI_COMPATIBLE:
         return OpenAIChatModel(name, provider=provider, settings=spec.settings)
     if provider == "google":  # Gemini API, GEMINI_API_KEY
@@ -152,8 +164,22 @@ def litellm_model(role_name: str) -> str:
 def litellm_kwargs(role_name: str) -> dict:
     """The role's request settings for LiteLLM (mini-swe-agent's model_kwargs); parameters a
     provider doesn't take are dropped rather than refused."""
-    s = role(role_name).primary.settings
-    return {k: s[k] for k in ("max_tokens", "extra_body") if k in s} | {"drop_params": True}
+    spec = role(role_name).primary
+    s = spec.settings
+    kept = {k: s[k] for k in ("max_tokens", "extra_body") if k in s}
+    return kept | spec.litellm_args | {"drop_params": True}
+
+
+def time_budget(role_name: str, seconds: float) -> float:
+    """An analyst node's time budget for the role's model: budgets were measured on hosted
+    models, and a local one on a laptop is several times slower."""
+    return seconds * role(role_name).primary.time_scale
+
+
+def container_env(role_name: str) -> dict[str, str]:
+    """Settings (not keys) HolmesGPT's container needs for the role's model, e.g. where a local
+    model runs and whether it thinks."""
+    return dict(role(role_name).primary.container_env)
 
 
 def cost_usd(model_key: str, input_tokens: int, output_tokens: int, cached: int = 0) -> float:
