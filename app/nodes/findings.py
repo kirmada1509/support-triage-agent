@@ -9,6 +9,7 @@ telemetry.
 
 import re
 
+from app.code_snippets import extract_snippets
 from app.models import Evidence, Findings, ToolRecord
 from app.nodes._llm import call
 from app.nodes.duplicates import error_signature
@@ -142,9 +143,10 @@ def check_evidence(findings: Findings, calls: list[ToolRecord]) -> Findings:
     ):
         error_text = None
     confidence = findings.confidence if kept else min(findings.confidence, 0.3)
-    return findings.model_copy(
+    checked = findings.model_copy(
         update={"evidence": kept, "confidence": confidence, "error_text": error_text}
     )
+    return checked.model_copy(update={"code_snippets": extract_snippets(checked, calls)})
 
 
 def limit_hit(agent: str, reason: str) -> Findings:

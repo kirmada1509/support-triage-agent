@@ -1,5 +1,6 @@
 """Shape the final graph state into one readable outcome for API and SSE consumers."""
 
+from app.code_snippets import select_snippets
 from app.events import OutcomeEvent
 from app.graph.state import TicketState
 
@@ -37,6 +38,9 @@ def build_outcome(state: TicketState) -> OutcomeEvent:
         service=verdict.owning_service if verdict else None,
         file_line=verdict.file_line if verdict else None,
         commit=verdict.commit if verdict else None,
+        code_snippets=select_snippets(verdict.file_line, state.get("findings", []))
+        if verdict
+        else [],
         duplicate_of=duplicate,
         linear_issue=issue,
         engineering_handoff=("created" if issue else "local_only")

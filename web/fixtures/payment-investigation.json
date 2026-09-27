@@ -58,7 +58,18 @@
       "engineering_handoff": "local_only",
       "reply": "We found an issue affecting your checkout. We've documented the finding and will follow up with an update.",
       "reply_delivery": "logged",
-      "approved": true
+      "approved": true,
+      "code_snippets": [
+        {
+          "render": "diff",
+          "file": "src/payment/charge.js",
+          "language": "diff",
+          "start_line": 83,
+          "end_line": 91,
+          "content": "@@ -83,7 +83,9 @@ module.exports.charge = async request => {\n       throw new Error(`Sorry, we cannot process ${cardType} credit cards. Only VISA or MasterCard is accepted.`);\n     }\n \n-    if ((currentYear * 12 + currentMonth) > (year * 12 + month)) {\n+    const currentPeriod = currentYear * 12 + currentMonth;\n+    const expiryPeriod = year * 12 + month;\n+    if (currentPeriod >= expiryPeriod) {\n       throw new Error(`The credit card (ending ${lastFourDigits}) expired on ${month}/${year}.`);\n     }\n ",
+          "call_id": "c1"
+        }
+      ]
     },
     "stages_total": 17
   },
@@ -3999,7 +4010,18 @@
         "engineering_handoff": "local_only",
         "reply": "We found an issue affecting your checkout. We've documented the finding and will follow up with an update.",
         "reply_delivery": "logged",
-        "approved": true
+        "approved": true,
+        "code_snippets": [
+          {
+            "render": "diff",
+            "file": "src/payment/charge.js",
+            "language": "diff",
+            "start_line": 83,
+            "end_line": 91,
+            "content": "@@ -83,7 +83,9 @@ module.exports.charge = async request => {\n       throw new Error(`Sorry, we cannot process ${cardType} credit cards. Only VISA or MasterCard is accepted.`);\n     }\n \n-    if ((currentYear * 12 + currentMonth) > (year * 12 + month)) {\n+    const currentPeriod = currentYear * 12 + currentMonth;\n+    const expiryPeriod = year * 12 + month;\n+    if (currentPeriod >= expiryPeriod) {\n       throw new Error(`The credit card (ending ${lastFourDigits}) expired on ${month}/${year}.`);\n     }\n ",
+            "call_id": "c1"
+          }
+        ]
       }
     }
   ]

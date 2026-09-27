@@ -107,6 +107,27 @@ def test_offline_fixture_matches_api_models_and_has_local_outcome():
     assert events[-1].event.kind == "outcome"
     assert events[-1].event.engineering_handoff == "local_only"
     assert events[-1].event.reply_delivery == "logged"
+    assert events[-1].event.code_snippets == ticket.outcome.code_snippets
+    assert events[-1].event.code_snippets[0].content in next(
+        item.event.raw_output
+        for item in events
+        if isinstance(item.event, ToolCallEvent)
+        and item.event.stage == "codebase_analyst"
+        and item.event.call_id == events[-1].event.code_snippets[0].call_id
+        and item.event.status == "ok"
+    )
+
+
+def test_historical_outcome_is_presented_with_observed_code_only():
+    from app.api.presentation import present_run_events
+
+    path = Path(__file__).resolve().parents[1] / "web/fixtures/payment-investigation.json"
+    events = [StoredEvent.model_validate(item) for item in json.loads(path.read_text())["events"]]
+    original = events[-1].model_dump_json()
+    presented = present_run_events(events)
+    assert presented[-1].event.code_snippets
+    assert presented[-1].event.code_snippets[0].render == "diff"
+    assert events[-1].model_dump_json() == original
 
 
 def test_captured_analyst_outputs_are_representable_without_data_loss():

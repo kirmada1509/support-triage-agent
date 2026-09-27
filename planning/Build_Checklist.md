@@ -4,11 +4,11 @@ What's built and what isn't, phase by phase, against `Agent_Architecture_And_Bui
 Tick an item when it works and is tested the way the plan's "How it's tested" says; tick a
 phase's "Done when" only when that whole criterion has been seen working.
 
-Last updated Sep 27, 2026, Phase 8 investigation readability and offline demo verified; populated scorecard awaits Phase 9 data. Suite inventory (provider calls depend on credit):
+Last updated Sep 27, 2026, source-backed engineering snippets verified in the final result and offline demo; populated scorecard awaits Phase 9 data. Suite inventory (provider calls depend on credit):
 
 | Suite | Command | Needs | Tests |
 | --- | --- | --- | --- |
-| Units, graph in memory, front pipeline, scenario logic, sandbox kit, tracing, model config, retrieval, indexer, codebox helpers, trace condensing, Layer 2 rules and nodes, Linear/Pylon adapters, final outcome, console presentation adapter and fixture | `make test` | nothing | 239 |
+| Units, graph in memory, front pipeline, scenario logic, sandbox kit, tracing, model config, retrieval, indexer, codebox helpers, trace condensing, Layer 2 rules and nodes, Linear/Pylon adapters, final outcome, console presentation adapter and fixture | `make test` | nothing | 246 |
 | Database | `make test-db` | `make db` | 16 |
 | The fork: tags, planted bugs, overlay, images, the code index at both tags | `make test-sandbox` | `make sandbox` | 28 |
 | The running shop: every scenario, read-only role, metrics, logs | `make test-shop` | `make shop-up` | 15 |
@@ -189,6 +189,10 @@ Last updated Sep 27, 2026, Phase 8 investigation readability and offline demo ve
   nothing, and retries check delivery receipts
 - [x] Final `outcome` event and `GET /tickets/{id}.outcome`: verdict, root cause, code location,
   optional issue, approval and reply delivery; a no-Linear bug finishes with a visible result
+- [x] Engineering handoffs and final outcomes include short code or diff excerpts only when a
+  checked code reference matches successful codebox output. Historical stored runs gain the
+  same presentation on API reads without changing stored evidence. The local demo includes its
+  captured payment diff; no model call or codebox rerun is needed.
 - [x] Approval resumes a paused worker run (`make test-db`)
 - [x] `curl -N` on a live API stream received a newly inserted stage event from Postgres
 - [x] **Done when:** a bug ticket finishes with a readable local outcome (database worker test),
@@ -239,6 +243,8 @@ Last updated Sep 27, 2026, Phase 8 investigation readability and offline demo ve
   approval waiting state, pipeline auto-centering and scroll controls, and hidden scrollbars make
   the recorded run easier to follow. Running analyst groups show four recent updates with a
   Show all control; the full history remains available when the group finishes.
+- [x] Final-result code excerpts use the existing AI Elements Code Block with file, line range,
+  source call, and copy action; browser verified the offline payment run in light mode.
 - [x] Applied the investigation screen's compact headers, semantic badges, small icons, dividers,
   and light/dark styling across navigation, ticket queue and preview, simulator, and scorecard.
   Browser verified queue selection, scenario selection, and the empty scorecard state without

@@ -400,8 +400,8 @@ The verdict node merges both results into a `Verdict`. If the two disagree, the 
 ### Layer 3: Engineering router
 
 - Looks up the owning team in `ownership.yaml` from the verdict's service.
-- With a Linear key, creates an issue with summary, root cause, evidence links (Jaeger trace, configured Grafana panel and GitHub URL), an honest affected-count lower bound, and reported reproduction steps. Without a key, records the finding locally; forwarding is optional for the demo.
-- Shows the ticket's final outcome through the API and SSE, including verdict, root cause, optional issue, and whether the reply was sent or logged. Sends a customer acknowledgement and an internal account-manager note only when Pylon is configured.
+- With a Linear key, creates an issue with summary, root cause, evidence links (Jaeger trace, configured Grafana panel and GitHub URL), an honest affected-count lower bound, reported reproduction steps, and short source-backed code excerpts when available. Without a key, records the finding locally; forwarding is optional for the demo.
+- Shows the ticket's final outcome through the API and SSE, including verdict, root cause, checked code excerpts, optional issue, and whether the reply was sent or logged. Sends a customer acknowledgement and an internal account-manager note only when Pylon is configured.
 
 ### Data passed between steps
 
@@ -703,6 +703,10 @@ requiring no API, worker, shop, or model credentials. Real `?replay=1` keeps the
 component map and run commands are in `web/README.md`.
 The same visual language carries through the queue, ticket preview, simulator, scorecard, and
 navigation: compact headings, semantic status badges, light borders, and restrained iconography.
+The final outcome displays backend-provided code excerpts with AI Elements Code Block. The
+backend extracts at most two snippets from successful codebox calls around a checked file:line;
+it leaves the section empty if the recorded output does not support an excerpt. API reads can
+recover snippets for older stored outcomes without rewriting their evidence records.
 The queue's New ticket action uses the existing simulator intake contract for a manually entered
 subject and message, then opens the ticket returned by the backend; it does not create a second
 ticket-writing path.

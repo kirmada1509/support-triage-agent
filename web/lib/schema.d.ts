@@ -246,6 +246,29 @@ export interface components {
              */
             highlight: number[];
         };
+        /**
+         * CodeSnippet
+         * @description A short excerpt copied from a codebox call, with its file, lines and call ID.
+         */
+        CodeSnippet: {
+            /**
+             * Render
+             * @enum {string}
+             */
+            render: "code" | "diff";
+            /** File */
+            file: string;
+            /** Language */
+            language: string;
+            /** Start Line */
+            start_line: number;
+            /** End Line */
+            end_line: number;
+            /** Content */
+            content: string;
+            /** Call Id */
+            call_id: string;
+        };
         /** CommitOut */
         CommitOut: {
             /**
@@ -457,6 +480,11 @@ export interface components {
             file_line?: string | null;
             /** Commit */
             commit?: string | null;
+            /**
+             * Code Snippets
+             * @default []
+             */
+            code_snippets: components["schemas"]["CodeSnippet"][];
             /** Duplicate Of */
             duplicate_of?: string | null;
             /** Linear Issue */

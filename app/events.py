@@ -8,7 +8,7 @@ from typing import Annotated, Any, Literal
 
 from pydantic import BaseModel, Field, TypeAdapter
 
-from app.models import JevAnswer, Retrieved
+from app.models import CodeSnippet, JevAnswer, Retrieved
 
 # --- tool-call outputs, discriminated by `render` ---------------------------------------------
 
@@ -208,6 +208,7 @@ class OutcomeEvent(BaseModel):
     service: str | None = None
     file_line: str | None = None
     commit: str | None = None
+    code_snippets: list[CodeSnippet] = []
     duplicate_of: str | None = None
     linear_issue: str | None = None
     engineering_handoff: Literal["created", "local_only", "not_needed"] = "not_needed"

@@ -3,7 +3,7 @@
 Context and rules for coding agents working in this repo. Read it before changing anything, and
 keep it true (see "Keeping this file current" at the end).
 
-Last updated: Sep 27, 2026, Phase 8 console and offline investigation demo verified in local-outcome mode.
+Last updated: Sep 27, 2026, Phase 8 console and source-backed engineering snippets verified in local-outcome mode.
 
 ## What this is
 
@@ -64,6 +64,7 @@ app/
   graph/layout.yaml node positions for the console's flowchart
   nodes/*.py        one async run(state) per stage
   events.py         event models (discriminated union) the console renders
+  code_snippets.py  checked codebox excerpts for engineering handoffs and final outcomes
   api/presentation.py pure typed-output hints at the API read boundary (stored raw output retained)
   models.py         Ticket, ContextBundle, Enrichment, Retrieved, Classification, Findings, Verdict...
   models_config.py  roles.yaml -> Pydantic AI model / LiteLLM string, fallbacks, UsageLimits, cost
@@ -172,9 +173,10 @@ observability/      local file-log collector config for Grafana/OpenSearch (opti
   unknown service goes to a person. `layer1` verifies every cited ID; `requests` drafts an
   acknowledgement. `make front-eval` scores them on 20 fixed tickets.
 - **Layer 3 and delivery.** `layer3` maps the checked verdict service through `ownership.yaml`.
-  With a Linear key it creates a team issue and emits its link; otherwise it records the finding
-  locally and drafts a truthful reply. `reply` optionally files feature requests, posts Pylon
-  replies and account-manager notes, or logs them when no account is configured. The intake
+  With a Linear key it creates a team issue with checked code excerpts and emits its link;
+  otherwise it records the finding locally and drafts a truthful reply. `reply` optionally files
+  feature requests, posts Pylon replies and account-manager notes, or logs them when no account
+  is configured. The intake
   payload may include `pylon_issue_id` and top-level `pylon_message_id`; Pylon lookup verifies
   the message is customer-visible. Successful `delivery` events are receipts for retries. The
   worker emits a final `outcome` event, also shown on `GET /tickets/{id}`. Approval depends on

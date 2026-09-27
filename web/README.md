@@ -57,3 +57,6 @@ through the same pipeline and timeline. Play, Pause, Step, and Restart control l
 pauses at the recorded approval. Simulated Approve/Edit resumes locally, and any edited reply is
 shown in the local outcome. This route makes no FastAPI, SSE, worker, provider, or approval POST
 requests. Real `?replay=1` still uses the backend-controlled stream timing.
+The final outcome shows source-backed engineering code or diff excerpts when the codebase analyst
+actually read them. They include a file, line range, and source call ID. The offline payment demo
+shows its captured diff without running an agent.

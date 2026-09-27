@@ -16,7 +16,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from sse_starlette import EventSourceResponse, ServerSentEvent
 
 from app import db
-from app.api.presentation import present_stored_event
+from app.api.presentation import present_run_events, present_stored_event
 from app.api.schemas import (
     Pipeline,
     PylonTicketIn,
@@ -27,6 +27,7 @@ from app.api.schemas import (
     TicketStatus,
     TicketSummary,
 )
+from app.code_snippets import snippets_from_events
 from app.events import ApprovalRequiredEvent, JevEvent, LinkEvent, OutcomeEvent, StoredEvent
 from app.graph.build import pipeline_shape
 from app.models import ApprovalDecision, Ticket
@@ -85,11 +86,15 @@ async def get_ticket(ticket_id: str) -> TicketDetail:
     row = await db.get_ticket(ticket_id)
     if row is None:
         raise HTTPException(404)
-    events = [e.event for e in await db.list_events(ticket_id)]
+    stored = await db.list_events(ticket_id)
+    events = [e.event for e in stored]
     detail = TicketDetail.model_validate(row)
     detail.jev = next((e for e in reversed(events) if isinstance(e, JevEvent)), None)
     detail.links = [e for e in events if isinstance(e, LinkEvent)]
     detail.outcome = next((e for e in reversed(events) if isinstance(e, OutcomeEvent)), None)
+    if detail.outcome and detail.outcome.file_line and not detail.outcome.code_snippets:
+        snippets = snippets_from_events(detail.outcome.file_line, stored)
+        detail.outcome = detail.outcome.model_copy(update={"code_snippets": snippets})
     if row.status == "needs_approval":
         detail.pending_approval = next(
             (e for e in reversed(events) if isinstance(e, ApprovalRequiredEvent)), None
@@ -119,7 +124,7 @@ async def approve(ticket_id: str, decision: ApprovalDecision) -> dict:
 
 @api.get("/tickets/{ticket_id}/events")
 async def list_events(ticket_id: str, after: int = 0) -> list[StoredEvent]:
-    return [present_stored_event(e) for e in await db.list_events(ticket_id, after)]
+    return [e for e in present_run_events(await db.list_events(ticket_id)) if e.id > after]
 
 
 def _sse(e: StoredEvent) -> ServerSentEvent:
@@ -136,7 +141,7 @@ async def stream_events(ticket_id: str, request: Request, replay: bool = False):
 
     async def replayed():
         prev = None
-        for e in await db.list_events(ticket_id):
+        for e in present_run_events(await db.list_events(ticket_id)):
             if prev is not None:
                 await asyncio.sleep(min((e.ts - prev).total_seconds(), 3.0))
             prev = e.ts
@@ -148,7 +153,9 @@ async def stream_events(ticket_id: str, request: Request, replay: bool = False):
             settings.database_url, autocommit=True
         ) as conn:
             await conn.execute("LISTEN ticket_events")  # listen first, so nothing is missed
-            for e in await db.list_events(ticket_id, last_id):
+            for e in present_run_events(await db.list_events(ticket_id)):
+                if e.id <= last_id:
+                    continue
                 last_id = e.id
                 yield _sse(e)
             while not await request.is_disconnected():

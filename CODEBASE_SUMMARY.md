@@ -51,7 +51,7 @@ stage calls the configured structured LLM classifier. It is not a Jev API integr
 | Code index | ast-grep extracts service symbols, error messages, flag reads and gRPC handlers at each deployed commit; service cards and exported TSV files guide the offline codebase analyst | `app/indexer/`, `codebox/bin/` |
 | Layer 2 | Duplicate linking, deterministic brief, parallel HolmesGPT and codebox analysts, checked findings, optional round 2, verdict rules, investigation memory and cost tracking | `app/nodes/duplicates.py`, `app/nodes/brief.py`, `app/nodes/findings.py`, `app/nodes/verdict.py`, `app/analysts/` |
 | Layer 3 and delivery | Ownership-based Linear issues with checked evidence, optional links, priority and a durable event receipt; feature roadmap issues; Pylon customer replies and account-manager notes, with a logged fallback and retry receipts | `app/nodes/layer3.py`, `app/nodes/reply.py`, `app/integrations/` |
-| Final result | A typed outcome event records the verdict or request, root cause, code location, optional engineering issue, approval and reply delivery; the ticket detail endpoint exposes it | `app/outcome.py`, `app/tasks.py`, `app/api/main.py` |
+| Final result | A typed outcome event records the verdict or request, root cause, checked code excerpts, optional engineering issue, approval and reply delivery; the ticket detail endpoint exposes it | `app/code_snippets.py`, `app/outcome.py`, `app/tasks.py`, `app/api/main.py` |
 | Triage Console | Next.js queue, compact backend-shaped pipeline, live/replay event timeline, typed tool output rendering, approval, simulator, scorecard, and light/dark mode | `web/app/`, `web/lib/`, `web/components/` |
 
 The application uses Python 3.12, FastAPI, Pydantic AI, LangGraph, Procrastinate, SQLAlchemy,
@@ -103,7 +103,7 @@ code index tables are used by Phase 6; eval results remain ahead of their workfl
   edited approval, replay, and local final outcome. The analysts persist terminal output; the
   API presents validated Prometheus data, logs, and unambiguous code/diffs as typed outputs
   without changing the stored event. A recorded run exercises series, table, log, and code
-  renderers in `/ticket/demo` without backend or model calls. The scorecard endpoint reads the database,
+  renderers and a source-backed final diff in `/ticket/demo` without backend or model calls. The scorecard endpoint reads the database,
   but Phase 9 has not populated eval results or performed complete rehearsals.
 - The Phase 0 Grafana dashboard review remains open. See the
   checklist for exact status; do not infer completion from a wired graph edge or a schema table.

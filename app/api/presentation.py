@@ -5,10 +5,12 @@ import math
 import re
 from datetime import UTC, datetime
 
+from app.code_snippets import snippets_from_events
 from app.events import (
     CodeOut,
     DiffOut,
     LogOut,
+    OutcomeEvent,
     Series,
     SeriesOut,
     SeriesPoint,
@@ -102,3 +104,18 @@ def present_stored_event(item: StoredEvent) -> StoredEvent:
     return item.model_copy(
         update={"event": event.model_copy(update={"output": replacement, "raw_output": raw})}
     )
+
+
+def present_run_events(items: list[StoredEvent]) -> list[StoredEvent]:
+    """Present a complete stored run, including source-backed snippets for older outcomes."""
+    result = []
+    for item in items:
+        event = item.event
+        if isinstance(event, OutcomeEvent) and event.file_line and not event.code_snippets:
+            snippets = snippets_from_events(event.file_line, items)
+            if snippets:
+                item = item.model_copy(
+                    update={"event": event.model_copy(update={"code_snippets": snippets})}
+                )
+        result.append(present_stored_event(item))
+    return result

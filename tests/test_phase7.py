@@ -57,6 +57,40 @@ def test_issue_description_contains_checked_evidence(monkeypatch):
     assert "Affected count: at least 1" in description
 
 
+def test_issue_and_final_outcome_include_only_source_backed_code():
+    from app.models import CodeSnippet
+    from app.outcome import build_outcome
+
+    state = bug_state()
+    snippet = CodeSnippet(
+        render="diff",
+        file="src/payment/charge.js",
+        start_line=86,
+        end_line=89,
+        language="diff",
+        content=(
+            "-    if (currentPeriod > expiryPeriod) {\n+    if (currentPeriod >= expiryPeriod) {"
+        ),
+        call_id="c1",
+    )
+    state["findings"].append(
+        Findings(
+            agent="codebase_analyst",
+            hypothesis="comparison regressed",
+            confidence=0.9,
+            evidence=[
+                Evidence(source="code", ref="src/payment/charge.js:88", observation="comparison")
+            ],
+            code_snippets=[snippet],
+        )
+    )
+    description = layer3.issue_description(state)
+    assert "```diff" in description
+    assert "+    if (currentPeriod >= expiryPeriod) {" in description
+    outcome = build_outcome(state)
+    assert outcome.code_snippets == [snippet]
+
+
 @pytest.mark.asyncio
 async def test_linear_uses_team_key_and_checks_graphql_result():
     sent = []

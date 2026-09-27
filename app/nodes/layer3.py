@@ -1,8 +1,10 @@
 """Route a checked bug or incident to the owning Linear team."""
 
+import re
 from urllib.parse import quote
 
 from app import db
+from app.code_snippets import select_snippets
 from app.events import DeliveryEvent, LinkEvent
 from app.graph.state import TicketState
 from app.graph.stream import emit
@@ -40,6 +42,16 @@ def issue_description(state: TicketState) -> str:
         if settings.github_repo_url:
             commit += f" ({settings.github_repo_url.rstrip('/')}/commit/{verdict.commit})"
         lines.append(f"Introduced by: {commit}")
+    for snippet in select_snippets(verdict.file_line, state.get("findings", [])):
+        backticks = (len(match.group()) for match in re.finditer(r"`+", snippet.content))
+        fence = "`" * max(3, max(backticks, default=0) + 1)
+        lines.extend(
+            [
+                f"Observed code: {snippet.file}:{snippet.start_line}-{snippet.end_line} "
+                f"(codebox call {snippet.call_id})",
+                f"{fence}{snippet.language}\n{snippet.content}\n{fence}",
+            ]
+        )
     lines.append("Evidence:")
     if settings.grafana_panel_url and any(
         evidence.source == "metric"

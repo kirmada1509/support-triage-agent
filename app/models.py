@@ -149,10 +149,23 @@ class Evidence(BaseModel):
     call_id: str | None = None  # the tool call it came from (checked in findings.py)
 
 
+class CodeSnippet(BaseModel):
+    """A short excerpt copied from a codebox call, with its file, lines and call ID."""
+
+    render: Literal["code", "diff"]
+    file: str
+    language: str
+    start_line: int
+    end_line: int
+    content: str
+    call_id: str
+
+
 class Findings(BaseModel):
     agent: Literal["data_analyst", "codebase_analyst"]
     hypothesis: str
     evidence: list[Evidence]
+    code_snippets: list[CodeSnippet] = []  # filled in code from checked evidence, not model claims
     confidence: float
     round: int = 1
     error_text: str | None = None  # the exact error message it saw in a tool's output
