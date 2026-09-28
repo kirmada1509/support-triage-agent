@@ -290,6 +290,13 @@ Last updated Sep 28, 2026, left-to-right pipeline layout and DeepSeek balance in
 - [x] The sidebar header shows the DeepSeek credit left (`GET /providers/deepseek/balance`,
   refreshed every minute; "No key" without `DEEPSEEK_API_KEY`, amber when low or unavailable);
   five provider-free tests, browser verified against the real account.
+- [x] Hosted demo (`deploy/`, see its README): console on Vercel
+  (https://support-triage-agent-delta.vercel.app, prebuilt), API, Postgres and Caddy in compose
+  on a dedicated VPS (https://support-triage-agent.duckdns.org), the worker as a systemd service,
+  the shop with only 22/80/443 public. Local runs copied over. Verified: the console reads live
+  data and SSE through Caddy; `make scenario-9` was linked to the copied T-EEFB42 as a duplicate;
+  `make scenario-8` ran both analysts with handoffs both ways to a confirmed bug at the planted
+  commit (93%, $0.068). Railway's free plan refused a project, so nothing runs there.
 - [x] **Done when:** a live ticket lights up the flowchart stage by stage, tool calls show their
   commands and typed output when safely recognized, a reply can be approved, and a past run
   replays. The captured payment run renders real series, table, log, and code events through the
