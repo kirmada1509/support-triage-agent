@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# Deploy the committed HEAD to the VPS: code, the API container and Postgres, migrations, and
-# the worker service. Run from the repo root after init-env.sh (first time) and commit.
+# Deploy the committed HEAD to the VPS: code, Postgres, the API and its HTTPS proxy,
+# migrations, and the worker service. Run from the repo root after init-env.sh (first time) and commit.
 #   ./deploy/vps/deploy.sh
 # Uncommitted changes are not deployed. Files the VPS owns (.env.agent, deploy/vps/.env, .venv,
 # sandbox/compose.host.yaml) are left alone.
 set -euo pipefail
-HOST=${VPS_HOST:-root@155.138.161.5}
+HOST=${VPS_HOST:-root@108.61.252.195}
 DIR=${VPS_DIR:-/opt/support-triage-agent}
 DOMAIN=${VPS_DOMAIN:-support-triage-agent.duckdns.org}
 UV_VERSION=0.12.17
@@ -41,7 +41,7 @@ uv sync --frozen --no-dev --quiet
 echo "== postgres and api"
 docker compose -f deploy/vps/compose.yaml up --detach --build --wait db
 .venv/bin/python -m app.migrate
-docker compose -f deploy/vps/compose.yaml up --detach --build --wait triage-api
+docker compose -f deploy/vps/compose.yaml up --detach --build --wait triage-api caddy
 
 echo "== worker"
 install -m 644 deploy/vps/triage-worker.service /etc/systemd/system/triage-worker.service
@@ -52,6 +52,10 @@ sleep 3
 systemctl is-active triage-worker
 
 echo "== check"
-curl -fsS -o /dev/null -w "https://$DOMAIN/pipeline %{http_code}\n" "https://$DOMAIN/pipeline" \
-  || echo "API not reachable at https://$DOMAIN yet (run deploy/vps/caddy.sh once)"
+for _ in $(seq 20); do  # the first certificate takes a few seconds
+  curl -fsS -o /dev/null -w "https://$DOMAIN/pipeline %{http_code}\n" "https://$DOMAIN/pipeline" && exit 0
+  sleep 3
+done
+echo "API not reachable at https://$DOMAIN; check DNS and: docker compose -f deploy/vps/compose.yaml logs caddy" >&2
+exit 1
 REMOTE

@@ -6,7 +6,7 @@
 # Needs the local agent Postgres (make db) and a deployed VPS. Stops the API and worker while
 # it restores.
 set -euo pipefail
-HOST=${VPS_HOST:-root@155.138.161.5}
+HOST=${VPS_HOST:-root@108.61.252.195}
 DIR=${VPS_DIR:-/opt/support-triage-agent}
 LOCAL_DB=${LOCAL_DB_CONTAINER:-support-triage-agent-db-1}
 FORCE=${1:-}

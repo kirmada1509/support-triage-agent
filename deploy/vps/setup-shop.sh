@@ -4,7 +4,7 @@
 #   ./deploy/vps/setup-shop.sh
 # Run deploy.sh first (it syncs the code and installs uv). Takes a while on 2 vCPUs.
 set -euo pipefail
-HOST=${VPS_HOST:-root@155.138.161.5}
+HOST=${VPS_HOST:-root@108.61.252.195}
 DIR=${VPS_DIR:-/opt/support-triage-agent}
 
 ssh "$HOST" DIR="$DIR" bash -s <<'REMOTE'

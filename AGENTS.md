@@ -102,6 +102,8 @@ seed/               200 labelled synthetic tickets and generator
 evals/              20 fixed ticket labels, retrieval and Phase 4 model baselines
 web/                Next.js Triage Console: generated API types, live/replay SSE, offline demo,
                     approval, simulator, scorecard, how it works (see web/README.md)
+deploy/             hosted demo: deploy/vercel.sh (console), deploy/vps/ (API, Postgres and Caddy in
+                    compose, worker as systemd, shop with no public ports); see deploy/README.md
 observability/      local file-log collector config for Grafana/OpenSearch (optional Compose profile)
 .claude/skills/     project skills: sandbox-shop, planted-bugs (see "Skills and plugins")
 ```
@@ -290,6 +292,9 @@ cd web && pnpm install && pnpm dev # console on :3000; see web/README.md for che
 
 ## Gotchas we've hit
 
+- On the hosted VPS Docker publishes ports past ufw, so only Caddy publishes public ports;
+  Postgres and the shop's proxy bind to 127.0.0.1 (`deploy/vps/compose.shop.yaml` resets every
+  other shop port). Deploys ship `HEAD` only. Details in [deploy/README.md](deploy/README.md).
 - The shop's own gotchas (its `.env`, Jaeger's memory, `flag.sh` and the fork, traces arriving in
   pieces, UTC, no search) are in [sandbox/README.md](sandbox/README.md#gotchas).
 - `start_local.sh` needs `.env.agent` and runs migrations. It writes owned process IDs and logs

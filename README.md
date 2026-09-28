@@ -73,6 +73,10 @@ To develop the investigation UI without the API, database, worker, shop, or LLM 
 run only `cd web && pnpm dev` and open http://localhost:3000/ticket/demo. Its recorded payment
 run supports local playback and simulated approval; it does not send backend requests.
 
+The hosted demo: console at https://support-triage-agent-delta.vercel.app, API at
+https://support-triage-agent.duckdns.org (a VPS that also runs the worker and the shop). See
+[deploy/README.md](deploy/README.md).
+
 API docs at http://localhost:8000/docs. `make test` runs the graph end to end in memory and the
 scenario logic against a simulated shop; `make test-db` runs the database tests on a throwaway
 `triage_test` database. `make test-sandbox` and `make test-shop` check the shop fork and the
@@ -133,7 +137,7 @@ app/
   db.py           async engine, sessions and every query the app runs
   retrieval/      phase 3 indexing, embedding, hybrid search and hit rates
   indexer/        phase 5 code index (ast-grep), service cards, export for the codebox
-  integrations/   Linear GraphQL and Pylon HTTP adapters
+  integrations/   Linear GraphQL, Pylon HTTP and DeepSeek balance adapters
 config/           models.yaml, roles.yaml, ownership.yaml (the one list of service names)
 db/migrations/    Alembic: env.py and versions/ (0001 also creates the NOTIFY trigger)
 holmes/           HolmesGPT's image and toolsets (jaeger, history, logs) + their helper scripts
@@ -142,6 +146,7 @@ sandbox/          the shop fork's kit: pin, overlay, patches, setup, image build
 scenarios/        tickets.yaml (9 demo tickets), scenario.py, send_ticket.py, deploy.sh, flag.sh
 knowledge/ seed/ evals/   help, synthetic memory, fixed labels and the Phase 4 model baseline
 web/                Next.js Triage Console (see its README)
+deploy/             hosted demo: Vercel console, VPS API/Postgres/worker/shop (see its README)
 ```
 
 ## Database

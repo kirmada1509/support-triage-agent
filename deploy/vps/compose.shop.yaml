@@ -1,5 +1,5 @@
 # VPS layer for the sandbox shop (copied to sandbox/compose.host.yaml by deploy/vps/deploy.sh).
-# The VPS is shared and public: Docker publishes ports past the host firewall, so no shop port
+# The VPS is public: Docker publishes ports past the host firewall, so no shop port
 # is published except the frontend proxy on 127.0.0.1:8080 (the scenarios and the worker use
 # it). The load generator is off: the scenarios place their own baseline orders.
 services:

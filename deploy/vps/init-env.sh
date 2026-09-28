@@ -5,7 +5,7 @@
 # webhook secret are new random values. Refuses to overwrite files already on the VPS.
 set -euo pipefail
 CONSOLE=${1:?usage: init-env.sh <console origin, e.g. https://support-triage-agent.vercel.app>}
-HOST=${VPS_HOST:-root@155.138.161.5}
+HOST=${VPS_HOST:-root@108.61.252.195}
 DIR=${VPS_DIR:-/opt/support-triage-agent}
 DOMAIN=${VPS_DOMAIN:-support-triage-agent.duckdns.org}
 AGENT_DIR=$(cd "$(dirname "$0")/../.." && pwd)

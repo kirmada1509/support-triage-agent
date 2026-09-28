@@ -10,8 +10,8 @@ WorkingDirectory=/opt/support-triage-agent
 ExecStart=/opt/support-triage-agent/.venv/bin/python -m procrastinate --app=app.tasks.app worker
 Restart=always
 RestartSec=5
-# The shared VPS runs other apps: cap the worker (it loads the embedding model).
-MemoryMax=2G
+# Cap the worker (it loads the embedding model) so the shop keeps its memory.
+MemoryMax=3G
 
 [Install]
 WantedBy=multi-user.target

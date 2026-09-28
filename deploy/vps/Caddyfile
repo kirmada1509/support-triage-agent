@@ -1,0 +1,14 @@
+# HTTPS for the API (certificates from Let's Encrypt, kept in the caddy-data volume).
+{$DOMAIN} {
+	# Server-sent events: pass every chunk through at once, and don't compress them.
+	reverse_proxy triage-api:8000 {
+		flush_interval -1
+	}
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		-Server
+	}
+}
