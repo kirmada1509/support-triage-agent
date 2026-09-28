@@ -125,14 +125,14 @@ the shop and sends it. API docs are at http://localhost:8000/docs.
 
 | Part | Where | Address |
 | --- | --- | --- |
-| Console | Vercel (prebuilt from this machine) | https://support-triage-agent-delta.vercel.app |
+| Console | Vercel, built on every push to `main` | https://support-triage-agent-delta.vercel.app |
 | API, Postgres, Caddy (HTTPS) | VPS, Docker Compose | https://support-triage-agent.duckdns.org |
 | Worker, sandbox shop, analyst images | same VPS (the worker as a systemd service) | not public |
 
 The worker, the shop and the analysts share one Docker host because the analysts start their own
 containers and mount the fork by host path. Only SSH, 80 and 443 are public. After a change,
-commit it, then run `./deploy/vps/deploy.sh` (it deploys `HEAD`) and, for the console,
-`./deploy/vercel.sh`. First-time setup, secrets and logs: [deploy/README.md](deploy/README.md).
+commit it and run `./deploy/vps/deploy.sh` (it deploys `HEAD`); the console deploys itself when
+`main` is pushed. First-time setup, secrets and logs: [deploy/README.md](deploy/README.md).
 The hosted API has no login: anyone with the console can create tickets and approve replies.
 
 ## Linear and Pylon delivery

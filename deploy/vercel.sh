@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# Build the console locally and deploy the output to Vercel production. Prebuilt, because the
-# build prerenders the How it works diagrams from ../planning, which an upload of web/ lacks.
+# Build the console locally and deploy the output to Vercel production, without pushing. (Every
+# push to main deploys it too, through the project's Git connection.) Prebuilt, because the build
+# prerenders the How it works diagrams from ../planning, which an upload of web/ lacks.
 #   ./deploy/vercel.sh                            (API at https://support-triage-agent.duckdns.org)
 #   API_URL=https://api.example.com ./deploy/vercel.sh
 set -euo pipefail

@@ -102,8 +102,9 @@ seed/               200 labelled synthetic tickets and generator
 evals/              20 fixed ticket labels, retrieval and Phase 4 model baselines
 web/                Next.js Triage Console: generated API types, live/replay SSE, offline demo,
                     approval, simulator, scorecard, how it works (see web/README.md)
-deploy/             hosted demo: deploy/vercel.sh (console), deploy/vps/ (API, Postgres and Caddy in
-                    compose, worker as systemd, shop with no public ports); see deploy/README.md
+deploy/             hosted demo: the console deploys on push to main (Vercel); deploy/vps/ has
+                    API, Postgres and Caddy in compose, the worker as systemd, the shop with no
+                    public ports; see deploy/README.md
 observability/      local file-log collector config for Grafana/OpenSearch (optional Compose profile)
 .claude/skills/     project skills: sandbox-shop, planted-bugs (see "Skills and plugins")
 ```
