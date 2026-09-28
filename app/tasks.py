@@ -91,17 +91,22 @@ async def _drive(ticket_id: str, graph_input, seen: set[str] | None = None) -> N
     )
 
 
-@app.task(name="run_ticket", queue="tickets")
-async def run_ticket(ticket_id: str) -> None:
-    row = await db.get_ticket(ticket_id)
+def ticket_from_row(row) -> Ticket:
+    """The stored ticket, plus what only its webhook payload says."""
+    raw = row.raw or {}
     ticket = Ticket.model_validate(row, from_attributes=True)
-    ticket = ticket.model_copy(
+    return ticket.model_copy(
         update={
-            "pylon_issue_id": (row.raw or {}).get("pylon_issue_id"),
-            "pylon_message_id": (row.raw or {}).get("pylon_message_id"),
+            "pylon_issue_id": raw.get("pylon_issue_id"),
+            "pylon_message_id": raw.get("pylon_message_id"),
+            "run_as_new": bool(raw.get("run_as_new")),
         }
     )
-    await _drive(ticket_id, {"ticket": ticket})
+
+
+@app.task(name="run_ticket", queue="tickets")
+async def run_ticket(ticket_id: str) -> None:
+    await _drive(ticket_id, {"ticket": ticket_from_row(await db.get_ticket(ticket_id))})
 
 
 @app.task(name="resume_ticket", queue="tickets")

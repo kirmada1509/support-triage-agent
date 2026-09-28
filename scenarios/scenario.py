@@ -587,6 +587,9 @@ def main() -> None:
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawTextHelpFormatter)
     p.add_argument("scenario", choices=SCENARIOS)
     p.add_argument("--no-send", action="store_true", help="print the ticket instead of sending it")
+    p.add_argument(
+        "--run-as-new", action="store_true", help="skip the duplicate check (a repeat demo run)"
+    )
     p.add_argument("--gap", type=float, default=60, help="seconds between baseline and change")
     p.add_argument("--rounds", type=int, default=3, help="order rounds after the change")
     p.add_argument("--spacing", type=float, default=10, help="seconds between order rounds")
@@ -624,7 +627,7 @@ def main() -> None:
     if a.no_send:
         print(f"\nticket {a.scenario} (not sent)\n  subject: {subject}\n  body: {body}")
     else:
-        send(subject, body)
+        send(subject, body, run_as_new=a.run_as_new)
 
 
 if __name__ == "__main__":

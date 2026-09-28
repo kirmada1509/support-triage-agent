@@ -572,6 +572,23 @@ async def test_an_open_ticket_is_linked_only_when_confirmed(
     assert out["duplicate_of"] == linked
 
 
+async def test_run_as_new_skips_the_duplicate_check(events, monkeypatch):
+    async def never(*a, **k):
+        raise AssertionError("a ticket run as new is not compared with open work")
+
+    monkeypatch.setattr(duplicates, "open_investigations", never)
+    monkeypatch.setattr(duplicates, "open_tickets", never)
+    monkeypatch.setattr(duplicates, "call", never)
+    t = demo_ticket("4").model_copy(
+        update={
+            "run_as_new": True,
+            "body": 'They see "The credit card (ending 1111) expired on 9/2026." at checkout.',
+        }
+    )
+    out = await duplicates.run(state(ticket=t))
+    assert out["duplicate_of"] is None and "run as new" in out["_summary"]
+
+
 async def test_no_candidates_no_model_call(events, monkeypatch, no_open_work):
     async def call(*a):
         raise AssertionError("nothing to confirm")

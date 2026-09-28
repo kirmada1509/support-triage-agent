@@ -309,6 +309,24 @@ def test_sent_ticket_is_signed_the_way_the_webhook_checks(monkeypatch):
     assert posted["headers"]["x-pylon-signature"] != forged
 
 
+def test_a_ticket_can_be_sent_to_run_as_new(monkeypatch):
+    posted = {}
+
+    class Ok:
+        def raise_for_status(self):
+            pass
+
+    def post(url, content, headers):
+        posted["payload"] = json.loads(content)
+        return Ok()
+
+    monkeypatch.setattr(send_ticket.httpx, "post", post)
+    send_ticket.send("subject", "body")
+    assert "run_as_new" not in posted["payload"]  # a plain ticket looks like Pylon's
+    send_ticket.send("subject", "body", run_as_new=True)
+    assert posted["payload"]["run_as_new"] is True
+
+
 def test_flag_change_without_recording(tmp_path, monkeypatch):
     f = tmp_path / "demo.flagd.json"
     flags = {

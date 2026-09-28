@@ -167,6 +167,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/tickets/{ticket_id}/run-as-new": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Run As New
+         * @description Send a copy of a ticket that skips the duplicate check, so the whole pipeline runs even
+         *     when the original's investigation is still open.
+         */
+        post: operations["run_as_new_tickets__ticket_id__run_as_new_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/providers/deepseek/balance": {
         parameters: {
             query?: never;
@@ -699,6 +720,11 @@ export interface components {
              * @default ops@figma-merch.example
              */
             requester: string | null;
+            /**
+             * Run As New
+             * @default false
+             */
+            run_as_new: boolean;
         };
         /** Span */
         Span: {
@@ -837,6 +863,11 @@ export interface components {
             completed_at: string | null;
             /** Body */
             body: string;
+            /**
+             * Run As New
+             * @default false
+             */
+            run_as_new: boolean;
             jev?: components["schemas"]["JevEvent"] | null;
             /**
              * Links
@@ -1198,6 +1229,39 @@ export interface operations {
                 "application/json": components["schemas"]["SimulatorTicketIn"];
             };
         };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    run_as_new_tickets__ticket_id__run_as_new_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                ticket_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
         responses: {
             /** @description Successful Response */
             200: {

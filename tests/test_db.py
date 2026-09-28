@@ -396,7 +396,14 @@ async def test_worker_runs_pauses_and_resumes(monkeypatch, layer2_fakes):
     row = await db.get_ticket(t4.id)
     assert (row.status, row.verdict_kind) == ("done", "inconclusive")
     stages = [e.event for e in await db.list_events(t4.id) if e.event.kind == "stage"]
-    assert {e.stage for e in stages if e.status == "skipped"} == {"layer1", "requests", "layer3"}
+    # no analyst asked the other anything, so neither follow-up ran
+    assert {e.stage for e in stages if e.status == "skipped"} == {
+        "layer1",
+        "requests",
+        "layer3",
+        "code_followup",
+        "data_followup",
+    }
 
 
 async def test_worker_creates_linear_issue_and_keeps_receipt(monkeypatch, front_stage_fakes):

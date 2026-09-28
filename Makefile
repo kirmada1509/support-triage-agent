@@ -26,8 +26,8 @@ api:                ## FastAPI on :8000
 worker:             ## Procrastinate worker that runs the LangGraph pipeline
 	uv run python -m procrastinate --app=app.tasks.app worker
 
-send:               ## send a demo ticket: make send t=4
-	uv run python scenarios/send_ticket.py $(t)
+send:               ## send a demo ticket: make send t=4 (NEW=1: run as new, skip the duplicate check)
+	uv run python scenarios/send_ticket.py $(t) $(if $(NEW),--run-as-new)
 
 sandbox:            ## clone the shop at the pinned commit, apply the planted bugs, tag v1.3.0 and v1.4.0
 	./sandbox/setup.sh
@@ -41,8 +41,8 @@ shop-up:            ## start the shop (minimal mode), versioned services at the 
 shop-down:          ## stop the shop and delete its volumes
 	./sandbox/compose.sh down --remove-orphans --volumes
 
-scenario-%:         ## set up a demo ticket's condition, place its orders, send it: make scenario-4
-	uv run python scenarios/scenario.py $*
+scenario-%:         ## set up a demo ticket's condition, place its orders, send it: make scenario-4 (NEW=1: run as new)
+	uv run python scenarios/scenario.py $* $(if $(NEW),--run-as-new)
 
 deploy:             ## deploy a sandbox service version: make deploy s=payment v=v1.4.0
 	./scenarios/deploy.sh $(s) $(v)

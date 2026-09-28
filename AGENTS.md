@@ -3,7 +3,7 @@
 Context and rules for coding agents working in this repo. Read it before changing anything, and
 keep it true (see "Keeping this file current" at the end).
 
-Last updated: Sep 28, 2026, console pipeline layout and DeepSeek balance.
+Last updated: Sep 28, 2026, run as new (skip the duplicate check) and the hosted demo.
 
 ## What this is
 
@@ -55,6 +55,7 @@ anything uncertain. A Next.js Triage Console shows every stage live.
 app/
   api/main.py       FastAPI: POST /webhooks/pylon (HMAC), /tickets, /tickets/{id}, /pipeline,
                     /tickets/{id}/events (+ /stream SSE, ?replay=1), /tickets/{id}/approve,
+                    /tickets/{id}/run-as-new,
                     /simulator/templates, /simulator/tickets, /evals/scorecard,
                     /providers/deepseek/balance
   api/schemas.py    request and response models
@@ -161,7 +162,9 @@ observability/      local file-log collector config for Grafana/OpenSearch (opti
   `export` writes the TSV files the offline codebox reads at `/index`. Usage in `__main__.py`.
 - **Layer 2.** `duplicates` links a ticket to an open investigation with the same error
   signature (code), or to an open ticket that retrieval finds and a yes/no model call confirms
-  by ID. `brief` is built in code (ticket as data, window, versions from the context's deploys or
+  by ID. A ticket sent with `run_as_new` (the console's Run as new, `NEW=1` for `make send` /
+  `make scenario-N`, kept in the stored webhook payload) skips the check, so a repeat demo ticket
+  still gets the whole investigation. `brief` is built in code (ticket as data, window, versions from the context's deploys or
   the fork's `versions.env`, past tickets as hypotheses). `data_analyst` runs HolmesGPT's
   container (`app/analysts/holmes.py`) and `codebase_analyst` runs mini-swe-agent in the codebox
   with the deployed commit's index at `/index` and the service card and change summary in its
@@ -225,9 +228,9 @@ make install db migrate            # deps, agent Postgres (5433), migrations + d
 ./start_local.sh --observability   # host logs in Grafana Explore, agent traces in Jaeger; needs shop
 ./logs_local.sh                    # attach to those logs after starting services
 make api / make worker             # FastAPI on :8000 / Procrastinate worker (separate terminals)
-make send t=4                      # send demo ticket 4 as-is
+make send t=4                      # send demo ticket 4 as-is (NEW=1: skip the duplicate check)
 make sandbox sandbox-images shop-up  # build the fork, its images, start the shop
-make scenario-4                    # reproduce ticket 4 and send it (needs make api)
+make scenario-4                    # reproduce ticket 4 and send it (needs make api; NEW=1 as above)
 make deploy s=quote v=v1.4.0       # switch a versioned service, recorded
 make flag f=paymentFailure v=off   # change a flag, recorded (FLAG_RECORD=0 to skip recording)
 make migration m="..." ; make migrate ; make check-migrations

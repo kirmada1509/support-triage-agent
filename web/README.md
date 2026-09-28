@@ -52,6 +52,9 @@ The ticket queue, preview, simulator, scorecard, and sidebar use the same compac
 typography, and status colors. The scorecard keeps its honest empty state until eval data exists.
 Use **New ticket** on `/tickets` to enter a tenant, subject, and customer message. It submits
 through `POST /simulator/tickets` and opens the returned investigation immediately.
+**Run as new** on a ticket's page (`POST /tickets/{id}/run-as-new`) sends a copy that skips the
+duplicate check, so a repeat demo ticket still gets the whole investigation; the simulator and the
+New ticket dialog have the same option as a checkbox. Such tickets carry a Run as new badge.
 
 `/how-it-works` explains the pipeline in five steps and links the architecture diagrams. They
 are served as they are from `../planning/` by `app/how-it-works/[slug]/route.ts`, which reads

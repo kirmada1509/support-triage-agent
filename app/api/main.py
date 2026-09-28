@@ -94,6 +94,7 @@ async def get_ticket(ticket_id: str) -> TicketDetail:
     stored = await db.list_events(ticket_id)
     events = [e.event for e in stored]
     detail = TicketDetail.model_validate(row)
+    detail.run_as_new = bool((row.raw or {}).get("run_as_new"))
     detail.jev = next((e for e in reversed(events) if isinstance(e, JevEvent)), None)
     detail.links = [e for e in events if isinstance(e, LinkEvent)]
     detail.outcome = next((e for e in reversed(events) if isinstance(e, OutcomeEvent)), None)
@@ -200,14 +201,44 @@ async def simulator_send(req: SimulatorTicketIn) -> dict:
         subject, body = req.subject, req.body
     else:
         raise HTTPException(422, "give template_id, or subject and body")
-    payload = PylonTicketIn(
-        id=f"T-{uuid.uuid4().hex[:6].upper()}",
-        tenant_id=req.tenant_id,
-        subject=subject,
-        body=body,
-        requester=req.requester,
+    return await deliver(
+        PylonTicketIn(
+            id=new_ticket_id(),
+            tenant_id=req.tenant_id,
+            subject=subject,
+            body=body,
+            requester=req.requester,
+            run_as_new=req.run_as_new,
+        )
     )
-    raw = payload.model_dump_json().encode()
+
+
+@api.post("/tickets/{ticket_id}/run-as-new")
+async def run_as_new(ticket_id: str) -> dict:
+    """Send a copy of a ticket that skips the duplicate check, so the whole pipeline runs even
+    when the original's investigation is still open."""
+    row = await db.get_ticket(ticket_id)
+    if row is None:
+        raise HTTPException(404)
+    return await deliver(
+        PylonTicketIn(
+            id=new_ticket_id(),
+            tenant_id=row.tenant_id,
+            subject=row.subject,
+            body=row.body,
+            requester=row.requester,
+            run_as_new=True,
+        )
+    )
+
+
+def new_ticket_id() -> str:
+    return f"T-{uuid.uuid4().hex[:6].upper()}"
+
+
+async def deliver(payload: PylonTicketIn) -> dict:
+    """Sign and post a ticket through the real webhook, exactly as Pylon would."""
+    raw = payload.model_dump_json(exclude_defaults=True).encode()
     async with httpx.AsyncClient(base_url=settings.api_base_url) as client:
         r = await client.post(
             "/webhooks/pylon",

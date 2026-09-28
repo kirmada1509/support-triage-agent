@@ -19,6 +19,7 @@ class PylonTicketIn(BaseModel):
     requester: str | None = None
     pylon_issue_id: str | None = None
     pylon_message_id: str | None = None
+    run_as_new: bool = False  # not Pylon's: skip the duplicate check (demo tickets)
 
 
 TicketStatus = Literal["queued", "running", "needs_approval", "done", "failed"]
@@ -51,6 +52,7 @@ class TicketSummary(BaseModel):
 
 class TicketDetail(TicketSummary):
     body: str
+    run_as_new: bool = False
     jev: JevEvent | None = None
     links: list[LinkEvent] = []
     pending_approval: ApprovalRequiredEvent | None = None
@@ -95,6 +97,7 @@ class SimulatorTicketIn(BaseModel):
     body: str | None = None
     tenant_id: str = "figma-merch"
     requester: str | None = "ops@figma-merch.example"
+    run_as_new: bool = False
 
 
 class Balance(BaseModel):

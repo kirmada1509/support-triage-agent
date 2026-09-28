@@ -108,11 +108,16 @@ A tech ticket only gets a real Layer 2 investigation with the sandbox shop runni
 analysts' images built (see [Sandbox](#sandbox)); `make scenario-N` reproduces demo ticket N in
 the shop and sends it. API docs are at http://localhost:8000/docs.
 
+A demo ticket usually repeats one already investigated, so the duplicate check links it and the
+analysts don't run. To see the whole pipeline again, send it **run as new**: the **Run as new**
+button on a ticket's page sends a copy, the simulator and the New ticket dialog have a checkbox,
+and `make send t=9 NEW=1` / `make scenario-9 NEW=1` do the same from the shell.
+
 ## Tests
 
 | Command | Needs | Covers |
 | --- | --- | --- |
-| `make test` | nothing | units, the whole graph in memory, scenario logic against a simulated shop, the handoff rules (294 tests) |
+| `make test` | nothing | units, the whole graph in memory, scenario logic against a simulated shop, the handoff rules (299 tests) |
 | `make test-db` | `make db` | migrations, queries, retrieval, NOTIFY, worker pause/resume, on a throwaway `triage_test` database |
 | `make test-sandbox` / `make test-shop` | the fork / the running shop | the planted bugs and every scenario live |
 | `make test-llm` | keys | one real typed call per provider profile |

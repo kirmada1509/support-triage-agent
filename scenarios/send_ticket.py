@@ -2,6 +2,7 @@
 
 uv run python scenarios/send_ticket.py 4
 uv run python scenarios/send_ticket.py --subject "..." --body "..."
+uv run python scenarios/send_ticket.py 4 --run-as-new   (skip the duplicate check)
 """
 
 import argparse
@@ -27,8 +28,9 @@ def template(ticket_id: str) -> dict:
     return t
 
 
-def send(subject: str, body: str, tenant: str = "figma-merch") -> str:
-    """Sign and post one ticket to the webhook; returns its ID."""
+def send(subject: str, body: str, tenant: str = "figma-merch", run_as_new: bool = False) -> str:
+    """Sign and post one ticket to the webhook; returns its ID. run_as_new skips the duplicate
+    check, so a repeat of an earlier demo ticket still gets the whole investigation."""
     payload = {
         "id": f"T-{uuid.uuid4().hex[:6].upper()}",
         "tenant_id": tenant,
@@ -36,6 +38,8 @@ def send(subject: str, body: str, tenant: str = "figma-merch") -> str:
         "body": body,
         "requester": "ops@figma-merch.example",
     }
+    if run_as_new:
+        payload["run_as_new"] = True
     raw = json.dumps(payload).encode()
     sig = hmac.new(settings.pylon_webhook_secret.encode(), raw, hashlib.sha256).hexdigest()
     r = httpx.post(
@@ -54,6 +58,7 @@ def main() -> None:
     p.add_argument("--subject")
     p.add_argument("--body")
     p.add_argument("--tenant", default="figma-merch")
+    p.add_argument("--run-as-new", action="store_true", help="skip the duplicate check")
     a = p.parse_args()
 
     if a.ticket:
@@ -64,7 +69,7 @@ def main() -> None:
     else:
         sys.exit("give a template id, or --subject and --body")
 
-    send(subject, body, a.tenant)
+    send(subject, body, a.tenant, run_as_new=a.run_as_new)
 
 
 if __name__ == "__main__":

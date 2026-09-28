@@ -4,11 +4,11 @@ What's built and what isn't, phase by phase, against `Agent_Architecture_And_Bui
 Tick an item when it works and is tested the way the plan's "How it's tested" says; tick a
 phase's "Done when" only when that whole criterion has been seen working.
 
-Last updated Sep 28, 2026, left-to-right pipeline layout and DeepSeek balance in the console; two-way analyst handoff verified live on DeepSeek (4/4), local Ollama profiles available; populated scorecard awaits Phase 9 data. Suite inventory (provider calls depend on credit):
+Last updated Sep 28, 2026, run as new; left-to-right pipeline layout and DeepSeek balance in the console; two-way analyst handoff verified live on DeepSeek (4/4), local Ollama profiles available; populated scorecard awaits Phase 9 data. Suite inventory (provider calls depend on credit):
 
 | Suite | Command | Needs | Tests |
 | --- | --- | --- | --- |
-| Units, graph in memory, front pipeline, scenario logic, sandbox kit, tracing, model config, retrieval, indexer, codebox helpers, trace condensing, Layer 2 rules, handoff and nodes, Linear/Pylon/DeepSeek-balance adapters, final outcome, console presentation adapter and fixture | `make test` | nothing | 294 |
+| Units, graph in memory, front pipeline, scenario logic, sandbox kit, tracing, model config, retrieval, indexer, codebox helpers, trace condensing, Layer 2 rules, handoff and nodes, Linear/Pylon/DeepSeek-balance adapters, final outcome, console presentation adapter and fixture, run as new | `make test` | nothing | 299 |
 | Database | `make test-db` | `make db` | 16 |
 | The fork: tags, planted bugs, overlay, images, the code index at both tags | `make test-sandbox` | `make sandbox` | 28 |
 | The running shop: every scenario, read-only role, metrics, logs | `make test-shop` | `make shop-up` | 15 |
@@ -297,6 +297,12 @@ Last updated Sep 28, 2026, left-to-right pipeline layout and DeepSeek balance in
   data and SSE through Caddy; `make scenario-9` was linked to the copied T-EEFB42 as a duplicate;
   `make scenario-8` ran both analysts with handoffs both ways to a confirmed bug at the planted
   commit (93%, $0.068). Railway's free plan refused a project, so nothing runs there.
+- [x] Run as new: a ticket flag (kept in the stored webhook payload, no migration) that skips the
+  duplicate check, so repeat demo tickets still get Layer 2. The ticket page's Run as new button
+  (`POST /tickets/{id}/run-as-new`), a simulator / New ticket checkbox, and `NEW=1` for
+  `make send` / `make scenario-N`. Six provider-free tests; locally, Run as new on T-EEFB42 ran
+  the whole pipeline to the planted catalog commit (90%, $0.019). Fixed `test_db`'s stale
+  skipped-stage set (the follow-ups skip when nobody asks) and ESLint scanning `web/.vercel`.
 - [x] **Done when:** a live ticket lights up the flowchart stage by stage, tool calls show their
   commands and typed output when safely recognized, a reply can be approved, and a past run
   replays. The captured payment run renders real series, table, log, and code events through the

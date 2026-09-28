@@ -17,6 +17,7 @@ class Ticket(BaseModel):
     received_at: datetime | None = None
     pylon_issue_id: str | None = None  # absent for simulator tickets
     pylon_message_id: str | None = None  # optional top-level customer-visible message ID
+    run_as_new: bool = False  # skip the duplicate check: investigate even a repeat of open work
 
 
 # --- context (code, no LLM) -------------------------------------------------------------------
